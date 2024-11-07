@@ -1,14 +1,11 @@
 import Link from "next/link";
-export default function LoginForm({ toggleForm, isVisible }) {
+export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
     return (
         <>
-            {/* Overlay */}
-            {isVisible && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={toggleForm} />
-            )}
+            
 
             <section
-                className={`bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center overflow-y-auto z-50 fixed transition-transform duration-300 ${isVisible ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center overflow-y-auto z-50  transition-transform duration-300 ${isVisibleLogInForm ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 <div className="flex flex-col items-center h-screen justify-center px-6 py-8 mx-auto w-full sm:max-w-md lg:py-0">
                     <div className="w-full bg-white h-screen rounded-lg dark:border dark:bg-gray-800 dark:border-gray-700 overflow-y-auto">
@@ -20,7 +17,7 @@ export default function LoginForm({ toggleForm, isVisible }) {
 
                                 <button
                                     className="text-sm flex items-center leading-tight tracking-tight text-gray-900 md:text-sm dark:text-white cursor-pointer hover:text-gray-600 group"
-                                    onClick={toggleForm}
+                                    onClick={toggleLogInForm}
                                 >
                                     <span className="mr-1">
                                         <svg className="h-3 w-3 group-hover:fill-gray-600" viewBox="0 0 24 24">
@@ -82,14 +79,18 @@ export default function LoginForm({ toggleForm, isVisible }) {
                                 </div>
                                 <button
                                     type="submit"
-                                    className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                    className="bg-black  text-white w-full  hover:bg-primary-700 focus:ring-none focus:outline-none focus:ring-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                 >
                                     Sign in
                                 </button>
+
+                                <div className="buttons_ADD_TO_CART ">
+                                    <button className="text-center w-full py-3 text-sm font-medium">ADD TO CART</button>
+                                </div>
                                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                     Don't have an account yet?{' '}
                                     <Link href="/my-account" >
-                                    <button className="font-medium text-primary-600 hover:underline dark:text-primary-500" onClick={toggleForm}>Sign up</button>
+                                    <button className="font-medium text-primary-600 hover:underline dark:text-primary-500" onClick={toggleLogInForm}>Sign up</button>
                                         
                                     </Link>
                                 </p>

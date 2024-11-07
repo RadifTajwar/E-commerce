@@ -1,20 +1,17 @@
-'use client';
+"use client";
+
 import { Button } from "@/components/ui/button";
-
-
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
+import { useRouter } from "next/navigation";
 import * as React from 'react';
 
-function valuetext(value) {
-  return `${value}°C`;
-}
-
-const minDistance = 10;
+const minDistance = 100;
 
 export default function RangeBar() {
-  const [value1, setValue1] = React.useState([20, 37]);
+  const [value1, setValue1] = React.useState([390, 18000]);
+  const router = useRouter();
 
   const handleChange1 = (event, newValue, activeThumb) => {
     if (!Array.isArray(newValue)) {
@@ -28,27 +25,38 @@ export default function RangeBar() {
     }
   };
 
+  const handleFilterClick = () => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("min_price", value1[0]);
+    params.set("max_price", value1[1]);
+
+    router.push(`${window.location.pathname}?${params.toString()}`);
+  };
+
   return (
     <Box sx={{ width: 'full' }}>
       <p className='text-md text-black font-medium'>FILTER BY PRICE</p>
       <Slider
         getAriaLabel={() => 'Minimum distance'}
         value={value1}
+        min={0}
+        max={18000}
+        step={60}
         onChange={handleChange1}
         valueLabelDisplay="auto"
-        getAriaValueText={valuetext}
         disableSwap
         className='mt-5'
       />
-
-      {/* Price Section displaying lower and higher values */}
       <Typography variant="body1" sx={{ mt: 2 }}>
-        <p className='text-sm font-light text-gray-600'>Price: <span className='text-md font-medium text-black'>${value1[0]} - ${value1[1]} </span></p>
+        <p className='text-sm font-light text-gray-600'>
+          Price: <span className='text-md font-medium text-black'>৳ {value1[0]} - ৳ {value1[1]}</span>
+        </p>
       </Typography>
       <div className="button w-full my-3">
-        <Button variant="secondary" className="w-full rounded-none">Secondary</Button>
+        <Button onClick={handleFilterClick} variant="secondary" className="w-full rounded-none text-xs text-normal">
+          FILTER
+        </Button>
       </div>
-
     </Box>
   );
 }

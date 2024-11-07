@@ -17,8 +17,8 @@ export default function topRatedProducts() {
                         <p className='text-sm'> <Rating name="read-only " value={value} size="small" readOnly />
                         </p>
                         <p>
-                            <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-sm'>$1350.00</span>
-                            <span className="text-md text-gray-900 font-semibold" style={{ marginLeft: '8px' }}>$3500.00</span>
+                            <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-xs'>$1350.00</span>
+                            <span className="text-sm text-gray-900 font-medium" style={{ marginLeft: '8px' }}>$3500.00</span>
                         </p>
                     </div>
                 </div>
@@ -33,8 +33,8 @@ export default function topRatedProducts() {
                         <p className='text-sm'> <Rating name="read-only " value={value} size="small" readOnly />
                         </p>
                         <p>
-                            <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-sm'>$1350.00</span>
-                            <span className="text-md text-gray-900 font-semibold" style={{ marginLeft: '8px' }}>$3500.00</span>
+                            <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-xs'>$1350.00</span>
+                            <span className="text-sm text-gray-900 font-medium" style={{ marginLeft: '8px' }}>$3500.00</span>
                         </p>
                     </div>
                 </div>
@@ -49,8 +49,8 @@ export default function topRatedProducts() {
                         <p className='text-sm'> <Rating name="read-only " value={value} size="small" readOnly />
                         </p>
                         <p>
-                            <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-sm'>$1350.00</span>
-                            <span className="text-md text-gray-900 font-semibold" style={{ marginLeft: '8px' }}>$3500.00</span>
+                            <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-xs'>$1350.00</span>
+                            <span className="text-sm text-gray-900 font-medium" style={{ marginLeft: '8px' }}>$3500.00</span>
                         </p>
                     </div>
                 </div>

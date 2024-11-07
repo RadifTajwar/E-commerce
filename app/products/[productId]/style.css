@@ -1,0 +1,32 @@
+#image_magnify{
+  width: 500px;
+  height: 500px;
+}
+
+  
+  /* Custom Scrollbar Styles */
+.rangeBar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.rangeBar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light background for the track */
+}
+
+.rangeBar::-webkit-scrollbar-thumb {
+  background-color: #888; /* Scrollbar thumb color */
+  border-radius: 4px; /* Rounded edges for the scrollbar */
+  border: 2px solid transparent; /* Adds some space between the scrollbar and track */
+}
+
+.rangeBar::-webkit-scrollbar-thumb:hover {
+  background-color: red !important; /* Darker on hover */
+}
+.rangeBar::-webkit-scrollbar-thumb:hover {
+  background-color: #888; /* Ensures no change on hover */
+}
+
+.rangeBar {
+  scrollbar-width: thin; /* Makes the scrollbar thin */
+  scrollbar-color: #888 none; /* thumb color and track color */
+}

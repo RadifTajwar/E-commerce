@@ -12,19 +12,9 @@ export default function cart() {
   return (
     <>
 
-      <div className=" text flex justify-center   border-b border-[#ece1d3] max-w-xl xl:max-w-7xl container mx-auto mt-10">
-        <div className="text text-center">
-          <h1 className="text-4xl font-bold ">
-            <span style={{ color: '#E8A811' }}>TRENDING</span> PRODUCTS
-          </h1>
-          <p className=" text-md  decoration-gray-800 hover:opacity-60 transition-opacity duration-300 cursor-pointer my-3">
-            BAGS
-          </p>
-        </div>
-
-      </div>
+      
       <div className="flex justify-center max-w-7xl mx-auto md:px-20">
-        <div className="flex container flex-col items-center justify-center   md:py-10 p-0">
+        <div className="flex container flex-col items-center justify-center   md:pb-10 p-0">
 
 
           <Carousel className=" h-auto my-5 flex justify-center sm:w-1/2 md:w-11/12 xl:w-full w-1/2 ">
@@ -32,14 +22,15 @@ export default function cart() {
               {Array.from({ length: 5 }).map((_, index) => (
                 <CarouselItem
                   key={index}
-                  className="  pl-9 md:pl-2 sm:basis-full          md:basis-1/3     xl:basis-1/4
-        "
-                >
-                  <div className="text-center">
+                  className="  pl-0 md:pl-2 sm:basis-full          md:basis-1/3     xl:basis-1/4  ">
+                    
+                  <div className="text-center flex justify-center">
+
+                  <div className="total_card_&_text w-full max-w-[250px] md:max-w-[230px] lg:max-w-[250px] xl:max-w-[280px] h-auto">
                     <Card className="max-w-[250px] md:max-w-[230px] lg:max-w-[250px] xl:max-w-[280px] h-auto rounded-none object-contain">
                       <CardContent className="flex items-center justify-center p-0">
                         <div className="image_3 cursor-pointer">
-                          <div className="inner_imag h-auto w-full relative group overflow-hidden">
+                          <div className="inner_imag h-auto w-full relative group overflow-hidden flex">
                             {/* Default Image */}
                             <Image
                               src="/Annabelle-Business-Bag-Brown-1.jpg"
@@ -140,6 +131,7 @@ export default function cart() {
                           <span style={{ color: '#E8A811', marginLeft: '8px' }}>$3500</span>
                         </p>
                       </div>
+                    </div>
                     </div>
                   </div>
                 </CarouselItem>

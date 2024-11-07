@@ -1,0 +1,15 @@
+
+    table {
+        width: 100%;
+        display: block;
+        overflow-x: auto;
+    }
+
+    thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    th, td {
+        width: 100%;
+        box-sizing: border-box;
+    }
