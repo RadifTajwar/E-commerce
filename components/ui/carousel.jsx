@@ -2,7 +2,12 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+} from "lucide-react";
 import * as React from "react";
 
 const CarouselContext = React.createContext(null);
@@ -174,9 +179,9 @@ const CarouselPrevious = React.forwardRef(
           orientation === "horizontal"
             ? "-left-12 top-1/2 -translate-y-1/2"
             : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
+          !canScrollPrev ? "opacity-50 cursor-default pointer-events-none" : "",
           className
         )}
-        disabled={!canScrollPrev}
         onClick={scrollPrev}
         {...props}
       >
@@ -206,9 +211,9 @@ const CarouselNext = React.forwardRef(
           orientation === "horizontal"
             ? "-right-12 top-1/2 -translate-y-1/2"
             : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
+          !canScrollNext ? "opacity-50 cursor-default pointer-events-none" : "",
           className
         )}
-        disabled={!canScrollNext}
         onClick={scrollNext}
         {...props}
       >

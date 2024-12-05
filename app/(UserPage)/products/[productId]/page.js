@@ -6,18 +6,48 @@ import {
     CarouselContent,
     CarouselItem,
     CarouselNext,
-    CarouselPrevious,
+    CarouselPrevious
 } from "@/components/ui/carousel";
 import Cart from "@/components/ui/components/cart";
 import AccordionSection from "@/components/ui/components/productCart/accordionSection";
 import '@/components/ui/components/shop/scrollbar.css';
+import { cn } from "@/lib/utils";
 import DoneIcon from '@mui/icons-material/Done';
 import Image from "next/image";
+import { useCallback, useEffect, useState } from 'react';
+import Mishat from "./mishat";
 import './style.css';
 export default function productId({ params }) {
+    const isSamllScreen = window.innerWidth >= 576;
+    const isLargeScreen = window.innerWidth >= 1024;
+    const images = [
+        "/11.jpg",
+        "/12.jpg",
+        "/13.jpg",
+        "/14.jpg",
+        "/15.jpg"
+    ];
 
-    const wallet = '/wallet-tasa-lg.jpg'
-    const watch = '/wristwatch_1200.jpg'
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [mainApi, setMainApi] = useState(null)
+    const [thumbnailApi, setThumbnailApi] = useState(null)
+
+    const syncCarousels = useCallback((api, targetIndex) => {
+        if (api && typeof api.scrollTo === 'function') {
+            api.scrollTo(targetIndex)
+            console.log("inside", targetIndex);
+        }
+        console.log("outside", targetIndex);
+    }, [])
+
+    useEffect(() => {
+        if (mainApi) syncCarousels(mainApi, currentIndex)
+        if (thumbnailApi) syncCarousels(thumbnailApi, currentIndex)
+    }, [currentIndex, mainApi, thumbnailApi, syncCarousels])
+
+    const handleThumbnailClick = (index) => {
+        setCurrentIndex(index)
+    }
     return (
         <>
 
@@ -26,49 +56,64 @@ export default function productId({ params }) {
                 <div className="upper_part max-w-7xl mx-auto px-4">
                     <div className="flex w-full space-x-4">
 
-                        <div className="one&two w-full md:w-1/2 lg:w-4/6  lg:flex lg:me-5">
+                        <div className="one&two w-full md:w-1/2 lg:w-4/6 lg:flex lg:me-5">
                             <div className="one w-1/4 pe-5 hidden lg:block">
                                 <Carousel
                                     opts={{
                                         align: "start",
                                     }}
                                     orientation="vertical"
-                                    className="carousel w-full max-w-full "
+                                    className="carousel w-full max-w-full"
+                                    setApi={isLargeScreen && setThumbnailApi}
                                 >
-                                    <CarouselContent className="-mt-0 h-[569px] ">
-                                        {Array.from({ length: 10 }).map((_, index) => (
-                                            <CarouselItem key={index} className="pt-0 basis-1/3">
-                                                <div className="p-0">
+                                    <CarouselContent className="-mt-1 h-[600px]">
+                                        {images.map((image, index) => (
+                                            <CarouselItem key={index} className="pt-1 basis-1/3">
+                                                <div className="p-1">
                                                     <Card className="rounded-none border-none">
-                                                        <CardContent className=" flex items-center justify-center p-0 overflow-hidden">
-                                                            <Image src="/wallet-tasa-lg.jpg" height={174} width={184} objectFit="cover" className="min-h-[174px] min-w-[190px]" >
-                                                            </Image>
+                                                        <CardContent className="flex items-center justify-center p-0 overflow-hidden">
+                                                            <button
+                                                                onClick={() => handleThumbnailClick(index)}
+                                                                className={cn(
+                                                                    "min-h-[174px] min-w-[190px] border-2 transition-colors",
+                                                                    currentIndex === index ? "border-red-500" : "border-transparent"
+                                                                )}
+                                                            >
+                                                                <Image
+                                                                    src={image}
+                                                                    height={174}
+                                                                    width={184}
+                                                                    alt={`Thumbnail ${index + 1}`}
+                                                                    className="object-cover"
+                                                                />
+                                                            </button>
                                                         </CardContent>
                                                     </Card>
                                                 </div>
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <div className="flex justify-between items-center  mt-2">
-                                        <CarouselPrevious className="relative left-0 right-0 top-0 bottom-0 w-20 h-8 rounded-none transform-none hover:bg-gray-800 hover:text-white transition  hover:border-black" />
-                                        <CarouselNext className="relative left-0 right-0 top-0 bottom-0 w-20 h-8 rounded-none transform-none hover:bg-gray-800 hover:text-white transition  hover:border-black" />
-
+                                    <div className="flex justify-between items-center mt-2">
+                                        <CarouselPrevious className="relative left-0 right-0 top-0 bottom-0 w-20 h-8 rounded-none transform-none hover:bg-gray-800 hover:text-white transition hover:border-black" />
+                                        <CarouselNext className="relative left-0 right-0 top-0 bottom-0 w-20 h-8 rounded-none transform-none hover:bg-gray-800 hover:text-white transition hover:border-black" />
                                     </div>
-
                                 </Carousel>
-
                             </div>
-                            <div className="two w-full lg:w-3/4  mx-auto ">
-                                <div className="inner_image w-full ">
-                                    <Carousel className="w-full ">
+                            <div className="two w-full lg:w-3/4 mx-auto">
+                                <div className="inner_image w-full">
+                                    <Carousel
+                                        className="w-full"
+                                        setApi={setMainApi}
+                                        onSelect={setCurrentIndex}
+                                    >
                                         <CarouselContent>
-                                            {Array.from({ length: 5 }).map((_, index) => (
+                                            {images.map((image, index) => (
                                                 <CarouselItem key={index}>
                                                     <div className="p-0">
                                                         <Card className="rounded-none border-none">
-                                                            <CardContent className="flex  items-center justify-center p-0">
-                                                                <div className="inner w-full ">
-                                                                    <ImageEffect src={wallet} />
+                                                            <CardContent className="flex items-center justify-center p-0">
+                                                                <div className="inner w-full">
+                                                                    <ImageEffect src={image} />
                                                                 </div>
                                                             </CardContent>
                                                         </Card>
@@ -76,27 +121,40 @@ export default function productId({ params }) {
                                                 </CarouselItem>
                                             ))}
                                         </CarouselContent>
-                                        <CarouselPrevious className="left-0" />
-                                        <CarouselNext className="right-0" />
+                                        <CarouselPrevious className="left-0" onClick={() => handleThumbnailClick(currentIndex - 1)} />
+                                        <CarouselNext className="right-0" onClick={() => handleThumbnailClick(currentIndex + 1)} />
                                     </Carousel>
                                 </div>
-
                             </div>
                             <div className="one w-full  lg:hidden my-3 ">
 
-                                <Carousel className="w-full ">
-                                    <CarouselContent className="space-x-[2px] -ml-0">
-                                        {Array.from({ length: 5 }).map((_, index) => (
-                                            <CarouselItem key={index} className="pl-0  basis-1/3 sm:basis-1/4">
+                                <Carousel
+                                    className="w-full"
+                                    opts={{
+                                        slidesPerView: 3,
+                                        slidesToScroll: isSamllScreen ? 2 : 1,
+                                    }}
+                                    setApi={!isLargeScreen && setThumbnailApi}
+                                >
+                                    <CarouselContent className="-ml-1">
+                                        {images.map((image, index) => (
+                                            <CarouselItem key={index} className="pl-1 basis-1/3 sm:basis-1/4 ">
                                                 <div className="p-0">
-                                                    <Card className="border-none">
-                                                        <CardContent className="flex  items-center justify-center p-0 justify-between">
-                                                            <div className="w-full  h-full">
-                                                                <Image src="/wallet-tasa-lg.jpg" height={117} width={117} objectFit="contain" className="w-[177px] h-auto md:h-auto md:w-[115px]"  >
-                                                                </Image>
+                                                    <div className="border-none rounded-none">
+                                                        <div className="flex items-center justify-center p-0">
+                                                            <div className="w-full h-full">
+                                                                <button onClick={() => handleThumbnailClick(index)} className={cn("border-b", currentIndex === index ? "border-red-500" : "border-transparent")}  >
+                                                                    <Image
+                                                                        src={image}
+                                                                        height={117}
+                                                                        width={117}
+                                                                        objectFit="contain"
+                                                                        className="w-[177px] h-auto md:h-auto md:w-[115px]"
+                                                                    />
+                                                                </button>
                                                             </div>
-                                                        </CardContent>
-                                                    </Card>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </CarouselItem>
                                         ))}
@@ -396,11 +454,9 @@ export default function productId({ params }) {
 
             </div>
             <Cart />
-            
-            
 
 
-
+            <Mishat />
         </>
 
 
