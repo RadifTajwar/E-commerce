@@ -1,30 +1,85 @@
 'use client'
+import AddCategory from "@/components/ui/components/admin/categories/addCategory";
 import AllProducts from "@/components/ui/components/admin/categories/allCategories";
+import DeleteVisible from "@/components/ui/components/admin/categories/deleteVisible";
 import SearchForm from "@/components/ui/components/admin/categories/searchForm";
 import UpdateCategories from "@/components/ui/components/admin/categories/updateCateogories";
-import DeleteVisible from "@/components/ui/components/admin/customers/deleteVisible";
+import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { useRef, useState } from "react";
-
+import { useDispatch } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function page() {
 
+  const dispatch = useDispatch();
   const [isVisible, setIsVisible] = useState(false);
-
+  const [isVisibleAddProduct,setIsVisibleAddProduct]=useState(false);
   const [exportButtonForm, setExportButtonForm] = useState(false)
   const [importButtonForm, setImportButtonForm] = useState(false)
   const [fileName, setFileName] = useState(null);
   const inputRef = useRef(null);
   const [deleteVisible, setDeleteVisible] = useState(false)
 
-
-
-  const toggleVisibility = () => {
-    setIsVisible(!isVisible);
-    console.log('toggle  visibl');
+  const idRef = useRef(null);
+  const resetId = () => {
+    idRef.current = null; // Reset the ID
+    setIsVisible(false);  // Optionally hide the drawer
+    setDeleteVisible(false);
   };
 
-  const toggleDeleteVisible = () => {
+  const doneAddProduct =()=>{
+    toast.success("Product Added Successfully!", {
+      position: "top-right",
+      autoClose: 3000, // Auto-close after 3 seconds
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+    // Delay the dispatch by 2 seconds
+    setTimeout(() => {
+      dispatch(fetchAllCategories());
+    }, 2000); // 2000 milliseconds = 2 seconds
+    setIsVisibleAddProduct(false); // Optionally hide the drawer
+  }
+  
+  const doneUpdate = () => {
+    toast.success("Category Updated Successfully!", {
+      position: "top-right",
+      autoClose: 3000, // Auto-close after 3 seconds
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+    // Delay the dispatch by 2 seconds
+    setTimeout(() => {
+      dispatch(fetchAllCategories());
+    }, 2000); // 2000 milliseconds = 2 seconds
+  };
+
+  // This is your existing toggleVisibility function that triggers the drawer visibility
+  const toggleVisibility = (id) => {
+    setIsVisible(!isVisible); // Toggle the drawer visibility
+    if (id && typeof id !== "object") {
+      idRef.current = id; // Update idRef only if id is a valid value
+    }
+  };
+
+  const toggleAddProductVisible = (id) => {
+    
+    setIsVisibleAddProduct(!isVisibleAddProduct);
+  };
+
+  const toggleDeleteVisible = (id) => {
     setDeleteVisible(!deleteVisible);
-    console.log('toggle delete visibl');
+    if (id && typeof id !== "object") {
+      idRef.current = id; // Update idRef only if id is a valid value
+    }
   };
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -39,14 +94,25 @@ export default function page() {
       inputRef.current.value = ""; // Reset the file input
     }
   };
+
   return (
     <>
+
       <div className=" max-w-2xl md:max-w-3xl lg:max-w-7xl grid px-6 mx-auto overflow-x-auto">
+        <ToastContainer />
 
         {
           isVisible && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-30" onClick={
-              toggleVisibility
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-30 " onClick={
+              resetId
+            } />
+          )
+        }
+
+{
+          isVisibleAddProduct && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-30 " onClick={
+              toggleAddProductVisible
             } />
           )
         }
@@ -238,62 +304,11 @@ export default function page() {
                 </div>
               </div>
               <div className="lg:flex md:flex xl:justify-end xl:w-1/2 md:w-full md:justify-start flex-grow-0">
-                <div className="w-full md:w-40 lg:w-40 xl:w-40 mr-3 mb-3 lg:mb-0">
-                  <button
-                    className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm font-regular bg-gray-200 border border-transparent opacity-70 cursor-not-allowed w-full h-12 text-gray-600 sm:mb-3"
-                    disabled
-                    type="button"
-                  >
-                    <span className="mr-2">
-                      <svg
-                        stroke="currentColor"
-                        fill="none"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        height="1em"
-                        width="1em"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </span>
-                    Bulk Action
-                  </button>
-                </div>
-                <div className="w-full md:w-32 lg:w-32 xl:w-32 mr-3 mb-3 lg:mb-0">
-                  <button
-                    className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent opacity-100 cursor-not-allowed w-full h-12 bg-red-300 "
-                    disabled
-                    type="button"
-                  >
-                    <span className="mr-2">
-                      <svg
-                        stroke="currentColor"
-                        fill="none"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        height="1em"
-                        width="1em"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                      </svg>
-                    </span>
-                    Delete
-                  </button>
-                </div>
                 <div className="w-full md:w-48 lg:w-48 xl:w-48">
                   <button
                     className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12"
                     type="button"
+                    onClick={toggleAddProductVisible}
                   >
                     <span className="mr-2">
                       <svg
@@ -323,28 +338,30 @@ export default function page() {
           <SearchForm />
         </div>
 
-
         <AllProducts toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} />
 
       </div>
 
-
       <div
-        className={`drawer-content-wrapper w-full sm:w-10/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
+        className={`drawer-content-wrapper w-full sm:w-1/2 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <UpdateCategories toggleVisibility={toggleVisibility} />
+        <UpdateCategories toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate} />
+      </div>
+
+
+      <div
+        className={`drawer-content-wrapper w-full sm:w-1/2 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
+          }`}
+      >
+        <AddCategory toggleAddProductVisible={toggleAddProductVisible}  doneAddProduct={doneAddProduct} />
       </div>
 
       <div
         className={`fixed w-[576px] h-[306px] top-1/2 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-200 ease-in-out
-    ${deleteVisible ? '-translate-y-1/2 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
-      >
-        <DeleteVisible toggleDeleteVisible={toggleDeleteVisible} />
+    ${deleteVisible ? '-translate-y-1/2 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`} >
+        <DeleteVisible toggleDeleteVisible={toggleDeleteVisible} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate} />
       </div>
-
-
-
     </>
   )
 }

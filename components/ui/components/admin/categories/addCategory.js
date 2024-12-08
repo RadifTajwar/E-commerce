@@ -1,60 +1,27 @@
-import { fetchCategoryById } from "@/redux/category/categoryByIdSlice";
-import { updateCategoryData } from '@/redux/category/updateCategoryDataSlice';
+import { createCategory } from "@/redux/category/createCategorySlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-export default function updateProducts({ id, toggleVisibility, resetId,doneUpdate }) {
+export default function addCategory({  toggleAddProductVisible, doneAddProduct }) {
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const parentCategoryRef = useRef(null);
-    // Access the category data from the store
-    const { categoryData, isLoading: categoryLoading, error: categoryError } = useSelector(
-        (state) => state.categoryById
-    );
-    // Access the update category data from the store
-    const { 
-        isLoading: updateCategoryLoading, // Loading state for updating category
-        error: updateCategoryError // Error for updating category
-    } = useSelector((state) => state.updateCategoryData);
     // Access the parent categories from the store
     const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.allParentCategories
     );
-    // Fetch the category data by ID
-  
-    const isValidId = (id) => /^[a-fA-F0-9]{24}$/.test(id); // Checks for valid MongoDB ObjectId format
-    // console.log(categoryData);
+   
 
-    // Fetch the category by ID
-    useEffect(() => {
-        if (id && isValidId(id)) {
-            dispatch(fetchCategoryById(id));
-        }
-    }, [id, dispatch]);
 
     // Fetch all parent categories
     useEffect(() => {
         dispatch(fetchAllParentCategories());
+        dispatch(createCategory());
     }, [dispatch]);
 
     // Populate the form once both categoryData and parentCategories are available
-    useEffect(() => {
-        if (categoryData && parentCategories.length > 0) {
-            const matchingParentCategory = parentCategories.find(
-                (parentCategory) => parentCategory.id === categoryData.parentCategoryId
-            );
-
-            setFormData({
-                name: categoryData.name || '',
-                description: categoryData.description || '',
-                image: categoryData.image || null,
-                parentCategory: matchingParentCategory?.name || parentCategories[0]?.name || '', // Default to the first parent category if no match
-                parentCategoryId: matchingParentCategory?.id || parentCategories[0]?.id || '', // Default to the first parent category ID if no match
-            });
-        }
-    }, [categoryData, parentCategories]);
+    
 
     const [formData, setFormData] = useState({
         name: '',
@@ -307,9 +274,9 @@ export default function updateProducts({ id, toggleVisibility, resetId,doneUpdat
                                     >Cancel</button>
                                 </div>
                                 <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                                    <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={updateCategoryLoading}>
-
-                                        <span> {updateCategoryLoading ? 'Updating...' : 'Update Category'}</span>
+                                    <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" >
+                                        Update Category
+                                        {/* <span> {updateCategoryLoading ? 'Updating...' : 'Update Category'}</span> */}
                                     </button>
                                 </div>
                             </div>

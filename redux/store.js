@@ -1,6 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import cartReducer from "./cart/cartSlicer";
-
+import allCategoriesSlice from "./category/allCategoriesSlice";
+import categoryByIdSlice from "./category/categoryByIdSlice";
+import { createCategorySlice } from "./category/createCategorySlice";
+import { deleteCategoryByIdSlice } from "./category/deleteCategoryByIdSlice";
+import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
+import allParentCategorySlice from "./parentCategory/allParentCategorySlice";
+import createParentCategoryReducer from "./parentCategory/createParentCategorySlice";
 // Load cart state from local storage
 const loadCartState = () => {
     try {
@@ -26,6 +32,15 @@ const saveCartState = (state) => {
 const store = configureStore({
     reducer: {
         cart: cartReducer,
+        createParentCategory: createParentCategoryReducer,
+        allParentCategories : allParentCategorySlice,
+        // categories: categoryReducer,
+        categories: allCategoriesSlice,
+        categoryById: categoryByIdSlice,
+        createNewCategory:createCategorySlice,
+        updateCategoryData: updateCategoryDataSlice,
+        deleteCategoryById: deleteCategoryByIdSlice
+        
     },
     preloadedState: {
         cart: loadCartState(),

@@ -18,29 +18,8 @@ export default function searchForm() {
                             </button>
                         </div>
 
-                        {/* Category Select */}
-                        <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                            <select className="block w-full px-2 py-1 text-sm dark:text-gray-300 rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 border dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 h-12 bg-gray-100 border-transparent focus:bg-white">
-                                <option value="All" hidden>
-                                    Category
-                                </option>
-                                <option value="63f12afdcc480f0454f475dd">Baby Food</option>
-                                <option value="632aca9b4d87ff2494210c4f">Rui</option>
-                                {/* Add more categories as needed */}
-                            </select>
-                        </div>
-
-                        {/* Price Select */}
-                        <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                            <select className="block w-full px-2 py-1 text-sm dark:text-gray-300 rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 border dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 h-12 bg-gray-100 border-transparent focus:bg-white">
-                                <option value="All" hidden>
-                                    Price
-                                </option>
-                                <option value="low">Low to High</option>
-                                <option value="high">High to Low</option>
-                                {/* Add more price options as needed */}
-                            </select>
-                        </div>
+                      
+                       
                     </form>
                 </div>
             </div>
