@@ -13,7 +13,7 @@ export default function page() {
 
   const dispatch = useDispatch();
   const [isVisible, setIsVisible] = useState(false);
-  const [isVisibleAddProduct,setIsVisibleAddProduct]=useState(false);
+  const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
   const [exportButtonForm, setExportButtonForm] = useState(false)
   const [importButtonForm, setImportButtonForm] = useState(false)
   const [fileName, setFileName] = useState(null);
@@ -27,24 +27,65 @@ export default function page() {
     setDeleteVisible(false);
   };
 
-  const doneAddProduct =()=>{
-    toast.success("Product Added Successfully!", {
-      position: "top-right",
-      autoClose: 3000, // Auto-close after 3 seconds
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-    // Delay the dispatch by 2 seconds
+  const doneAddProduct = (result) => {
+
+    if (result == "success") {
+      toast.success("Product Added Successfully!", {
+        position: "top-right",
+        autoClose: 3000, // Auto-close after 3 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+       // Delay the dispatch by 2 seconds
     setTimeout(() => {
       dispatch(fetchAllCategories());
     }, 2000); // 2000 milliseconds = 2 seconds
     setIsVisibleAddProduct(false); // Optionally hide the drawer
+    }
+    else if(result=="duplicate"){
+      toast.error("Duplicate Product!", {
+        position: "top-right",
+        autoClose: 3000, // Auto-close after 3 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+    else if(result=="validationError"){
+      toast.error("No input field can be empty!", {
+        position: "top-right",
+        autoClose: 3000, // Auto-close after 3 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+    else{
+      toast.error("Internal Server Error!", {
+        position: "top-right",
+        autoClose: 3000, // Auto-close after 3 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+
+   
   }
-  
+
   const doneUpdate = () => {
     toast.success("Category Updated Successfully!", {
       position: "top-right",
@@ -71,7 +112,7 @@ export default function page() {
   };
 
   const toggleAddProductVisible = (id) => {
-    
+
     setIsVisibleAddProduct(!isVisibleAddProduct);
   };
 
@@ -109,7 +150,7 @@ export default function page() {
           )
         }
 
-{
+        {
           isVisibleAddProduct && (
             <div className="fixed inset-0 bg-black bg-opacity-50 z-30 " onClick={
               toggleAddProductVisible
@@ -346,15 +387,16 @@ export default function page() {
         className={`drawer-content-wrapper w-full sm:w-1/2 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <UpdateCategories toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate} />
+        <UpdateCategories toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId} 
+        doneUpdate={doneUpdate} />
       </div>
 
 
       <div
-        className={`drawer-content-wrapper w-full sm:w-1/2 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
+        className={`drawer-content-wrapper w-full sm:w-10/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <AddCategory toggleAddProductVisible={toggleAddProductVisible}  doneAddProduct={doneAddProduct} />
+        <AddCategory toggleAddProductVisible={toggleAddProductVisible} doneAddProduct={doneAddProduct} />
       </div>
 
       <div

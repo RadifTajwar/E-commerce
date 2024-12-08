@@ -4,7 +4,7 @@ import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCatego
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function updateProducts({ id, toggleVisibility, resetId,doneUpdate }) {
+export default function updateCategories({ id, toggleVisibility, resetId,doneUpdate }) {
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -76,7 +76,7 @@ export default function updateProducts({ id, toggleVisibility, resetId,doneUpdat
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
-        console.log(file);
+        console.log("id is ",id);
         setFormData((prevData) => ({
             ...prevData,
             image: URL.createObjectURL(file),
@@ -152,7 +152,7 @@ export default function updateProducts({ id, toggleVisibility, resetId,doneUpdat
     return (
         <>
            
-            <div className="drawer-content">
+            <div className="updateCategory drawer-content">
                 <button
                     className="absolute focus:outline-none z-10 text-red-500 hover:bg-red-100 hover:text-gray-700 transition-colors duration-150 bg-white shadow-md mr-6 mt-6 right-0 left-auto w-10 h-10 rounded-full block text-center"
                     onClick={() => { cancelButtonPressed ()  }}
@@ -197,7 +197,7 @@ export default function updateProducts({ id, toggleVisibility, resetId,doneUpdat
                                     </label>
                                     <div className="col-span-8 sm:col-span-4">
                                         <textarea
-                                            className="block w-full text-sm dark:text-gray-300 rounded-md focus:outline-none form-textarea focus:border-purple-400 border-gray-300 dark:border-gray-600 dark:focus:border-gray-600 dark:bg-gray-700 dark:focus:ring-gray-300 focus:ring focus:ring-purple-300 border text-sm focus:outline-none block w-full bg-gray-100 border-transparent focus:bg-white"
+                                            className="px-3 py-1  block w-full text-sm dark:text-gray-300 rounded-md focus:outline-none form-textarea focus:border-purple-400 border-gray-300 dark:border-gray-600 dark:focus:border-gray-600 dark:bg-gray-700 dark:focus:ring-gray-300 focus:ring focus:ring-purple-300 border text-sm focus:outline-none block w-full bg-gray-100 border-transparent focus:bg-white"
                                             name="description"
                                             placeholder="Product Description"
                                             rows="4"

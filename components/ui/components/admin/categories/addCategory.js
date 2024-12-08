@@ -2,7 +2,7 @@ import { createCategory } from "@/redux/category/createCategorySlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-export default function addCategory({  toggleAddProductVisible, doneAddProduct }) {
+export default function addCategory({ toggleAddProductVisible, doneAddProduct }) {
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -11,17 +11,17 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
     const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.allParentCategories
     );
-   
+    const { isLoading: createCategoryLoading, successMessage, error: createCategoryError } = useSelector((state) => state.createNewCategory);
 
 
     // Fetch all parent categories
     useEffect(() => {
         dispatch(fetchAllParentCategories());
-        dispatch(createCategory());
+
     }, [dispatch]);
 
     // Populate the form once both categoryData and parentCategories are available
-    
+
 
     const [formData, setFormData] = useState({
         name: '',
@@ -41,37 +41,57 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
         }));
     };
 
-    const handleImageUpload = (e) => {
+    const handleImageInput = (e) => {
         const file = e.target.files[0];
-        console.log(file);
-        setFormData((prevData) => ({
-            ...prevData,
-            image: URL.createObjectURL(file),
-        }));
+        console.log('Uploaded file:', file);
+        if (file) {
+
+            setFormData((prevData) => ({
+                ...prevData,
+                image: URL.createObjectURL(file),
+            }));
+            console.log('Updated formData:', { ...formData, image: URL.createObjectURL(file) });
+        } else {
+            console.error('No file selected.');
+        }
     };
 
-  
 
-    
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!id) {
-            console.error('No category ID provided');
-            return;
-        }
-        
-        try {
-          const updateResult = await  dispatch(updateCategoryData({ id, categoryData: formData })).unwrap();
-          console.log("Category updated successfully:", updateResult);
     
-       
-          resetId();
-          doneUpdate();
-        } catch (error) {
-      
-          console.error("Error updating category:", error);
+        // Validation: Check if all required fields are filled
+        if (!formData.name || !formData.description || !formData.parentCategoryId || !formData.image) {
+            console.error("All fields are required.");
+            doneAddProduct("validationError"); // Inform user about validation error
+            return; // Exit the function early
         }
-      };
+    
+        try {
+            const updateResult = await dispatch(createCategory(formData)).unwrap();
+            // Reset the form data
+            setFormData({
+                name: '',
+                description: '',
+                image: null,
+                parentCategory: '',
+                parentCategoryId: ''
+            });
+    
+            doneAddProduct("success");
+        } catch (error) {
+            console.error("Error creating category:", error);
+    
+            // Check if the error response exists
+            if (error.response?.status === 500) {
+                doneAddProduct("duplicate");
+            } else {
+                doneAddProduct("network");
+            }
+        }
+    };
 
     const cancelButtonPressed = () => {
         console.log("Cancel button pressed");
@@ -80,10 +100,10 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
             description: '',
             image: null,
             category: '',
-            parentCategoryId:''
+            parentCategoryId: ''
         });
-        resetId();
-        toggleVisibility();
+        
+        toggleAddProductVisible();
     };
 
 
@@ -114,15 +134,15 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
         setIsOpen(false); // Close dropdown after selecting a category
     };
 
-   
+
 
     return (
         <>
-           
-            <div className="drawer-content">
+
+            <div className="addCategory drawer-content">
                 <button
                     className="absolute focus:outline-none z-10 text-red-500 hover:bg-red-100 hover:text-gray-700 transition-colors duration-150 bg-white shadow-md mr-6 mt-6 right-0 left-auto w-10 h-10 rounded-full block text-center"
-                    onClick={() => { cancelButtonPressed ()  }}
+                    onClick={() => { cancelButtonPressed() }}
                 >
                     <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -134,8 +154,8 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
                     <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 min-h-0">
                         <div className="flex md:flex-row flex-col justify-between mr-20">
                             <div>
-                                <h4 className="text-xl font-medium dark:text-gray-300">Update Category</h4>
-                                <p className="mb-0 text-sm font-normal dark:text-gray-300">Update your Category necessary information from here</p>
+                                <h4 className="text-xl font-medium dark:text-gray-300">Create Category</h4>
+                                <p className="mb-0 text-sm font-normal dark:text-gray-300">Create your Category necessary information from here</p>
                             </div>
                         </div>
                     </div>
@@ -164,7 +184,7 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
                                     </label>
                                     <div className="col-span-8 sm:col-span-4">
                                         <textarea
-                                            className="block w-full text-sm dark:text-gray-300 rounded-md focus:outline-none form-textarea focus:border-purple-400 border-gray-300 dark:border-gray-600 dark:focus:border-gray-600 dark:bg-gray-700 dark:focus:ring-gray-300 focus:ring focus:ring-purple-300 border text-sm focus:outline-none block w-full bg-gray-100 border-transparent focus:bg-white"
+                                            className="px-3 py-1  block w-full text-sm dark:text-gray-300 rounded-md focus:outline-none form-textarea focus:border-purple-400 border-gray-300 dark:border-gray-600 dark:focus:border-gray-600 dark:bg-gray-700 dark:focus:ring-gray-300 focus:ring focus:ring-purple-300 border text-sm focus:outline-none block w-full bg-gray-100 border-transparent focus:bg-white"
                                             name="description"
                                             placeholder="Product Description"
                                             rows="4"
@@ -176,36 +196,77 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
                                 </div>
 
                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                    <label htmlFor="product-images" className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium">
+                                    <label
+                                        htmlFor="image-upload"
+                                        className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium"
+                                    >
                                         Category Image
                                     </label>
                                     <div className="col-span-8 sm:col-span-4">
                                         <div className="w-full text-center mb-4">
-                                            <label htmlFor="image-upload" className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4">
+                                            {/* Label to trigger file upload */}
+                                            <label
+                                                htmlFor="image-upload"
+                                                className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+                                            >
                                                 <input
-                                                    id="image-upload"
+                                                    id="image-update-upload"
                                                     type="file"
                                                     accept="image/*"
                                                     multiple
-                                                    onChange={handleImageUpload}
-                                                    style={{ display: 'none' }}
+                                                    onChange={handleImageInput} // Make sure the function is properly attached
+                                                    style={{ display: "none" }} // Input remains hidden but accessible
                                                 />
-                                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="text-3xl text-blue-500 mb-2" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                {/* Icon and text */}
+                                                <svg
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    className="text-3xl text-blue-500 mb-2"
+                                                    height="1em"
+                                                    width="1em"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
                                                     <polyline points="16 16 12 12 8 16"></polyline>
                                                     <line x1="12" y1="12" x2="12" y2="21"></line>
                                                     <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
                                                     <polyline points="16 16 12 12 8 16"></polyline>
                                                 </svg>
                                                 <p className="text-sm">Drag your images here</p>
-                                                <em className="text-xs text-gray-400">(Only *.jpeg, *.webp and *.png images will be accepted)</em>
+                                                <em className="text-xs text-gray-400">
+                                                    (Only *.jpeg, *.webp and *.png images will be accepted)
+                                                </em>
                                             </label>
                                         </div>
+
+                                        {/* Display preview image */}
                                         {formData.image && (
                                             <aside className="flex flex-row flex-wrap mt-4">
                                                 <div draggable className="relative inline-flex items-center">
-                                                    <img className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2" src={formData.image} alt="Category" />
-                                                    <button type="button" className="absolute top-0 right-0 text-red-500 focus:outline-none">
-                                                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                    <img
+                                                        className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
+                                                        src={formData.image}
+                                                        alt="Category"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-0 right-0 text-red-500 focus:outline-none"
+
+                                                    >
+                                                        <svg
+                                                            stroke="currentColor"
+                                                            fill="none"
+                                                            strokeWidth="2"
+                                                            viewBox="0 0 24 24"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            height="1em"
+                                                            width="1em"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
                                                             <circle cx="12" cy="12" r="10"></circle>
                                                             <line x1="15" y1="9" x2="9" y2="15"></line>
                                                             <line x1="9" y1="9" x2="15" y2="15"></line>
@@ -274,9 +335,9 @@ export default function addCategory({  toggleAddProductVisible, doneAddProduct }
                                     >Cancel</button>
                                 </div>
                                 <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                                    <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" >
-                                        Update Category
-                                        {/* <span> {updateCategoryLoading ? 'Updating...' : 'Update Category'}</span> */}
+                                    <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={createCategoryLoading}>
+
+                                        <span> {createCategoryLoading ? 'Creating...' : 'Create Category'}</span>
                                     </button>
                                 </div>
                             </div>

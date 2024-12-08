@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Define the API endpoint for creating a category
@@ -9,13 +9,27 @@ export const createCategory = createAsyncThunk(
   "createCategory/create",
   async (categoryData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(API_URL, categoryData);
+      const sanitizedData = {
+        ...categoryData,
+        image: categoryData.image || "", // Ensure `image` is a string
+      };
+
+      const response = await axios.post(API_URL, sanitizedData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
       return response.data.data; // Return the created category data
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to create category");
+      console.log("Here we go again",error.status);
+      return rejectWithValue(error.status || "Failed to create category");
     }
   }
 );
+
+
+
 
 // Create the slice
 const createCategorySlice = createSlice({

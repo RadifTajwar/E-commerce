@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import cartReducer from "./cart/cartSlicer";
 import allCategoriesSlice from "./category/allCategoriesSlice";
 import categoryByIdSlice from "./category/categoryByIdSlice";
-import { createCategorySlice } from "./category/createCategorySlice";
+import createCategorySlice from "./category/createCategorySlice";
 import { deleteCategoryByIdSlice } from "./category/deleteCategoryByIdSlice";
 import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
 import allParentCategorySlice from "./parentCategory/allParentCategorySlice";
