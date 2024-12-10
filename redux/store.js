@@ -7,6 +7,11 @@ import { deleteCategoryByIdSlice } from "./category/deleteCategoryByIdSlice";
 import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
 import allParentCategorySlice from "./parentCategory/allParentCategorySlice";
 import createParentCategoryReducer from "./parentCategory/createParentCategorySlice";
+import allProductReducer from "./product/allProductsSlice";
+import createProductReducer from "./product/createProductSlice";
+import deleteProductReducer from "./product/deleteProductByIdSlice";
+import productByIdReducer from "./product/productByIdSlice";
+import updateProductReducer from "./product/updateProductDataSlice";
 // Load cart state from local storage
 const loadCartState = () => {
     try {
@@ -33,14 +38,19 @@ const store = configureStore({
     reducer: {
         cart: cartReducer,
         createParentCategory: createParentCategoryReducer,
-        allParentCategories : allParentCategorySlice,
+        allParentCategories: allParentCategorySlice,
         // categories: categoryReducer,
         categories: allCategoriesSlice,
         categoryById: categoryByIdSlice,
-        createNewCategory:createCategorySlice,
+        createNewCategory: createCategorySlice,
         updateCategoryData: updateCategoryDataSlice,
-        deleteCategoryById: deleteCategoryByIdSlice
-        
+        deleteCategoryById: deleteCategoryByIdSlice,
+        // products: productReducer,
+        allProducts: allProductReducer,
+        createNewProduct: createProductReducer,
+        deleteProduct: deleteProductReducer,
+        productById: productByIdReducer,
+        updateProductData: updateProductReducer,
     },
     preloadedState: {
         cart: loadCartState(),

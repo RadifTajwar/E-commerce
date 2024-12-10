@@ -1,9 +1,8 @@
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import { fetchProductById } from "@/redux/product/productByIdSlice";
-import { updateProductData } from "@/redux/product/updateProductDataSlice";
+import { createProduct } from "@/redux/product/createProductSlice";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-export default function updateProducts({ toggleAddProductVisible, doneUpdate, id, resetId }) {
+export default function addProduct({ toggleAddProductVisible, doneAddProduct }) {
 
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
@@ -13,87 +12,8 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
     const { categories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.categories
     );
-    // Access the update category data from the store
-    const {
-        isLoading: updateproductLoading, // Loading state for updating category
-        error: updateproductError // Error for updating category
-    } = useSelector((state) => state.updateProductData);
+    const { isLoading: createProductLoading, successMessage, error: createProductError } = useSelector((state) => state.createNewProduct);
 
-    const { productData, isLoading: productLoading, error: productError } = useSelector(
-        (state) => state.productById
-    );
-
-
-    // Fetch the category data by ID
-
-    const isValidId = (id) => /^[a-fA-F0-9]{24}$/.test(id); // Checks for valid MongoDB ObjectId format
-    // console.log(categoryData);
-
-    // Fetch the category by ID
-    useEffect(() => {
-        console.log("id ashche??", id);
-        if (id && isValidId(id)) {
-            dispatch(fetchProductById(id));
-            console.log("dhukse to");
-        }
-    }, [id, dispatch]);
-
-    useEffect(() => {
-        if (productData && categories.length > 0) {
-            const matchingCategory = categories.find(
-                (parentCategory) => parentCategory.id === productData.parentCategoryId
-            );
-
-            setFormData({
-                // Basic information
-                name: productData.name || '',
-                description: productData.description || '',
-                imageDefault: productData.imageDefault || null,
-                imageHover: productData.imageHover || null,
-
-                // Category-related information
-                category: matchingCategory?.name || categories[0]?.name || '', // Default to the first parent category if no match
-                categoryId: matchingCategory?.id || categories[0]?.id || '',  // Default to the first parent category ID if no match
-
-                // Pricing information
-                originalPrice: productData.originalPrice || 0,
-                discountedPrice: productData.discountedPrice || 0,
-
-                // Color field
-                color: productData.color || [
-                    {
-
-                    },
-                ],
-
-                // Product details
-                productDetails: {
-                    size: productData.productDetails?.size || '',
-                    warranty: productData.productDetails?.warranty || '',
-                    leatherType: productData.productDetails?.leatherType || '',
-                    leatherHide: productData.productDetails?.leatherHide || '',
-                    waterResistant: productData.productDetails?.waterResistant || false,
-                },
-
-                // Additional details if needed
-                additionalDetails: productData.additionalDetails || [],
-
-                // Stock and availability
-                inStock: productData.inStock || true,
-                onSale: productData.onSale || false,
-
-                // Rating (if applicable)
-                rating: {
-                    average: productData.rating?.average || 0,
-                    totalReviews: productData.rating?.totalReviews || 0,
-                },
-
-                // Any other fields
-                barcode: productData.barcode || '',
-                id: productData.id || '',
-            });
-        }
-    }, [productData, categories]);
 
     // Fetch all parent categories
     useEffect(() => {
@@ -135,10 +55,10 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         // Product Details
         productDetails: {
             additionalProductDetails: {
-
+               
             },
             size: [
-
+                
             ],
             warranty: "0", // Example: "2 years"
         },
@@ -220,30 +140,28 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
             ],
             additionalDetails: [
                 ...formData.additionalDetails,
-                { color: "", hex: "", quantity: 0 },
+                { color: "", hex: "", quantity: 0},
             ],
         });
     };
-    const handleImageUpload = (newImage, colorIndex) => {
-        setFormData((prevFormData) => {
-            const updatedColors = prevFormData.color.map((color, index) => {
-                if (index === colorIndex) {
-                    return {
-                        ...color, // Copy the color object
-                        images: [...(color.images || []), newImage], // Create a new images array
-                    };
-                }
-                return color; // Return the other colors unchanged
-            });
+    const handleImageUpload = (e, colorIndex) => {
+        const files = Array.from(e.target.files);
+        const fileURLs = files.map((file) => URL.createObjectURL(file));
 
-            return {
-                ...prevFormData, // Copy the rest of the form data
-                color: updatedColors, // Update the color field
-            };
+        // Add images to the respective color in additionalDetails
+        const updatedAdditionalDetails = [...formData.additionalDetails];
+        updatedAdditionalDetails[colorIndex].images = [
+            ...(updatedAdditionalDetails[colorIndex]?.images || []),
+            ...fileURLs,
+        ];
+
+        setFormData({
+            ...formData,
+            additionalDetails: updatedAdditionalDetails,
         });
     };
+
     const handleRemoveImage = (colorIndex, imageIndex) => {
-        console.log("dhuktese but ,", colorIndex, imageIndex);
         const updatedAdditionalDetails = [...formData.additionalDetails];
         updatedAdditionalDetails[colorIndex].images = updatedAdditionalDetails[colorIndex].images.filter(
             (_, idx) => idx !== imageIndex
@@ -271,17 +189,17 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         e.preventDefault();
 
         // Validation: Check if all required fields are filled
-        if (!formData.name || !formData.description || !formData.categoryId || !formData.imageDefault || !formData.originalPrice || !formData.discountedPrice || !formData.imageDefault || !formData.imageHover || !formData.productDetails.size || !formData.productDetails.warranty) {
+        if (!formData.name || !formData.description || !formData.categoryId || !formData.imageDefault  || !formData.originalPrice || !formData.discountedPrice || !formData.imageDefault || !formData.imageHover || !formData.productDetails.size || !formData.productDetails.warranty) {
             console.error("All fields are required.");
             doneAddProduct("validationError"); // Inform user about validation error
             return; // Exit the function early
         }
 
         try {
-            const updateResult = await dispatch(updateProductData(formData)).unwrap();
+            const updateResult = await dispatch(createProduct(formData)).unwrap();
             // Reset the form data
             cancelButtonPressed();
-            resetId();
+
             doneAddProduct("success");
         } catch (error) {
             console.error("Error creating category:", error);
@@ -295,50 +213,50 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         }
     };
 
-
+    
     const cancelButtonPressed = () => {
         console.log("Cancel button pressed");
         setFormData({
             // Basic Product Information
-            barcode: "",
-            name: "",
-            slug: "",
-            category: "", // Set default category ID if necessary
-            categoryId: "",
-            inStock: true, // Boolean for availability
-            onSale: false, // Boolean for sale status
+        barcode: "",
+        name: "",
+        slug: "",
+        category: "", // Set default category ID if necessary
+        categoryId: "",
+        inStock: true, // Boolean for availability
+        onSale: false, // Boolean for sale status
 
-            // Pricing
-            originalPrice: "0", // Default numeric value
-            discountedPrice: "0", // Default numeric value
+        // Pricing
+        originalPrice: "0", // Default numeric value
+        discountedPrice: "0", // Default numeric value
 
-            // Images
-            imageDefault: null, // URL or file
-            imageHover: null, // URL or file
+        // Images
+        imageDefault: null, // URL or file
+        imageHover: null, // URL or file
 
-            // Colors
-            color: [
+        // Colors
+        color: [
 
-            ],
+        ],
 
-            // Additional Details
-            additionalDetails: [
+        // Additional Details
+        additionalDetails: [
 
-            ],
+        ],
 
-            // Product Details
-            productDetails: {
-                additionalProductDetails: {
-
-                },
-                size: [
-
-                ],
-                warranty: "0", // Example: "2 years"
+        // Product Details
+        productDetails: {
+            additionalProductDetails: {
+               
             },
+            size: [
+                
+            ],
+            warranty: "0", // Example: "2 years"
+        },
 
         });
-        resetId();
+
         toggleAddProductVisible();
     };
 
@@ -370,9 +288,7 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         setIsOpen(false); // Close dropdown after selecting a category
     };
 
-    useEffect(() => {
-        console.log("Updated products:", productData); // Logs updated products
-    }, [productData]);
+
 
     return (
         <>
@@ -506,24 +422,24 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                                         >
                                                             <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                                         </button>
-
+                                                      
                                                     </div>
 
                                                     {/* Image Upload Section for Color */}
                                                     <div className="mt-4">
                                                         <label
-
+                                                           
                                                             className="block text-sm text-gray-700 dark:text-gray-400 font-medium mb-1"
                                                         >
                                                             Upload Images for {color.colorName}
                                                         </label>
                                                         <div className="w-full text-center mb-4">
                                                             <label
-                                                                htmlFor={`color-image-update-${index}`}
+                                                                htmlFor={`color-image-upload-${index}`}
                                                                 className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
                                                             >
                                                                 <input
-                                                                    id={`color-image-update-${index}`}
+                                                                    id={`color-image-upload-${index}`}
                                                                     type="file"
                                                                     accept="image/*"
                                                                     multiple
@@ -622,11 +538,11 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                             <div className="w-full text-center mb-4">
                                                 {/* Label to trigger file upload */}
                                                 <label
-                                                    htmlFor="image-default-update"
+                                                    htmlFor="image-default-upload"
                                                     className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
                                                 >
                                                     <input
-                                                        id="image-default-update"
+                                                        id="image-default-upload"
                                                         type="file"
                                                         accept="image/*"
                                                         multiple
@@ -696,7 +612,7 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                     {/* product hover Images  */}
                                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                                         <label
-
+                                            htmlFor="image-upload"
                                             className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium"
                                         >
                                             Product Hover Image
@@ -705,11 +621,11 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                             <div className="w-full text-center mb-4">
                                                 {/* Label to trigger file upload */}
                                                 <label
-                                                    htmlFor="image-hover-update"
+                                                    htmlFor="image-hover-upload"
                                                     className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
                                                 >
                                                     <input
-                                                        id="image-hover-update"
+                                                        id="image-hover-upload"
                                                         type="file"
                                                         accept="image/*"
                                                         multiple
@@ -876,9 +792,9 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                         >Cancel</button>
                                     </div>
                                     <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={updateproductLoading}>
+                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={createProductLoading}>
 
-                                            <span> {updateproductLoading ? 'Creating...' : 'Create Category'}</span>
+                                            <span> {createProductLoading ? 'Creating...' : 'Create Category'}</span>
                                         </button>
                                     </div>
                                 </div>

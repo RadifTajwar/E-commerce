@@ -206,7 +206,7 @@ export default function addCategory({ toggleAddProductVisible, doneAddProduct })
                                         <div className="w-full text-center mb-4">
                                             {/* Label to trigger file upload */}
                                             <label
-                                                htmlFor="image-upload"
+                                                htmlFor="image-update-upload"
                                                 className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
                                             >
                                                 <input
