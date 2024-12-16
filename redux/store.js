@@ -16,24 +16,32 @@ import deleteProductReducer from "./product/deleteProductByIdSlice";
 import productByIdReducer from "./product/productByIdSlice";
 import updateProductReducer from "./product/updateProductDataSlice";
 
-// Load cart state from local storage
+// Check if in browser
+const isBrowser = typeof window !== "undefined";
+
+// Load cart state from localStorage if in the browser
 const loadCartState = () => {
-    try {
-        const serializedState = localStorage.getItem("cart");
-        return serializedState ? JSON.parse(serializedState) : undefined;
-    } catch (error) {
-        console.error("Could not load cart state", error);
-        return undefined;
+    if (isBrowser) {
+        try {
+            const serializedState = localStorage.getItem("cart");
+            return serializedState ? JSON.parse(serializedState) : undefined;
+        } catch (error) {
+            console.error("Could not load cart state", error);
+            return undefined;
+        }
     }
+    return undefined; // Return undefined if not in the browser
 };
 
-// Save cart state to local storage
+// Save cart state to localStorage if in the browser
 const saveCartState = (state) => {
-    try {
-        const serializedState = JSON.stringify(state);
-        localStorage.setItem("cart", serializedState);
-    } catch (error) {
-        console.error("Could not save cart state", error);
+    if (isBrowser) {
+        try {
+            const serializedState = JSON.stringify(state);
+            localStorage.setItem("cart", serializedState);
+        } catch (error) {
+            console.error("Could not save cart state", error);
+        }
     }
 };
 
@@ -43,22 +51,14 @@ const store = configureStore({
         cart: cartReducer,
         createParentCategory: createParentCategoryReducer,
         allParentCategories: allParentCategorySlice,
-        parentCategoryById : parentCategoryByIdSlice,
+        parentCategoryById: parentCategoryByIdSlice,
         deleteParentCategoryById: deleteParentCategoryByIdSlice,
         updateParentcategoryData: updateParentCategoryDataSlice,
-        // categories: categoryReducer,
         categories: allCategoriesSlice,
         categoryById: categoryByIdSlice,
         createNewCategory: createCategorySlice,
         updateCategoryData: updateCategoryDataSlice,
         deleteCategoryById: deleteCategoryByIdSlice,
-        // products: productReducer,
-        allProducts: allProductReducer,
-        createNewProduct: createProductReducer,
-        deleteProduct: deleteProductReducer,
-        productById: productByIdReducer,
-        updateProductData: updateProductReducer,
-        // parentCategories reducers here
         allProducts: allProductReducer,
         createNewProduct: createProductReducer,
         deleteProduct: deleteProductReducer,
@@ -66,11 +66,11 @@ const store = configureStore({
         updateProductData: updateProductReducer,
     },
     preloadedState: {
-        cart: loadCartState(),
+        cart: loadCartState(), // Load cart state only if in browser
     },
 });
 
-// Subscribe to store updates to save the cart state in local storage
+// Subscribe to store updates to save the cart state in localStorage
 store.subscribe(() => {
     saveCartState(store.getState().cart);
 });

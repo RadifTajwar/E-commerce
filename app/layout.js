@@ -5,11 +5,10 @@ import MyCartButton from '@/components/ui/components/navBar/myCartButton';
 import NavMenu from '@/components/ui/components/navBar/navMenu';
 import ShoppingCart from '@/components/ui/components/productCart/shoppingCart';
 import store from "@/redux/store";
-import 'flowbite';
 import { Inter } from "next/font/google";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Provider } from "react-redux";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
@@ -22,12 +21,7 @@ export default function Rootlayout({ children }) {
   const isMyAccountPage = pathname === '/my-account';
   const [isVisibleLogInForm, setIsVisibleLogInForm] = useState(false);
   const [isVisibleShoppingCart, setIsVisibleShoppingCart] = useState(false);
-  useEffect(() => {
-    // Ensure Flowbite functionality is initialized when layout mounts
-    import('flowbite').then((Flowbite) => {
-      // Your custom Flowbite initialization if needed
-    });
-  }, []);
+
 
   const handleShoppingCartClicked = () => {
     toggleShoppingCart();
