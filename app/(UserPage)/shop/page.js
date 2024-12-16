@@ -90,7 +90,7 @@ export default function Page() {
   };
 
     return (
-        <>
+      
  <Suspense fallback={<div>Loading...</div>}>
             {/* Overlay */}
             {isSortBarVisible && (
@@ -342,6 +342,6 @@ export default function Page() {
 
             </Suspense>
 
-        </>
+      
     )
 }

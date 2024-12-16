@@ -1,5 +1,6 @@
+'use client';
 import { useRouter, useSearchParams } from "next/navigation";
-
+import { Suspense } from "react";
 export default function StockStatus() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -31,6 +32,7 @@ export default function StockStatus() {
     };
 
     return (
+        <Suspense fallback={<div>Loading...</div>}>
         <div className="stockStatus w-full">
             <p className="text-md text-black font-medium my-2">STOCK STATUS</p>
             <div className="flex flex-col space-y-4 mt-5">
@@ -57,5 +59,6 @@ export default function StockStatus() {
                 </label>
             </div>
         </div>
+        </Suspense>
     );
 }

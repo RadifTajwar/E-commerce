@@ -1,7 +1,7 @@
+'use client';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-
+import { Suspense, useState } from 'react';
 export default function SortingSection() {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
@@ -21,6 +21,9 @@ export default function SortingSection() {
     };
 
     return (
+
+        <Suspense fallback={<div>Loading...</div>}>
+
         <div className="relative md:min-w-[220px]">
             <button
                 id="dropdownDividerButton"
@@ -94,5 +97,6 @@ export default function SortingSection() {
                 </div>
             )}
         </div>
+        </Suspense>
     );
 }

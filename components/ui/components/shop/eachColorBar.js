@@ -1,7 +1,8 @@
+'use client';
 import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
 import { useRouter, useSearchParams } from 'next/navigation';
-
+import { Suspense } from 'react';
 export default function eachColorBar({ colorName, count, hex }) {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -40,6 +41,7 @@ export default function eachColorBar({ colorName, count, hex }) {
 
     return (
         <>
+        <Suspense fallback={<div>Loading...</div>}>
             <div key={colorName} className="flex space-between w-full gap-x-4 items-center group cursor-pointer" onClick={handleFilterClick}>
                 <div className="w-5/6 ">
                     <div className="color_palette_&_text flex gap-x-3 items-center">
@@ -77,6 +79,7 @@ export default function eachColorBar({ colorName, count, hex }) {
                     </p>
                 </div>
             </div>
+            </Suspense>
         </>
     );
 }

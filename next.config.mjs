@@ -3,6 +3,9 @@ const nextConfig = {
     images: {
       domains: ['res.cloudinary.com'], // Allow images from Cloudinary
     },
+    experimental: {
+      missingSuspenseWithCSRBailout: false,
+    },
   };
   
   export default nextConfig;
