@@ -6,7 +6,7 @@ export const deleteProductById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/v1/product/delete/${id}`
+        `https://leather-for-luxury.vercel.app/api/v1/product/delete/${id}`
       );
       return response.data;
     } catch (error) {

@@ -76,17 +76,17 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible }) {
                                 {
                                     products.map((product) => (
                                         <>
-                                         <tr>
+                                         <tr key={product.id} id={product.id}>
                                     <td className="px-4 py-3">
                                         <input  id={product.id} name={product.name}  type="checkbox" />
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center">
-                                            <div className="relative rounded-full inline-block w-8 h-8 hidden p-1 mr-2 md:block bg-gray-50 shadow-none">
+                                            <div className="relative  inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
                                                 <img
                                                     className="object-cover w-full h-full rounded-full"
-                                                    src="https://i.ibb.co/yYsskBN/Cerelac-Wheat-apple-Cornflakes-400-Gm-BIB.jpg"
-                                                    alt="product"
+                                                    src={product.imageDefault}
+                                                    alt={product.name}
                                                     loading="lazy"
                                                 />
                                                 <div className="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>

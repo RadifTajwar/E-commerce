@@ -2,8 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Define the API endpoints
-const API_URL = "http://localhost:5000/api/v1/category";
-const API_CATEGORY_BY_ID_URL = "http://localhost:5000/api/v1/category/ById";
+const API_URL = "https://leather-for-luxury.vercel.app/api/v1/category";
+const API_CATEGORY_BY_ID_URL = "https://leather-for-luxury.vercel.app/api/v1/category/ById";
 
 // Create an async thunk for fetching all categories
 export const fetchAllCategories = createAsyncThunk(

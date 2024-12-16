@@ -3,15 +3,19 @@ import cartReducer from "./cart/cartSlicer";
 import allCategoriesSlice from "./category/allCategoriesSlice";
 import categoryByIdSlice from "./category/categoryByIdSlice";
 import createCategorySlice from "./category/createCategorySlice";
-import { deleteCategoryByIdSlice } from "./category/deleteCategoryByIdSlice";
+import deleteCategoryByIdSlice from "./category/deleteCategoryByIdSlice";
 import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
 import allParentCategorySlice from "./parentCategory/allParentCategorySlice";
 import createParentCategoryReducer from "./parentCategory/createParentCategorySlice";
+import deleteParentCategoryByIdSlice from "./parentCategory/deleteParentCategoryByIdSlice";
+import parentCategoryByIdSlice from "./parentCategory/parentCategoryByIdSlice";
+import updateParentCategoryDataSlice from "./parentCategory/updateParentCategoryDataSlice";
 import allProductReducer from "./product/allProductsSlice";
 import createProductReducer from "./product/createProductSlice";
 import deleteProductReducer from "./product/deleteProductByIdSlice";
 import productByIdReducer from "./product/productByIdSlice";
 import updateProductReducer from "./product/updateProductDataSlice";
+
 // Load cart state from local storage
 const loadCartState = () => {
     try {
@@ -39,6 +43,9 @@ const store = configureStore({
         cart: cartReducer,
         createParentCategory: createParentCategoryReducer,
         allParentCategories: allParentCategorySlice,
+        parentCategoryById : parentCategoryByIdSlice,
+        deleteParentCategoryById: deleteParentCategoryByIdSlice,
+        updateParentcategoryData: updateParentCategoryDataSlice,
         // categories: categoryReducer,
         categories: allCategoriesSlice,
         categoryById: categoryByIdSlice,
@@ -46,6 +53,12 @@ const store = configureStore({
         updateCategoryData: updateCategoryDataSlice,
         deleteCategoryById: deleteCategoryByIdSlice,
         // products: productReducer,
+        allProducts: allProductReducer,
+        createNewProduct: createProductReducer,
+        deleteProduct: deleteProductReducer,
+        productById: productByIdReducer,
+        updateProductData: updateProductReducer,
+        // parentCategories reducers here
         allProducts: allProductReducer,
         createNewProduct: createProductReducer,
         deleteProduct: deleteProductReducer,

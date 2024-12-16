@@ -1,9 +1,10 @@
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchProductById } from "@/redux/product/productByIdSlice";
 import { updateProductData } from "@/redux/product/updateProductDataSlice";
+import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-export default function updateProducts({ toggleAddProductVisible, doneUpdate, id, resetId }) {
+export default function updateProducts({ toggleVisibility, doneUpdate, id, resetId }) {
 
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
@@ -23,8 +24,9 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         (state) => state.productById
     );
 
-
+    const [imageUploading, setImageUploading] = useState(false)
     // Fetch the category data by ID
+
 
     const isValidId = (id) => /^[a-fA-F0-9]{24}$/.test(id); // Checks for valid MongoDB ObjectId format
     // console.log(categoryData);
@@ -38,62 +40,6 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         }
     }, [id, dispatch]);
 
-    useEffect(() => {
-        if (productData && categories.length > 0) {
-            const matchingCategory = categories.find(
-                (parentCategory) => parentCategory.id === productData.parentCategoryId
-            );
-
-            setFormData({
-                // Basic information
-                name: productData.name || '',
-                description: productData.description || '',
-                imageDefault: productData.imageDefault || null,
-                imageHover: productData.imageHover || null,
-
-                // Category-related information
-                category: matchingCategory?.name || categories[0]?.name || '', // Default to the first parent category if no match
-                categoryId: matchingCategory?.id || categories[0]?.id || '',  // Default to the first parent category ID if no match
-
-                // Pricing information
-                originalPrice: productData.originalPrice || 0,
-                discountedPrice: productData.discountedPrice || 0,
-
-                // Color field
-                color: productData.color || [
-                    {
-
-                    },
-                ],
-
-                // Product details
-                productDetails: {
-                    size: productData.productDetails?.size || '',
-                    warranty: productData.productDetails?.warranty || '',
-                    leatherType: productData.productDetails?.leatherType || '',
-                    leatherHide: productData.productDetails?.leatherHide || '',
-                    waterResistant: productData.productDetails?.waterResistant || false,
-                },
-
-                // Additional details if needed
-                additionalDetails: productData.additionalDetails || [],
-
-                // Stock and availability
-                inStock: productData.inStock || true,
-                onSale: productData.onSale || false,
-
-                // Rating (if applicable)
-                rating: {
-                    average: productData.rating?.average || 0,
-                    totalReviews: productData.rating?.totalReviews || 0,
-                },
-
-                // Any other fields
-                barcode: productData.barcode || '',
-                id: productData.id || '',
-            });
-        }
-    }, [productData, categories]);
 
     // Fetch all parent categories
     useEffect(() => {
@@ -101,7 +47,6 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
 
     }, [dispatch]);
 
-    // Populate the form once both categoryData and categories are available
 
 
     const [formData, setFormData] = useState({
@@ -111,7 +56,7 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         slug: "",
         category: "", // Set default category ID if necessary
         categoryId: "",
-        inStock: true, // Boolean for availability
+        inStock: false, // Boolean for availability
         onSale: false, // Boolean for sale status
 
         // Pricing
@@ -120,8 +65,9 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
 
         // Images
         imageDefault: null, // URL or file
+        previewImageDefault: null,
         imageHover: null, // URL or file
-
+        previewImageHover: null,
         // Colors
         color: [
 
@@ -146,6 +92,69 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
     });
 
 
+    useEffect(() => {
+        if (productData && categories.length > 0) {
+            const matchingCategory = categories.find(
+                (parentCategory) => parentCategory.id === productData.parentCategoryId
+            );
+
+            setFormData({
+                // Basic information
+                name: productData.name || '',
+                description: productData.description || '',
+                imageDefault: productData.imageDefault || null,
+                imageHover: productData.imageHover || null,
+                previewImageDefault: productData.imageDefault || null,
+                previewImageHover: productData.imageHover || null,
+
+                // Category-related information
+                category: matchingCategory?.name || categories[0]?.name || '', // Default to the first parent category if no match
+                categoryId: matchingCategory?.id || categories[0]?.id || '',  // Default to the first parent category ID if no match
+
+                // Pricing information
+                originalPrice: productData.originalPrice || 0,
+                discountedPrice: productData.discountedPrice || 0,
+
+                // Color field
+                color: productData.color || [
+                    {
+
+                    },
+                ],
+
+                // Product details
+                productDetails: {
+                    size: productData.productDetails?.size || '',
+                    warranty: productData.productDetails?.warranty || '',
+                    leatherType: productData.productDetails?.leatherType || '',
+                    leatherHide: productData.productDetails?.leatherHide || '',
+                    waterResistant: productData.productDetails?.waterResistant || false,
+                    additionalProductDetails: productData.productDetails?.additionalProductDetails || [],
+                },
+
+                // Additional details if needed
+                additionalDetails: productData.additionalDetails || [],
+
+                // Stock and availability
+                inStock: productData.inStock || true,
+                onSale: productData.onSale || false,
+
+                // Rating (if applicable)
+                rating: {
+                    average: productData.rating?.average || 0,
+                    totalReviews: productData.rating?.totalReviews || 0,
+                },
+
+                // Any other fields
+                barcode: productData.barcode || '',
+                id: productData.id || '',
+            });
+        }
+    }, [productData, categories]);
+
+
+
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -162,7 +171,8 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
 
             setFormData((prevData) => ({
                 ...prevData,
-                imageDefault: URL.createObjectURL(file),
+                imageDefault: file,
+                previewImageDefault: URL.createObjectURL(file),
             }));
             console.log('Updated formData:', { ...formData, imageDefault: URL.createObjectURL(file) });
         } else {
@@ -177,7 +187,8 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
 
             setFormData((prevData) => ({
                 ...prevData,
-                imageHover: URL.createObjectURL(file),
+                imageHover: file,
+                previewImageHover: URL.createObjectURL(file),
             }));
             console.log('Updated formData:', { ...formData, imageHover: URL.createObjectURL(file) });
         } else {
@@ -185,31 +196,26 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         }
     };
 
-    const handleNestedChange = (index, field, value) => {
-        setFormData((prevData) => {
-            const updatedColors = [...prevData.color];
-            updatedColors[index][field] = value;
-            return {
-                ...prevData,
-                color: updatedColors,
-            };
-        });
-    };
+
     const handleColorChange = (e, index, field) => {
-        const updatedColors = [...formData.color];
+        // Create a deep copy of the colors array
+        const updatedColors = formData.color.map((color) => ({ ...color }));
         updatedColors[index][field] = e.target.value;
 
-        const updatedAdditionalDetails = [...formData.additionalDetails];
+        // Create a deep copy of the additionalDetails array
+        const updatedAdditionalDetails = formData.additionalDetails.map((detail) => ({ ...detail }));
         if (field === "colorName") updatedAdditionalDetails[index].color = e.target.value;
         if (field === "hex") updatedAdditionalDetails[index].hex = e.target.value;
         if (field === "availableQuantity") updatedAdditionalDetails[index].quantity = parseInt(e.target.value, 10) || 0;
 
+        // Update the formData state
         setFormData({
             ...formData,
             color: updatedColors,
             additionalDetails: updatedAdditionalDetails,
         });
     };
+
 
     const handleAddColor = () => {
         setFormData({
@@ -224,37 +230,63 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
             ],
         });
     };
-    const handleImageUpload = (newImage, colorIndex) => {
-        setFormData((prevFormData) => {
-            const updatedColors = prevFormData.color.map((color, index) => {
-                if (index === colorIndex) {
-                    return {
-                        ...color, // Copy the color object
-                        images: [...(color.images || []), newImage], // Create a new images array
-                    };
-                }
-                return color; // Return the other colors unchanged
-            });
+    const handleImageUpload = (e, colorIndex) => {
+        const files = Array.from(e.target.files); // Convert FileList to Array
+        console.log("files", files);
 
-            return {
-                ...prevFormData, // Copy the rest of the form data
-                color: updatedColors, // Update the color field
-            };
-        });
-    };
-    const handleRemoveImage = (colorIndex, imageIndex) => {
-        console.log("dhuktese but ,", colorIndex, imageIndex);
-        const updatedAdditionalDetails = [...formData.additionalDetails];
-        updatedAdditionalDetails[colorIndex].images = updatedAdditionalDetails[colorIndex].images.filter(
-            (_, idx) => idx !== imageIndex
-        );
+        const fileURLs = files.map((file) => URL.createObjectURL(file)); // Generate preview URLs
+        console.log("fileUrls", fileURLs);
 
+        // Create a deep copy of the current additionalDetails array to avoid modifying frozen objects
+        const updatedAdditionalDetails = formData.additionalDetails.map((detail, index) => ({
+            ...detail,
+            images: Array.isArray(detail.images) ? [...detail.images] : [],
+            imagesPreview: Array.isArray(detail.imagesPreview) ? [...detail.imagesPreview] : [],
+        }));
+
+        // Ensure the colorIndex entry exists
+        if (!updatedAdditionalDetails[colorIndex]) {
+            updatedAdditionalDetails[colorIndex] = { images: [], imagesPreview: [] };
+        }
+
+        // Add files and previews to the respective arrays
+        updatedAdditionalDetails[colorIndex].images = [
+            ...(updatedAdditionalDetails[colorIndex]?.images || []),
+            ...files,
+        ];
+        updatedAdditionalDetails[colorIndex].imagesPreview = [
+            ...(updatedAdditionalDetails[colorIndex]?.imagesPreview || []),
+            ...fileURLs,
+        ];
+
+        // Update the formData state with the new additionalDetails
         setFormData({
             ...formData,
             additionalDetails: updatedAdditionalDetails,
         });
     };
 
+    const handleRemoveImage = (colorIndex, imageIndex) => {
+        const updatedAdditionalDetails = formData.additionalDetails.map((detail, index) => ({
+            ...detail,
+            images: Array.isArray(detail.images) ? [...detail.images] : [],
+            imagesPreview: Array.isArray(detail.imagesPreview) ? [...detail.imagesPreview] : [],
+        }));
+
+        
+        updatedAdditionalDetails[colorIndex].images = updatedAdditionalDetails[colorIndex].images.filter(
+            (_, idx) => idx !== imageIndex
+        );
+        updatedAdditionalDetails[colorIndex].imagesPreview = updatedAdditionalDetails[colorIndex].imagesPreview.filter(
+            (_, idx) => idx !== imageIndex
+        );
+
+
+        setFormData({
+            ...formData,
+            additionalDetails: updatedAdditionalDetails,
+        });
+    };
 
 
     const handleRemoveColor = (index) => {
@@ -271,29 +303,80 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
         e.preventDefault();
 
         // Validation: Check if all required fields are filled
-        if (!formData.name || !formData.description || !formData.categoryId || !formData.imageDefault || !formData.originalPrice || !formData.discountedPrice || !formData.imageDefault || !formData.imageHover || !formData.productDetails.size || !formData.productDetails.warranty) {
+        if (
+            !formData.name ||
+            !formData.description ||
+            !formData.categoryId ||
+            !formData.imageDefault ||
+            !formData.originalPrice ||
+            !formData.discountedPrice ||
+            !formData.imageHover ||
+            !formData.productDetails.size ||
+            !formData.productDetails.warranty
+        ) {
             console.error("All fields are required.");
-            doneAddProduct("validationError"); // Inform user about validation error
+            doneUpdate(); // Inform user about validation error
             return; // Exit the function early
         }
 
+        const folderName = `Product/${formData.name}`;
+        setImageUploading(true);
+
         try {
-            const updateResult = await dispatch(updateProductData(formData)).unwrap();
+            // Upload default and hover images
+            const ImageDefault = await uploadToCloudinary(formData.imageDefault, folderName);
+            const ImageHover = await uploadToCloudinary(formData.imageHover, folderName);
+            console.log("uploaded image", ImageDefault, ImageHover);
+            // Map through additionalDetails and upload their images to color-specific folders
+            const updatedAdditionalDetails = await Promise.all(
+                formData.additionalDetails.map(async (detail) => {
+                    if (detail.quantity > 0) {
+                        formData.inStock = true;
+                    }
+                    if (detail.images && detail.images.length > 0) {
+                        const colorFolderName = `${folderName}/${detail.color}`; // Folder specific to the color name
+                        const uploadedImages = await Promise.all(
+                            detail.images.map(async (image) => {
+                                console.log("image is this ", image);
+                                return await uploadToCloudinary(image, colorFolderName);
+                            })
+                        );
+                        return {
+                            ...detail,
+                            images: uploadedImages, // Replace local images with uploaded URLs
+                        };
+                    }
+                    return detail; // Return unchanged if no images exist
+                })
+            );
+
+
+
+            // Update formData with uploaded image URLs
+            const updatedData = {
+                ...formData,
+                imageDefault: ImageDefault,
+                imageHover: ImageHover,
+                additionalDetails: updatedAdditionalDetails,
+            };
+
+            // Dispatch the action to create the product
+            const updateResult = await dispatch(updateProductData({ id, updatedData })).unwrap();
+
             // Reset the form data
             cancelButtonPressed();
+            doneUpdate();
+            setImageUploading(false);
             resetId();
-            doneAddProduct("success");
         } catch (error) {
-            console.error("Error creating category:", error);
+            console.error("Error creating product:", error);
 
-            // Check if the error response exists
-            if (error.response?.status === 500) {
-                doneAddProduct("duplicate");
-            } else {
-                doneAddProduct("network");
-            }
-        }
+            doneUpdate();
+            setImageUploading(false);
+            resetId();
+        } 
     };
+
 
 
     const cancelButtonPressed = () => {
@@ -339,7 +422,7 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
 
         });
         resetId();
-        toggleAddProductVisible();
+        toggleVisibility();
     };
 
 
@@ -560,7 +643,11 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                                                     <div key={imgIndex} className="relative inline-flex items-center">
                                                                         <img
                                                                             className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                                            src={image}
+                                                                            src={
+                                                                                image instanceof File
+                                                                                    ? URL.createObjectURL(image)
+                                                                                    : image
+                                                                            }
                                                                             alt={`${color.colorName} Image ${imgIndex + 1}`}
                                                                         />
                                                                         <button
@@ -664,7 +751,11 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                                     <div draggable className="relative inline-flex items-center">
                                                         <img
                                                             className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                            src={formData.imageDefault}
+                                                            src={
+                                                                formData.imageDefault instanceof File
+                                                                    ? URL.createObjectURL(formData.imageDefault)
+                                                                    : formData.imageDefault
+                                                            }
                                                             alt="Category"
                                                         />
                                                         <button
@@ -747,7 +838,11 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                                     <div draggable className="relative inline-flex items-center">
                                                         <img
                                                             className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                            src={formData.imageHover}
+                                                            src={
+                                                                formData.imageHover instanceof File
+                                                                    ? URL.createObjectURL(formData.imageHover)
+                                                                    : formData.imageHover
+                                                            }
                                                             alt="Category"
                                                         />
                                                         <button
@@ -843,6 +938,8 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                                     type="text"
                                                     name="originalPrice"
                                                     placeholder="Enter Product Price"
+                                                    value={formData.originalPrice}
+                                                onChange={handleInputChange}
                                                 />
                                             </div>
                                         </div>
@@ -862,6 +959,8 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                                     type="text"
                                                     name="originalPrice"
                                                     placeholder="Enter Product Price"
+                                                    value={formData.discountedPrice}
+                                                onChange={handleInputChange}
                                                 />
                                             </div>
                                         </div>
@@ -876,9 +975,9 @@ export default function updateProducts({ toggleAddProductVisible, doneUpdate, id
                                         >Cancel</button>
                                     </div>
                                     <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={updateproductLoading}>
+                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={(updateproductLoading|| imageUploading)}>
 
-                                            <span> {updateproductLoading ? 'Creating...' : 'Create Category'}</span>
+                                            <span> {(updateproductLoading||imageUploading) ? 'Updating...' : 'Update Product'}</span>
                                         </button>
                                     </div>
                                 </div>

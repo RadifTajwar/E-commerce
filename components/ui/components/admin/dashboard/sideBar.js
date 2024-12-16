@@ -114,6 +114,27 @@ export default function sideBar() {
                                                     <span className="text-gray-500 hover:text-blue-600 dark:hover:text-gray-200">Products</span>
                                                 </div>
                                             </li>
+
+                                            <li>
+                                                <div className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
+                                                    onClick={() => {
+                                                        router.push('/admin/parentCategories', { shallow: true });
+                                                    }}
+                                                >
+                                                    <span className="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg" aria-hidden="true">
+
+                                                    </span>
+                                                    <span className="text-xs text-gray-500 pr-1">
+                                                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                            <path fill="none" stroke-linecap="square" stroke-linejoin="round" stroke-width="32" d="M400 256H112">
+
+                                                            </path>
+                                                        </svg>
+                                                    </span>
+                                                    <span className="text-gray-500 hover:text-blue-600 dark:hover:text-gray-200">Parent Categories</span>
+                                                </div>
+                                            </li>
+
                                             <li>
                                                 <div className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"  onClick={() => {
                                                         router.push('/admin/categories', { shallow: true });

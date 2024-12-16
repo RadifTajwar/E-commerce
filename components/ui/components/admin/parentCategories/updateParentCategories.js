@@ -1,27 +1,22 @@
-import { fetchCategoryById } from "@/redux/category/categoryByIdSlice";
-import { updateCategoryData } from "@/redux/category/updateCategoryDataSlice";
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
+import { fetchParentCategoryById } from "@/redux/parentCategory/parentCategoryByIdSlice";
+import { updateParentCategoryData } from "@/redux/parentCategory/updateParentCategoryDataSlice";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-export default function updateCategories({ id, toggleVisibility, resetId, doneUpdate }) {
+export default function updateParentCategories({ id, toggleVisibility, resetId, doneUpdate }) {
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const parentCategoryRef = useRef(null);
     // Access the category data from the store
-    const { categoryData, isLoading: categoryLoading, error: categoryError } = useSelector(
-        (state) => state.categoryById
+    const { parentCategoryData, isLoading: categoryLoading, error: categoryError } = useSelector(
+        (state) => state.parentCategoryById
     );
     // Access the update category data from the store
     const {
         isLoading: updateCategoryLoading, // Loading state for updating category
         error: updateCategoryError // Error for updating category
-    } = useSelector((state) => state.updateCategoryData);
-    // Access the parent categories from the store
-    const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
-        (state) => state.allParentCategories
-    );
+    } = useSelector((state) => state.updateParentcategoryData);
 
     const [imageUploading, setImageUploading] = useState(false)
     // Fetch the category data by ID
@@ -32,39 +27,26 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
     // Fetch the category by ID
     useEffect(() => {
         if (id && isValidId(id)) {
-            dispatch(fetchCategoryById(id));
+            dispatch(fetchParentCategoryById(id));
         }
     }, [id, dispatch]);
 
-    // Fetch all parent categories
-    useEffect(() => {
-        dispatch(fetchAllParentCategories());
-    }, [dispatch]);
+ 
 
     // Populate the form once both categoryData and parentCategories are available
     useEffect(() => {
-        if (categoryData && parentCategories.length > 0) {
-            const matchingParentCategory = parentCategories.find(
-                (parentCategory) => parentCategory.id === categoryData.parentCategoryId
-            );
-
+        if (parentCategoryData ) {
             setFormData({
-                name: categoryData.name || '',
-                description: categoryData.description || '',
-                image: categoryData.image || null,
-                parentCategory: matchingParentCategory?.name || parentCategories[0]?.name || '', // Default to the first parent category if no match
-                parentCategoryId: matchingParentCategory?.id || parentCategories[0]?.id || '', // Default to the first parent category ID if no match
-                previewImage: categoryData.image || null
+                name: parentCategoryData.name || '',
+                image: parentCategoryData.image || null,
+                previewImage: parentCategoryData.image || null
             });
         }
-    }, [categoryData, parentCategories]);
+    }, [parentCategoryData]);
 
     const [formData, setFormData] = useState({
         name: '',
-        description: '',
         image: null,
-        parentCategory: '', // Example of a default category
-        parentCategoryId: '', // Example of a default category ID
         previewImage: null
     });
 
@@ -97,9 +79,9 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("abcd",formData);
+        
         // Validation: Check if all required fields are filled
-        if (!formData.name || !formData.description || !formData.parentCategoryId || !formData.image) {
+        if (!formData.name || !formData.image) {
             console.error("All fields are required.");
             console.log(formData);// Inform user about validation error
             return; // Exit the function early
@@ -107,7 +89,7 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
 
         try {
             // Upload image to Cloudinary
-            const folderName = `Category/${formData.name}`;
+            const folderName = `ParentCategory/${formData.name}`;
 
             setImageUploading(true);
             const imageUrl = await uploadToCloudinary(formData.image, folderName);
@@ -117,17 +99,14 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
                 ...formData,
                 image: imageUrl, // Replace the file with the uploaded image URL
             };
-            console.log(object)
+            console.log("parent category ",categoryData);
             // Dispatch the action to create a new category
-            const updateResult = await dispatch(updateCategoryData({id,categoryData})).unwrap();
+            const updateResult = await dispatch(updateParentCategoryData({id,categoryData})).unwrap();
 
             // Reset the form data
             setFormData({
                 name: '',
-                description: '',
                 image: null,
-                parentCategory: '',
-                parentCategoryId: '',
                 previewImage: null
             });
 
@@ -146,10 +125,7 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
         console.log("Cancel button pressed");
         setFormData({
             name: '',
-            description: '',
             image: null,
-            category: '',
-            parentCategoryId: '',
             previewImage: null
         });
         resetId();
@@ -228,23 +204,7 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                    <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-                                        Category Description
-                                    </label>
-                                    <div className="col-span-8 sm:col-span-4">
-                                        <textarea
-                                            className="px-3 py-1  block w-full text-sm dark:text-gray-300 rounded-md focus:outline-none form-textarea focus:border-purple-400 border-gray-300 dark:border-gray-600 dark:focus:border-gray-600 dark:bg-gray-700 dark:focus:ring-gray-300 focus:ring focus:ring-purple-300 border text-sm focus:outline-none block w-full bg-gray-100 border-transparent focus:bg-white"
-                                            name="description"
-                                            placeholder="Product Description"
-                                            rows="4"
-                                            spellCheck="false"
-                                            value={formData.description}
-                                            onChange={handleInputChange}
-                                        ></textarea>
-                                    </div>
-                                </div>
-
+                               
                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                                     <label htmlFor="product-images" className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium">
                                         Category Image
@@ -287,54 +247,7 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2">
-                                        Category
-                                    </label>
-                                    <div className="col-span-6 sm:col-span-4">
-                                        <div className="relative">
-                                            {/* Parent Category Dropdown */}
-                                            <div
-                                                ref={parentCategoryRef}
-                                                className="parentCategory flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer dark:bg-gray-700 dark:border-gray-600"
-                                                onClick={toggleDropdown} // Toggle the dropdown visibility
-                                            >
-                                                <span className="text-sm text-gray-700 dark:text-gray-300">{formData.parentCategory}</span>
-                                                <span className="text-gray-500 dark:text-gray-300">▼</span>
-                                            </div>
-
-                                            {/* Dropdown List */}
-                                            {isOpen && (
-                                                <ul
-                                                    ref={dropdownRef}
-                                                    className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-md dark:bg-gray-700 dark:border-gray-600"
-                                                >
-                                                    {parentCategories.length > 0 ? (
-                                                        parentCategories.map((parentCategory) => (
-                                                            <li key={parentCategory.id}>
-                                                                <a
-                                                                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
-                                                                    onClick={() => handleCategorySelect(parentCategory.name)} // Select category and close dropdown
-                                                                >
-                                                                    {parentCategory.name}
-                                                                </a>
-                                                            </li>
-                                                        ))
-                                                    ) : (
-                                                        <li>
-                                                            <a
-                                                                className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-                                                                disabled
-                                                            >
-                                                                No Categories Available
-                                                            </a>
-                                                        </li>
-                                                    )}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
+                              
                             </div>
 
                             <div className="bottom_section absolute z-10 bottom-0 w-full right-0 py-4 lg:py-8 px-6 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex bg-gray-50 border-t border-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >

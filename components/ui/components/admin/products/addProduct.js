@@ -1,9 +1,10 @@
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { createProduct } from "@/redux/product/createProductSlice";
+import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function addProduct({ toggleAddProductVisible, doneAddProduct }) {
-
+    const [imageUploading, setImageUploading] = useState(false)
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -31,7 +32,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
         slug: "",
         category: "", // Set default category ID if necessary
         categoryId: "",
-        inStock: true, // Boolean for availability
+        inStock: false, // Boolean for availability
         onSale: false, // Boolean for sale status
 
         // Pricing
@@ -40,8 +41,9 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
 
         // Images
         imageDefault: null, // URL or file
+        previewImageDefault: null,
         imageHover: null, // URL or file
-
+        previewImageHover: null,
         // Colors
         color: [
 
@@ -55,10 +57,10 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
         // Product Details
         productDetails: {
             additionalProductDetails: {
-               
+
             },
             size: [
-                
+
             ],
             warranty: "0", // Example: "2 years"
         },
@@ -82,7 +84,8 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
 
             setFormData((prevData) => ({
                 ...prevData,
-                imageDefault: URL.createObjectURL(file),
+                imageDefault: file,
+                previewImageDefault: URL.createObjectURL(file),
             }));
             console.log('Updated formData:', { ...formData, imageDefault: URL.createObjectURL(file) });
         } else {
@@ -97,7 +100,8 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
 
             setFormData((prevData) => ({
                 ...prevData,
-                imageHover: URL.createObjectURL(file),
+                imageHover: file,
+                previewImageHover: URL.createObjectURL(file),
             }));
             console.log('Updated formData:', { ...formData, imageHover: URL.createObjectURL(file) });
         } else {
@@ -105,16 +109,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
         }
     };
 
-    const handleNestedChange = (index, field, value) => {
-        setFormData((prevData) => {
-            const updatedColors = [...prevData.color];
-            updatedColors[index][field] = value;
-            return {
-                ...prevData,
-                color: updatedColors,
-            };
-        });
-    };
+
     const handleColorChange = (e, index, field) => {
         const updatedColors = [...formData.color];
         updatedColors[index][field] = e.target.value;
@@ -140,32 +135,51 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             ],
             additionalDetails: [
                 ...formData.additionalDetails,
-                { color: "", hex: "", quantity: 0},
+                { color: "", hex: "", quantity: 0 },
             ],
         });
     };
-    const handleImageUpload = (e, colorIndex) => {
-        const files = Array.from(e.target.files);
-        const fileURLs = files.map((file) => URL.createObjectURL(file));
 
-        // Add images to the respective color in additionalDetails
+    const handleImageUpload = (e, colorIndex) => {
+        const files = Array.from(e.target.files); // Convert FileList to Array
+        console.log("files", files);
+
+        const fileURLs = files.map((file) => URL.createObjectURL(file)); // Generate preview URLs
+        console.log("fileUrls", fileURLs);
+
+        // Create a copy of the current additionalDetails array
         const updatedAdditionalDetails = [...formData.additionalDetails];
+
+        // Initialize images and imagesPreview arrays for the specified color index if they don't exist
+        if (!updatedAdditionalDetails[colorIndex]) {
+            updatedAdditionalDetails[colorIndex] = { images: [], imagesPreview: [] };
+        }
+
+        // Add files and previews to the respective arrays
         updatedAdditionalDetails[colorIndex].images = [
             ...(updatedAdditionalDetails[colorIndex]?.images || []),
+            ...files,
+        ];
+        updatedAdditionalDetails[colorIndex].imagesPreview = [
+            ...(updatedAdditionalDetails[colorIndex]?.imagesPreview || []),
             ...fileURLs,
         ];
 
+        // Update the formData state with the new additionalDetails
         setFormData({
             ...formData,
             additionalDetails: updatedAdditionalDetails,
         });
     };
-
     const handleRemoveImage = (colorIndex, imageIndex) => {
         const updatedAdditionalDetails = [...formData.additionalDetails];
         updatedAdditionalDetails[colorIndex].images = updatedAdditionalDetails[colorIndex].images.filter(
             (_, idx) => idx !== imageIndex
         );
+        updatedAdditionalDetails[colorIndex].imagesPreview = updatedAdditionalDetails[colorIndex].imagesPreview.filter(
+            (_, idx) => idx !== imageIndex
+        );
+
 
         setFormData({
             ...formData,
@@ -189,20 +203,70 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
         e.preventDefault();
 
         // Validation: Check if all required fields are filled
-        if (!formData.name || !formData.description || !formData.categoryId || !formData.imageDefault  || !formData.originalPrice || !formData.discountedPrice || !formData.imageDefault || !formData.imageHover || !formData.productDetails.size || !formData.productDetails.warranty) {
+        if (
+            !formData.name ||
+            !formData.description ||
+            !formData.categoryId ||
+            !formData.imageDefault ||
+            !formData.originalPrice ||
+            !formData.discountedPrice ||
+            !formData.imageHover ||
+            !formData.productDetails.size ||
+            !formData.productDetails.warranty
+        ) {
             console.error("All fields are required.");
             doneAddProduct("validationError"); // Inform user about validation error
             return; // Exit the function early
         }
 
+        const folderName = `Product/${formData.name}`;
+        setImageUploading(true);
+
         try {
-            const updateResult = await dispatch(createProduct(formData)).unwrap();
+            // Upload default and hover images
+            const ImageDefault = await uploadToCloudinary(formData.imageDefault, folderName);
+            const ImageHover = await uploadToCloudinary(formData.imageHover, folderName);
+
+            // Map through additionalDetails and upload their images to color-specific folders
+            const updatedAdditionalDetails = await Promise.all(
+                formData.additionalDetails.map(async (detail) => {
+                    if(detail.quantity>0) {
+                        formData.inStock = true;
+                    }
+                    if (detail.images && detail.images.length > 0) {
+                        const colorFolderName = `${folderName}/${detail.color}`; // Folder specific to the color name
+                        const uploadedImages = await Promise.all(
+                            detail.images.map(async (image) => {
+                                return await uploadToCloudinary(image, colorFolderName);
+                            })
+                        );
+                        return {
+                            ...detail,
+                            images: uploadedImages, // Replace local images with uploaded URLs
+                        };
+                    }
+                    return detail; // Return unchanged if no images exist
+                })
+            );
+
+            
+
+            // Update formData with uploaded image URLs
+            const updatedFormData = {
+                ...formData,
+                imageDefault: ImageDefault,
+                imageHover: ImageHover,
+                additionalDetails: updatedAdditionalDetails,
+            };
+
+            // Dispatch the action to create the product
+            const updateResult = await dispatch(createProduct(updatedFormData)).unwrap();
+
             // Reset the form data
             cancelButtonPressed();
-
             doneAddProduct("success");
         } catch (error) {
-            console.error("Error creating category:", error);
+            console.error("Error creating product:", error);
 
             // Check if the error response exists
             if (error.response?.status === 500) {
@@ -210,50 +274,54 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             } else {
                 doneAddProduct("network");
             }
+        } finally {
+            setImageUploading(false);
         }
     };
 
-    
+
     const cancelButtonPressed = () => {
         console.log("Cancel button pressed");
         setFormData({
             // Basic Product Information
-        barcode: "",
-        name: "",
-        slug: "",
-        category: "", // Set default category ID if necessary
-        categoryId: "",
-        inStock: true, // Boolean for availability
-        onSale: false, // Boolean for sale status
+            barcode: "",
+            name: "",
+            slug: "",
+            category: "", // Set default category ID if necessary
+            categoryId: "",
+            inStock: true, // Boolean for availability
+            onSale: false, // Boolean for sale status
 
-        // Pricing
-        originalPrice: "0", // Default numeric value
-        discountedPrice: "0", // Default numeric value
+            // Pricing
+            originalPrice: "0", // Default numeric value
+            discountedPrice: "0", // Default numeric value
 
-        // Images
-        imageDefault: null, // URL or file
-        imageHover: null, // URL or file
+            // Images
+            imageDefault: null, // URL or file
+            previewImageDefault: null,
+            imageHover: null, // URL or file
+            previewImageHover: null,
 
-        // Colors
-        color: [
+            // Colors
+            color: [
 
-        ],
-
-        // Additional Details
-        additionalDetails: [
-
-        ],
-
-        // Product Details
-        productDetails: {
-            additionalProductDetails: {
-               
-            },
-            size: [
-                
             ],
-            warranty: "0", // Example: "2 years"
-        },
+
+            // Additional Details
+            additionalDetails: [
+
+            ],
+
+            // Product Details
+            productDetails: {
+                additionalProductDetails: {
+
+                },
+                size: [
+
+                ],
+                warranty: "0", // Example: "2 years"
+            },
 
         });
 
@@ -422,13 +490,13 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                                         >
                                                             <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                                         </button>
-                                                      
+
                                                     </div>
 
                                                     {/* Image Upload Section for Color */}
                                                     <div className="mt-4">
                                                         <label
-                                                           
+
                                                             className="block text-sm text-gray-700 dark:text-gray-400 font-medium mb-1"
                                                         >
                                                             Upload Images for {color.colorName}
@@ -470,9 +538,9 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                                         </div>
 
                                                         {/* Display preview images for the current color only if images exist */}
-                                                        {formData.additionalDetails[index]?.images && formData.additionalDetails[index].images.length > 0 && (
+                                                        {formData.additionalDetails[index]?.imagesPreview && formData.additionalDetails[index].imagesPreview.length > 0 && (
                                                             <aside className="flex flex-row flex-wrap mt-4">
-                                                                {formData.additionalDetails[index].images.map((image, imgIndex) => (
+                                                                {formData.additionalDetails[index].imagesPreview.map((image, imgIndex) => (
                                                                     <div key={imgIndex} className="relative inline-flex items-center">
                                                                         <img
                                                                             className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
@@ -575,12 +643,12 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                             </div>
 
                                             {/* Display preview image */}
-                                            {formData.imageDefault && (
+                                            {formData.previewImageDefault && (
                                                 <aside className="flex flex-row flex-wrap mt-4">
                                                     <div draggable className="relative inline-flex items-center">
                                                         <img
                                                             className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                            src={formData.imageDefault}
+                                                            src={formData.previewImageDefault}
                                                             alt="Category"
                                                         />
                                                         <button
@@ -658,12 +726,12 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                             </div>
 
                                             {/* Display preview image */}
-                                            {formData.imageHover && (
+                                            {formData.previewImageHover && (
                                                 <aside className="flex flex-row flex-wrap mt-4">
                                                     <div draggable className="relative inline-flex items-center">
                                                         <img
                                                             className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                            src={formData.imageHover}
+                                                            src={formData.previewImageHover}
                                                             alt="Category"
                                                         />
                                                         <button
@@ -759,7 +827,10 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                                     type="text"
                                                     name="originalPrice"
                                                     placeholder="Enter Product Price"
+                                                    value={formData.originalPrice}
+                                                    onChange={handleInputChange}
                                                 />
+
                                             </div>
                                         </div>
                                     </div>
@@ -776,9 +847,12 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                                 <input
                                                     className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 bg-gray-50 mr-2 rounded w-full h-12 p-2 text-sm border border-gray-300 focus:bg-white focus:border-blue-500 focus:outline-none rounded-l-none"
                                                     type="text"
-                                                    name="originalPrice"
+                                                    name="discountedPrice"
                                                     placeholder="Enter Product Price"
+                                                    value={formData.discountedPrice}
+                                                    onChange={handleInputChange}
                                                 />
+                                               
                                             </div>
                                         </div>
                                     </div>
@@ -792,9 +866,9 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                         >Cancel</button>
                                     </div>
                                     <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={createProductLoading}>
+                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={(createProductLoading || imageUploading)}>
 
-                                            <span> {createProductLoading ? 'Creating...' : 'Create Category'}</span>
+                                            <span> {(createProductLoading || imageUploading) ? 'Creating...' : 'Create Category'}</span>
                                         </button>
                                     </div>
                                 </div>

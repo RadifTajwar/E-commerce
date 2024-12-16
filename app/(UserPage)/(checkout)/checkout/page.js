@@ -261,7 +261,7 @@ export default function page() {
                                         <div className="quantity_section mt-2.5 mb-2.5 sm:mb-0">
                                           <div className="inner flex">
                                             {/* Minus Button */}
-                                            <button className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => { handleDecrementItem(item.id) }}>
+                                            <button className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => { handleDecrementItem(item.colorId) }}>
                                               -
                                             </button>
 
@@ -270,7 +270,7 @@ export default function page() {
 
                                             {/* Plus Button */}
                                             <button className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center"
-                                              onClick={() => { handleIncrementItem(item.id) }}>
+                                              onClick={() => { handleIncrementItem(item.colorId) }}>
                                               +
                                             </button>
                                           </div>

@@ -103,6 +103,7 @@ export default function page() {
     setTimeout(() => {
       dispatch(fetchAllProducts());
     }, 2000); // 2000 milliseconds = 2 seconds
+    setIsVisibleAddProduct(false); // Optionally hide the drawer
   };
 
   // This is your existing toggleVisibility function that triggers the drawer visibility

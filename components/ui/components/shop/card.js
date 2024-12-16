@@ -1,45 +1,63 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { addItemToCart } from "@/redux/cart/cartSlicer";
+import CryptoJS from 'crypto-js';
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-
 export default function card({ product }) {
-
+    const Router = useRouter();
     const dispatch = useDispatch();
 
     const handleAddToCart = () => {
-        dispatch(addItemToCart({ id: product.id, name: product.name, price: product.discountedPrice, image: product.image.default }));
+        dispatch(addItemToCart({ id: product?.id, name: product?.name, price: product?.discountedPrice, image: product?.imageDefault }));
     };
 
+    const handleProductClick = () => {
+        // Hash the product ID
+        const secretKey = 'Tajwar@00452268'; // Keep this secret and do not expose it
+        const hashedId = CryptoJS.AES.encrypt(product.id, secretKey).toString();
+
+        // Use an obfuscated key name
+        const obfuscatedKey = 'wc_di';
+
+        // Save the hashed ID to localStorage
+        localStorage.setItem(obfuscatedKey, hashedId);
+
+        // Redirect to the product page
+        Router.push(`/products/${product.name}`);
+    };
     return (
         <>
             <div className=" card ">
                 <div className="text-center flex justify-center " >
-                    <div className="total_card_&_text w-full max-w-[364px] md:max-w-[318px] lg:max-w-[287px] h-auto">
-                        <Card className=" max-w-[364px] md:max-w-[318px] lg:max-w-[287px]  h-auto rounded-none object-contain">
+                    <div className="total_card_&_text w-full max-w-[364px] md:max-w-[318px] lg:max-w-[287px] h-auto border border-gray-100 shadow-sm shadow-gray-300">
+                        <Card className="border-0 shadow-none max-w-[364px] md:max-w-[318px] lg:max-w-[287px]  h-auto rounded-none object-contain">
                             <CardContent className="flex items-center justify-center p-0">
                                 <div className="image_3 cursor-pointer">
                                     <div className="inner_imag h-auto w-full relative group overflow-hidden">
                                         {/* Default Image */}
-                                        <Image
-                                            alt="product"
-                                            src={product.image.default}
-                                            height={500}
-                                            width={500}
-                                            objectFit="contain"
-                                            className=" group-hover:opacity-0 duration-500"
-                                        />
+                                        <div className="image" onClick={handleProductClick}>
+                                            <Image
+                                                alt={product.name}
+                                                src={product.imageDefault}
+                                                height={500}
+                                                width={500}
+                                                objectFit="contain"
+                                                className=" group-hover:opacity-0 duration-500"
+                                            />
 
-                                        {/* Hover Image */}
-                                        <Image
-                                            alt="product"
-                                            src={product.image.hover}
-                                            height={500}
-                                            width={500}
-                                            objectFit="contain"
-                                            className="absolute top-0 left-0  h-auto opacity-0 group-hover:opacity-100 group-hover:duration-1000 group-hover:scale-110"
-                                        />
+                                            {/* Hover Image */}
+                                            <Image
+                                                alt={product.name}
+                                                src={product.imageHover}
+                                                height={500}
+                                                width={500}
+                                                objectFit="contain"
+                                                className="absolute top-0 left-0  h-auto opacity-0 group-hover:opacity-100 group-hover:duration-1000 group-hover:scale-110"
+                                            />
+                                        </div>
+
 
                                         {/* Icon Pop-Up Div */}
                                         <div className="absolute top-0 -right-2 mt-2 w-auto bg-white p-3 opacity-0 group-hover:opacity-100 group-hover:-translate-x-1/3 transition-all duration-300 ease-out h-auto transform hidden lg:block ">
@@ -100,16 +118,21 @@ export default function card({ product }) {
                                             </div>
                                         </div>
 
+
                                         {/* "VIEW ALL" button */}
                                         <div className="w-full">
-                                            <button className="cursor-pointer absolute w-full text-center bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full bg-black bg-opacity-60 text-white px-4 py-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200 hover:text-black hidden lg:block" onClick={handleAddToCart}>Add To Cart</button>
+                                            <button
+                                                className="cursor-pointer absolute w-full text-center bottom-0  transform translate-y-full bg-black bg-opacity-60 text-white px-4 py-2 opacity-0 group-hover:-translate-y-full group-hover:opacity-100 transition-all duration-200 hover:text-black hidden lg:block"
+                                                onClick={handleAddToCart}>
+                                                Add To Cartgg
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
-                        <div className="lower_txt flex justify-center">
-                            <div className="price_text_image text-center m-1">
+                        <div className="lower_txt flex justify-start ">
+                            <div className="price_text_image text-start  px-5 py-4">
                                 <Link href={`/product/1`} >
 
                                     <h1

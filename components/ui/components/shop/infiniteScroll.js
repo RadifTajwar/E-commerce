@@ -2,12 +2,13 @@ import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import { useEffect, useState } from 'react';
 import Card from './card';
 
-
 export default function InfiniteScroll({ products }) {
     const searchParams = useSearchParams(); // Get search parameters
     const min_price = searchParams.get('min_price'); // Get min_price from search params
     const max_price = searchParams.get('max_price'); // Get max_price from search params
     const filter_color = searchParams.get('filter_color');
+    const parentCategory = searchParams.get('parentCategory');
+    const childCategory = searchParams.get('childCategory');
     const stock_status = searchParams.get('stock_status');
     const orderby = searchParams.get('orderby');
     const [count, setCount] = useState(20);
@@ -19,7 +20,7 @@ export default function InfiniteScroll({ products }) {
     const filteredProducts = productArray
         .filter(product => {
             const originalPrice = product.discountedPrice;
-            const productColor = product.color;
+            const productColors = product.color; // Access the array of colors
             const isInStock = product.inStock;
             const isOnSale = product.onSale;
 
@@ -29,7 +30,11 @@ export default function InfiniteScroll({ products }) {
             const selectedStockStatuses = stock_status ? stock_status.split(",") : [];
 
             const withinPriceRange = originalPrice >= minPrice && originalPrice <= maxPrice;
-            const matchesColor = selectedColors.length === 0 || selectedColors.includes(productColor);
+
+            // Check if any color in the product's colors matches the selected colors
+            const matchesColor = selectedColors.length === 0 || 
+                productColors.some(color => selectedColors.includes(color.colorName));
+
             const matchesStockStatus =
                 selectedStockStatuses.length === 0 ||
                 (selectedStockStatuses.includes("inStock") && isInStock) ||
@@ -45,7 +50,6 @@ export default function InfiniteScroll({ products }) {
             }
             return 0; // No sorting for other values
         });
-
 
     const total = filteredProducts.length; // Use the number of filtered products
 

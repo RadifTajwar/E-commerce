@@ -6,7 +6,7 @@ export const fetchProductById = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/v1/product/ById/${id}`
+        `https://leather-for-luxury.vercel.app/api/v1/product/ById/${id}`
       );
       return response.data.data;
     } catch (error) {

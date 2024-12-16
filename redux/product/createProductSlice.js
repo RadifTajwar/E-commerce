@@ -6,7 +6,7 @@ export const createProduct = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/product/create-product",
+        "https://leather-for-luxury.vercel.app/api/v1/product/create-product",
         productData
       );
       return response.data;

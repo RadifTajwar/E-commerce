@@ -6,7 +6,7 @@ export const fetchAllParentCategories = createAsyncThunk(
     "parentCategories/fetchAll",
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get("http://localhost:5000/api/v1/parent-category");
+            const response = await axios.get("https://leather-for-luxury.vercel.app/api/v1/parent-category");
             return response.data.data; // Assuming the response contains a `data` field
         } catch (error) {
             return rejectWithValue(
@@ -23,7 +23,7 @@ const allParentCategorySlice = createSlice({
     name: "parentCategories",
     initialState: {
         parentCategories: [], // List of parent categories
-        isLoadingParentCategory: false, // Loading state
+        isLoading: false, // Loading state
         error: null, // Error state
     },
     reducers: {}, // No synchronous reducers needed in this case

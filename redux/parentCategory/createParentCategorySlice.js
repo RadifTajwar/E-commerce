@@ -5,7 +5,7 @@ export const createParentCategory = createAsyncThunk(
   'parentCategory/create',
   async (categoryData, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:5000/api/v1/parent-category/create-parent', {
+      const response = await fetch('https://leather-for-luxury.vercel.app/api/v1/parent-category/create-parent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,22 +28,22 @@ const parentCategorySlice = createSlice({
   name: 'parentCategory',
   initialState: {
     categories: [],
-    loading: false,
+    isLoading: false,
     error: null,
   },
   reducers: {}, // Optional: Add reducers for local actions
   extraReducers: (builder) => {
     builder
       .addCase(createParentCategory.pending, (state) => {
-        state.loading = true;
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(createParentCategory.fulfilled, (state, action) => {
-        state.loading = false;
+        state.isLoading = false;
         state.categories.push(action.payload);
       })
       .addCase(createParentCategory.rejected, (state, action) => {
-        state.loading = false;
+        state.isLoading = false;
         state.error = action.payload;
       });
   },

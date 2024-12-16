@@ -9,7 +9,7 @@ export const updateCategoryData = createAsyncThunk(
     try {
       
       const response = await axios.patch(
-        `http://localhost:5000/api/v1/category/update/${id}`,
+        `https://leather-for-luxury.vercel.app/api/v1/category/update/${id}`,
         categoryData
       );
       console.log("categoryData ashche vaia", categoryData);

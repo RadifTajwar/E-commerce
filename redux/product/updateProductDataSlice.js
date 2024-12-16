@@ -6,7 +6,7 @@ export const updateProductData = createAsyncThunk(
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/v1/product/update/${id}`,
+        `https://leather-for-luxury.vercel.app/api/v1/product/update/${id}`,
         updatedData
       );
       return response.data;

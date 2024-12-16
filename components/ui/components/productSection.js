@@ -1,6 +1,24 @@
-import Image from "next/image"
-
+'use client'
+import { fetchAllParentCategories } from '@/redux/parentCategory/allParentCategorySlice';
+import Image from 'next/image';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 export default function productSection() {
+    const dispatch = useDispatch();
+
+    // Access categories, loading, and error states from the store
+    const { parentCategories, isLoading, error } = useSelector((state) => state.allParentCategories);
+
+    // State to check if categories are already fetched
+    const [categoriesFetched, setCategoriesFetched] = useState(false);
+
+    // Fetch categories on component mount
+    useEffect(() => {
+        if (!categoriesFetched) {
+            dispatch(fetchAllParentCategories());
+            setCategoriesFetched(true); // Mark categories as fetched
+        }
+    }, [categoriesFetched, dispatch]);
 
     return (
         <>
@@ -15,88 +33,47 @@ export default function productSection() {
                         </a>
 
                     </div>
-                    <div className="image grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3   lg:gap-28 ">
 
-                        <div className="images flex justify-center">
-                            <div className="image_1 cursor-pointer">
-                                <div className="inner_imag h-auto w-[180px] lg:w-[250px] rounded-lg relative group overflow-hidden">
-                                    <Image src="/steelblue.png" height={400} width={400} className="rounded-lg hover:opacity-60 group-hover:scale-125 duration-500" />
-
-                                    
-                                    {/* Icons Section */}
-                                </div>
-                                <div className="lower_txt flex justify-center">
-                                    <div className="price_text_image text-center m-5">
-                                        {/* Lower h1 with specific font size (13px) and font weight (400) */}
-                                        <h1
-                                            className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-                                            style={{ fontWeight: '400', fontSize: '17px' }}
-                                        >
-                                            Hand Bags
-                                        </h1>
-
+                    {isLoading && <p>Loading categories...</p>}
+                    {error && <p>Error: {error}</p>}
+                    {!isLoading && (
+                        <>
+                            <div className="image grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 lg:gap-x-8 xl:gap-x-12 xl:gap-y-12 mx-auto max-w-screen-xl px-4">
+                                {parentCategories.map((category) => (
+                                    <div
+                                        key={category.id}
+                                        id={category.id}
+                                        className="images flex justify-center"
+                                    >
+                                        <div className="image_1 cursor-pointer">
+                                            <div className="inner_imag h-[180px] w-[180px] lg:w-[220px] lg:h-[220px] xl:w-[250px] xl:h-[250px] rounded-lg relative group overflow-hidden">
+                                                <Image
+                                                    src={category.image}
+                                                    alt={category.name}
+                                                    height={400}
+                                                    width={400}
+                                                    className="rounded-lg group-hover:scale-110 duration-500"
+                                                />
+                                            </div>
+                                            <div className="lower_txt flex justify-center">
+                                                <div className="price_text_image text-center m-5">
+                                                    <h1
+                                                        className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
+                                                        style={{ fontWeight: "400", fontSize: "17px" }}
+                                                    >
+                                                        {category.name}
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                ))}
                             </div>
-                        </div>
-                        <div className="images flex justify-center">
-                            <div className="image_2 cursor-pointer">
-                                <div className="inner_imag h-auto w-[180px] lg:w-[250px] rounded-lg relative group overflow-hidden">
-                                    <Image src="/boxer.png" height={400} width={400} className="rounded-lg hover:opacity-60 group-hover:scale-125 duration-500" />
-
-                                    
-
-                                    {/* Icons Section */}
-                                </div>
+                        </>
 
 
+                    )}
 
-
-
-                                <div className="lower_txt flex justify-center">
-                                    <div className="price_text_image text-center m-5">
-                                        {/* Lower h1 with specific font size (13px) and font weight (400) */}
-                                        <h1
-                                            className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-                                            style={{ fontWeight: '400', fontSize: '17px' }}
-                                        >
-                                            Hand Bags
-                                        </h1>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="images flex justify-center">
-                            <div className="image_3 cursor-pointer">
-                                <div className="inner_imag h-auto w-[180px] lg:w-[250px] rounded-lg relative group overflow-hidden">
-                                    <Image src="/steelblue.png" height={400} width={400} className="rounded-lg hover:opacity-60 group-hover:scale-125 duration-500" />
-
-                                    {/* Icons Section */}
-                                </div>
-
-
-
-
-
-                                <div className="lower_txt flex justify-center">
-                                    <div className="price_text_image text-center m-5">
-                                        {/* Lower h1 with specific font size (13px) and font weight (400) */}
-                                        <h1
-                                            className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-                                            style={{ fontWeight: '400', fontSize: '17px' }}
-                                        >
-                                            Handy Bags
-                                        </h1>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                    </div>
                 </div>
             </div>
 

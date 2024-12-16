@@ -63,7 +63,7 @@ export default function page() {
                                                 <tr className="flex w-full border-b border-gray-200 justify-between">
 
                                                     <td className="text-start py-4 px-2.5 w-[40px] text-md text-gray-900 font-normal flex items-center justify-center" >
-                                                        <button className="m-0 min-w-[30px] min-h-[30px] flex justify-center items-center  cursor-pointer group" onClick={() => { handleRemovefromCart(item.id) }}>
+                                                        <button className="m-0 min-w-[30px] min-h-[30px] flex justify-center items-center  cursor-pointer group" onClick={() => { handleRemovefromCart(item.colorId) }}>
                                                             <svg className="h-3 w-3 fill-black group-hover:fill-gray-600" viewBox="0 0 24 24">
                                                                 <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"></path>
                                                             </svg>
@@ -78,7 +78,7 @@ export default function page() {
                                                         <div className="quantity_section flex justify-center">
                                                             <div className="inner flex">
                                                                 {/* Minus Button */}
-                                                                <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleDecrementItem(item.id) }}>
+                                                                <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleDecrementItem(item.colorId) }}>
                                                                     -
                                                                 </button>
 
@@ -86,7 +86,7 @@ export default function page() {
                                                                 <span className="px-3 py-3  border-t-2 border-b-2">{item.quantity}</span>
 
                                                                 {/* Plus Button */}
-                                                                <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleIncrementItem(item.id) }}>
+                                                                <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleIncrementItem(item.colorId) }}>
                                                                     +
                                                                 </button>
                                                             </div>

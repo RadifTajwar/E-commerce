@@ -1,10 +1,10 @@
 'use client'
-import AddCategory from "@/components/ui/components/admin/categories/addCategory";
-import AllProducts from "@/components/ui/components/admin/categories/allCategories";
-import DeleteVisible from "@/components/ui/components/admin/categories/deleteVisible";
-import SearchForm from "@/components/ui/components/admin/categories/searchForm";
-import UpdateCategories from "@/components/ui/components/admin/categories/updateCateogories";
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
+import AddParentCategory from "@/components/ui/components/admin/parentCategories/addParentCategory";
+import AllParentCategories from "@/components/ui/components/admin/parentCategories/allParentCategories";
+import DeleteVisible from "@/components/ui/components/admin/parentCategories/deleteVisible";
+import SearchForm from "@/components/ui/components/admin/parentCategories/searchForm";
+import UpdateParentCateogories from "@/components/ui/components/admin/parentCategories/updateParentCategories";
+import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
@@ -42,7 +42,7 @@ export default function page() {
       });
        // Delay the dispatch by 2 seconds
     setTimeout(() => {
-      dispatch(fetchAllCategories());
+      dispatch(fetchAllParentCategories());
     }, 2000); // 2000 milliseconds = 2 seconds
     setIsVisibleAddProduct(false); // Optionally hide the drawer
     }
@@ -57,6 +57,7 @@ export default function page() {
         progress: undefined,
         theme: "light",
       });
+      setIsVisibleAddProduct(false); // Optionally hide the drawer
     }
     else if(result=="validationError"){
       toast.error("No input field can be empty!", {
@@ -69,6 +70,7 @@ export default function page() {
         progress: undefined,
         theme: "light",
       });
+      
     }
     else{
       toast.error("Internal Server Error!", {
@@ -99,7 +101,7 @@ export default function page() {
     });
     // Delay the dispatch by 2 seconds
     setTimeout(() => {
-      dispatch(fetchAllCategories());
+      dispatch(fetchAllParentCategories());
     }, 2000); // 2000 milliseconds = 2 seconds
     
   };
@@ -167,7 +169,7 @@ export default function page() {
           )
         }
 
-        <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Products</h1>
+        <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Parent Categories</h1>
 
         <div className="min-w-0  border border-gray-200 rounded-lg ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 shadow-xs mb-5">
           <div className="p-4">
@@ -380,7 +382,7 @@ export default function page() {
           <SearchForm />
         </div>
 
-        <AllProducts toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} />
+        <AllParentCategories toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} />
 
       </div>
 
@@ -388,7 +390,7 @@ export default function page() {
         className={`drawer-content-wrapper w-full sm:w-1/2 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <UpdateCategories toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId} 
+        <UpdateParentCateogories toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId} 
         doneUpdate={doneUpdate} />
       </div>
 
@@ -397,7 +399,7 @@ export default function page() {
         className={`drawer-content-wrapper w-full sm:w-1/2 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <AddCategory toggleAddProductVisible={toggleAddProductVisible} doneAddProduct={doneAddProduct} />
+        <AddParentCategory toggleAddProductVisible={toggleAddProductVisible} doneAddProduct={doneAddProduct} />
       </div>
 
       <div

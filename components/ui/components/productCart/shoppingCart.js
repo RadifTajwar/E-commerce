@@ -17,6 +17,7 @@ export default function ShoppingCart({ toggleShoppingCart, isVisibleShoppingCart
         dispatch(incrementItem({ id }));
     }
     const handleDecrementItem = (id) => {
+        console.log("this id is coming :", id);
         dispatch(decrementItem({ id }));
     }
 
@@ -69,7 +70,7 @@ export default function ShoppingCart({ toggleShoppingCart, isVisibleShoppingCart
                                             <div className="quantity_section flex justify-start my-2">
                                                 <div className="inner flex">
                                                     {/* Minus Button */}
-                                                    <button className="border border px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => { handleDecrementItem(item.id) }}>
+                                                    <button className="border border px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => { handleDecrementItem(item.colorId) }}>
                                                         -
                                                     </button>
 
@@ -77,7 +78,7 @@ export default function ShoppingCart({ toggleShoppingCart, isVisibleShoppingCart
                                                     <span className="px-2 py-1  border-t border-b text-gray-500 text-sm flex items-center justify-center">1</span>
 
                                                     {/* Plus Button */}
-                                                    <button className="border border px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => handleIncrementItem(item.id)}>
+                                                    <button className="border border px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => handleIncrementItem(item.colorId)}>
                                                         +
                                                     </button>
                                                 </div>
@@ -96,7 +97,7 @@ export default function ShoppingCart({ toggleShoppingCart, isVisibleShoppingCart
                                     <div className="close_button">
                                         <button
                                             className="m-1 hover:bg-white hover:shadow rounded-full h-5 w-5 flex items-center justify-center"
-                                            onClick={() => handleRemovefromCart(item.id)}
+                                            onClick={() => handleRemovefromCart(item.colorId)}
                                         >
                                             <svg className="h-3 w-3 group-hover:fill-gray-600" viewBox="0 0 24 24">
                                                 <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 13.414062 12 L 20.707031 4.7070312 L 19.292968 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z" />

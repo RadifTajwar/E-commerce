@@ -2,11 +2,11 @@
 import Footer from '@/components/ui/components/footer';
 import LoginForm from '@/components/ui/components/loginForm';
 import MyCartButton from '@/components/ui/components/navBar/myCartButton';
+import NavMenu from '@/components/ui/components/navBar/navMenu';
 import ShoppingCart from '@/components/ui/components/productCart/shoppingCart';
 import store from "@/redux/store";
 import 'flowbite';
 import { Inter } from "next/font/google";
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,6 +14,9 @@ import { Provider } from "react-redux";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 export default function Rootlayout({ children }) {
+
+ 
+  
   const pathname = usePathname()
   console.log(pathname);
   const isMyAccountPage = pathname === '/my-account';
@@ -213,114 +216,12 @@ export default function Rootlayout({ children }) {
                           <div className="hidden divider h-[35px] md:h-[50px] bg-black" style={{ width: '1px' }}>
                             {/* Divider */}
                           </div>
+                          {/* NavMenu  */}
 
-                          <ul className="hidden lg:flex items-center justify-start gap-4 sm:gap-5 md:gap-6 py-3 sm:justify-center">
-                            <li className="group relative">
-                              <a href="#" title="" className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500" style={{ fontSize: '.9rem' }}>
-                                WALLET
-                                <svg
-                                  className="ml-2 w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-primary-500"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                              </a>
-                              <span
-                                className="absolute bottom-2 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"
-                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                              ></span>
-
-                              {/* 2nd level menu */}
-                              <div className="absolute flex top-full left-0 min-w-[500px] bg-white border border-slate-200 p-2 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
-                                <div className="items">
-                                  <ul>
-                                    <li>
-                                      <a className="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="#" style={{ fontSize: '.9rem' }}>
-                                        <span className="whitespace-nowrap">Priority Ratings</span>
-                                      </a>
-                                    </li>
-                                    <li>
-                                      <a className="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="#" style={{ fontSize: '.9rem' }}>
-                                        <span className="whitespace-nowrap">Priority Ratings</span>
-                                      </a>
-                                    </li>
-                                  </ul>
-                                </div>
-                                <div className="images ms-10">
-                                  <Image src="/bag.jpg" width={500} height={500} />
-                                </div>
-                              </div>
-                            </li>
-
-                            <li className="group relative">
-                              <a href="#" title="" className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500" style={{ fontSize: '.9rem' }}>
-                                BAG
-                                <svg
-                                  className="ml-2 w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-primary-500"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                              </a>
-                              <span
-                                className="absolute bottom-2 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"
-                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                              ></span>
-
-                              {/* 2nd level menu */}
-                              <ul className="absolute top-full left-0 min-w-[500px] bg-white border border-slate-200 p-2 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
-                                <li>
-                                  <a className="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="#">
-                                    <div className="flex items-center justify-center bg-white border border-slate-200 rounded shadow-sm h-7 w-7 shrink-0 mr-3">
-                                      <svg className="fill-indigo-500" xmlns="http://www.w3.org/2000/svg" width="9" height="12">
-                                        <path d="M8.724.053A.5.5 0 0 0 8.2.1L4.333 3H1.5A1.5 1.5 0 0 0 0 4.5v3A1.5 1.5 0 0 0 1.5 9h2.833L8.2 11.9a.5.5 0 0 0 .8-.4V.5a.5.5 0 0 0-.276-.447Z" />
-                                      </svg>
-                                    </div>
-                                    <span className="whitespace-nowrap">Priority Ratings</span>
-                                  </a>
-                                </li>
-                                {/* More list items... */}
-                              </ul>
-                            </li>
-
-                            <li className="group relative">
-                              <a href="#" title="" className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500" style={{ fontSize: '.9rem' }}>
-                                ABOUT US
-
-                              </a>
-                              <span
-                                className="absolute bottom-2 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"
-                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                              ></span>
-                            </li>
-                            <li className="group relative">
-                              <a href="#" title="" className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500" style={{ fontSize: '.9rem' }}>
-                                CONTACT US
-
-                              </a>
-                              <span
-                                className="absolute bottom-2 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"
-                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                              ></span>
-                            </li>
-
-                            <li className="group relative">
-                              <Link href="/shop" title="" className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500" style={{ fontSize: '.9rem' }}>
-                                SHOP NOW
-
-                              </Link>
-                              <span
-                                className="absolute bottom-2 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"
-                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                              ></span>
-                            </li>
-                          </ul>
+                          
+                            <NavMenu />
+                            
+                          
 
                         </div>
                         {/* Cart and account menu  */}

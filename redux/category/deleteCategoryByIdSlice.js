@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Define the API endpoint for deleting a category
-const API_URL = "http://localhost:5000/api/v1/category/delete";
+const API_URL = "https://leather-for-luxury.vercel.app/api/v1/category/delete";
 
 // Create an async thunk for deleting a category by ID
 export const deleteCategoryById = createAsyncThunk(
