@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
 import RangeBar from "@/components/ui/components/shop/rangeBar";
@@ -10,98 +11,87 @@ import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCatego
 import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
-export default function page() {
-   
-    const dispatch = useDispatch();
 
-    // Access the parent categories from the store
-    const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
-        (state) => state.allParentCategories
-    );
-    
-    const searchParams = useSearchParams();
-    
-    
-    const { categories, isLoading: categoryLoading, error: categoryError } = useSelector((state) => state.categories);
+export default function Page() {
+  const dispatch = useDispatch();
 
-    // Fetch all parent categories and categories
-    useEffect(() => {
-        dispatch(fetchAllParentCategories());
-        dispatch(fetchAllCategories());
-    }, [dispatch]);
+  // Access the parent categories from the store
+  const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
+    (state) => state.allParentCategories
+  );
 
-    // Show a loading indicator if the parent categories are still loading
+  const searchParams = useSearchParams();
+  
+  const { categories, isLoading: categoryLoading, error: categoryError } = useSelector(
+    (state) => state.categories
+  );
 
+  // Fetch all parent categories and categories
+  useEffect(() => {
+    dispatch(fetchAllParentCategories());
+    dispatch(fetchAllCategories());
+  }, [dispatch]);
 
-    const [isSortBarVisible, setSortBarVisible] = useState(false);
+  const [isSortBarVisible, setSortBarVisible] = useState(false);
 
+  // Access products, loading, and error states from the Redux store
+  const { products, isLoading, error } = useSelector((state) => state.allProducts);
 
-    // Access products, loading, and error states from the Redux store
-    const { products, isLoading, error } = useSelector((state) => state.allProducts);
+  // State to track if products have been fetched
+  const [productsFetched, setProductsFetched] = useState(false);
 
-    // State to track if products have been fetched
-    const [productsFetched, setProductsFetched] = useState(false);
-
-    // Fetch products on component mount
-    useEffect(() => {
-        if (!productsFetched) {
-            dispatch(fetchAllProducts());
-            setProductsFetched(true); // Mark products as fetched
-        }
-    }, [productsFetched, dispatch]);
-
-
-    const toggleSortBar = () => {
-        setSortBarVisible(!isSortBarVisible)
-        console.log('sort bar ' + isSortBarVisible);
+  // Fetch products on component mount
+  useEffect(() => {
+    if (!productsFetched) {
+      dispatch(fetchAllProducts());
+      setProductsFetched(true); // Mark products as fetched
     }
+  }, [productsFetched, dispatch]);
 
-    const [isVisible, setIsVisible] = useState(false);
-    const toggleDropdown = () => {
-        setIsVisible(!isVisible);
-    };
+  const toggleSortBar = () => {
+    setSortBarVisible(!isSortBarVisible)
+    console.log('sort bar ' + isSortBarVisible);
+  }
 
+  const [isVisible, setIsVisible] = useState(false);
+  const toggleDropdown = () => {
+    setIsVisible(!isVisible);
+  };
 
-    const router = useRouter();
+  const router = useRouter();
 
-    // Function to handle category click and update the query parameter
-    const handleParentCategoryClick = (categoryName) => {
-        const params = new URLSearchParams(window.location.search);
-        const existingParentCategory = params.get("parentCategory");
-    
-        if (existingParentCategory != categoryName) {
-          // If the same parent category is clicked, clear it
-          // Set the new parent category
-          params.set("parentCategory", categoryName);
-          // Clear the child category as it may no longer be relevant
-          params.delete("childCategory");
-          router.push(`${window.location.pathname}?${params.toString()}`);
-        } 
-    
-        
-      };
+  // Function to handle category click and update the query parameter
+  const handleParentCategoryClick = (categoryName) => {
+    const params = new URLSearchParams(window.location.search);
+    const existingParentCategory = params.get("parentCategory");
 
+    if (existingParentCategory != categoryName) {
+      // If the same parent category is clicked, clear it
+      // Set the new parent category
+      params.set("parentCategory", categoryName);
+      // Clear the child category as it may no longer be relevant
+      params.delete("childCategory");
+      router.push(`${window.location.pathname}?${params.toString()}`);
+    }
+  };
 
-      const handleChildCategoryClick = (categoryName,parentCategoryName) => {
-        const params = new URLSearchParams(window.location.search);
-        const existingChildCategory = params.get("childCategory");
-    
-        if (existingChildCategory != categoryName) {
-          // If the same child category is clicked, clear it
-          params.set("childCategory", categoryName);
-          params.set("parentCategory", parentCategoryName);
-          router.push(`${window.location.pathname}?${params.toString()}`);
-        }
-    
-        
-      };
-    
+  const handleChildCategoryClick = (categoryName, parentCategoryName) => {
+    const params = new URLSearchParams(window.location.search);
+    const existingChildCategory = params.get("childCategory");
+
+    if (existingChildCategory != categoryName) {
+      // If the same child category is clicked, clear it
+      params.set("childCategory", categoryName);
+      params.set("parentCategory", parentCategoryName);
+      router.push(`${window.location.pathname}?${params.toString()}`);
+    }
+  };
 
     return (
         <>
-
+ <Suspense fallback={<div>Loading...</div>}>
             {/* Overlay */}
             {isSortBarVisible && (
 
@@ -350,7 +340,7 @@ export default function page() {
 
 
 
-
+            </Suspense>
 
         </>
     )
