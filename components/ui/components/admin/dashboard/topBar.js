@@ -8,7 +8,7 @@ export default function topBar({toggleSidebar }) {
     const [profileClicked, setProfileClicked] = useState(false)
     return (
         <>
-            <header className="z-30 py-4 bg-white shadow-sm dark:bg-gray-800">
+           <header className="sticky top-0 z-30 py-4 bg-white shadow-sm dark:bg-gray-800">
                 <div className="max-w-4xl lg:max-w-7xl mx-auto flex items-center justify-between h-full px-6 mx-auto text-blue-500 dark:text-blue-500">
                     <button className="radif p-1 mr-5 -ml-1 rounded-md lg:hidden focus:outline-none" aria-label="Menu" onClick={toggleSidebar}>
                         <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" className="w-6 h-6" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
@@ -21,13 +21,7 @@ export default function topBar({toggleSidebar }) {
                     </span>
                     <ul className="flex justify-end items-center flex-shrink-0 space-x-6">
 
-                        <li className="flex">
-                            <button className="rounded-md focus:outline-none" aria-label="Toggle color mode"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M152.62 126.77c0-33 4.85-66.35 17.23-94.77C87.54 67.83 32 151.89 32 247.38 32 375.85 136.15 480 264.62 480c95.49 0 179.55-55.54 215.38-137.85-28.42 12.38-61.8 17.23-94.77 17.23-128.47 0-232.61-104.14-232.61-232.61z">
-                                </path>
-                            </svg>
-                            </button>
-                        </li>
+                      
                         <li className="relative inline-block text-left">
                             <button className="relative align-middle rounded-md focus:outline-none" onClick={() => { setNotificationBarClicked(!notificationBarClicked); setProfileClicked(false); }}>
                                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
