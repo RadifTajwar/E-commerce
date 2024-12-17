@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { addItemToCart } from "@/redux/cart/cartSlicer";
+// import { addItemToCart } from "@/redux/cart/cartSlicer";
 import CryptoJS from 'crypto-js';
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +10,16 @@ export default function card({ product }) {
     const dispatch = useDispatch();
 
     const handleAddToCart = () => {
-        dispatch(addItemToCart({ id: product?.id, name: product?.name, price: product?.discountedPrice, image: product?.imageDefault }));
+        
+        // dispatch(addItemToCart({
+        //     id: product?.id,
+        //     name: product?.name,
+        //     price: product?.discountedPrice,
+        //     image: product?.imageDefault,
+            
+        //     colorId: colorId, // Send the selected color along with other data
+        //     color: selectedColor, // Send the selected color along with other data
+        // }));
     };
 
     const handleProductClick = () => {

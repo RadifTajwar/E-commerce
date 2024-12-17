@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Card from './card';
 export default function InfiniteScroll({ products }) {
     const searchParams = useSearchParams(); // Get search parameters
@@ -74,11 +74,11 @@ export default function InfiniteScroll({ products }) {
 
     return (
         <>
-       <Suspense fallback={<div>Loading...</div>}>
+      
             <div className="flex grid grid-cols-2 md:grid-cols-3 gap-x-4">
                 {elements}
             </div>
-            </Suspense>
+    
         </>
     );
 }

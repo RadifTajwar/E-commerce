@@ -2,7 +2,8 @@
 import DashboardStats from "@/components/ui/components/admin/dashboard/dashboardStats";
 import HighestSellingProducts from '@/components/ui/components/admin/dashboard/highestSellingProducts';
 import OrderStats from "@/components/ui/components/admin/dashboard/orderStats";
-import WeeklySales from "@/components/ui/components/admin/dashboard/weeklySales";
+// import WeeklySales from "@/components/ui/components/admin/dashboard/weeklySales";
+
 import RecentOrders from "@/components/ui/components/admin/orders/recentOrders";
 import { usePathname } from "next/navigation";
 export default function page() {
@@ -11,8 +12,8 @@ export default function page() {
         <>
        
 
-                    <main className="h-full overflow-y-auto">
-                        <div className="max-w-7xl grid px-6 mx-auto">
+                    
+                        <div className="max-w-4xl lg:max-w-7xl grid px-6 mx-auto">
                             {
                                 pathName == '/admin/dashboard'?(
                                     <>
@@ -30,9 +31,9 @@ export default function page() {
                                 </div>
 
                                 <div className="grid gap-4 md:grid-cols-2 my-8 mx-auto">
-                                    <div className="weeklySales flex justify-center w-full">
+                                    {/* <div className="weeklySales flex justify-center w-full">
                                         <WeeklySales />
-                                    </div>
+                                    </div> */}
                                     <div className="higestSellingProducts  flex justify-center w-full">
                                         <HighestSellingProducts />
                                     </div>
@@ -41,9 +42,9 @@ export default function page() {
 
                                 <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Recent Order</h1>
 
-                                {/* recent orders  */}
-                                <RecentOrders />
+                                
                             </div>
+                            <RecentOrders />
                                     </>
                                 ):(
                                     <>
@@ -58,7 +59,7 @@ export default function page() {
                         </div>
 
 
-                    </main>
+                   
 
 
                

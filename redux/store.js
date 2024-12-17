@@ -5,6 +5,7 @@ import categoryByIdSlice from "./category/categoryByIdSlice";
 import createCategorySlice from "./category/createCategorySlice";
 import deleteCategoryByIdSlice from "./category/deleteCategoryByIdSlice";
 import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
+import createOrderReducer from "./order/createOrderSlice";
 import allParentCategorySlice from "./parentCategory/allParentCategorySlice";
 import createParentCategoryReducer from "./parentCategory/createParentCategorySlice";
 import deleteParentCategoryByIdSlice from "./parentCategory/deleteParentCategoryByIdSlice";
@@ -15,7 +16,6 @@ import createProductReducer from "./product/createProductSlice";
 import deleteProductReducer from "./product/deleteProductByIdSlice";
 import productByIdReducer from "./product/productByIdSlice";
 import updateProductReducer from "./product/updateProductDataSlice";
-
 // Check if in browser
 const isBrowser = typeof window !== "undefined";
 
@@ -64,6 +64,7 @@ const store = configureStore({
         deleteProduct: deleteProductReducer,
         productById: productByIdReducer,
         updateProductData: updateProductReducer,
+        createOrderItem: createOrderReducer,
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser

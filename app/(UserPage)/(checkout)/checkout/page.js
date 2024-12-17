@@ -6,28 +6,68 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
+import { createOrder } from '@/redux/order/createOrderSlice';
 export default function page() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const cartTotal = useSelector((state) => state.cart.total);
   const [selectedShipping, setSelectedShipping] = useState(60);
+  const [showCoupon, setShowCoupon] = useState(false);
+  
+  const [formState, setFormState] = useState({
+    name: "",
+    address: "",
+    district: "",
+    searchTerm: "",
+    phone: "",
+    email: "",
+    additionalInfo: "",
+  });
+
+  const [showDistrictOption, setShowDistrictOption] = useState(false);
+  const [filteredDistricts, setFilteredDistricts] = useState([]); // Example: populate this with districts
+  const districts = ["Dhaka", "Chittagong", "Khulna", "Barisal", "Sylhet"]; // Example list of districts
+
+  // Handler for updating form state
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormState((prevState) => ({
+      ...prevState,
+      [id]: value,
+    }));
+  };
+
+  // Filter districts based on search term
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setFormState((prevState) => ({
+      ...prevState,
+      searchTerm: value,
+    }));
+    setFilteredDistricts(
+      districts.filter((district) =>
+        district.toLowerCase().includes(value.toLowerCase())
+      )
+    );
+  };
+
+  // Select a district
+  const handleDistrictSelect = (district) => {
+    setFormState((prevState) => ({
+      ...prevState,
+      district,
+      searchTerm: "",
+    }));
+    setShowDistrictOption(false);
+  };
+
+
 
   const handleShippingChange = (e) => {
     const cost = Number(e.target.value);
     setSelectedShipping(cost);
     localStorage.setItem("selectedShipping", cost); // Save to local storage
   };
-  const [showCoupon, setShowCoupon] = useState(false);
-  const [showDistrictOption, setShowDistrictOption] = useState(false);
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDistrict, setSelectedDiestrict] = useState("Chittagong")
-  const districts = ["Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Dhaka", "Chittagong", "Sylhet", "Rajshahi", "Khulna"];
-
-  const filteredDistricts = districts.filter((district) =>
-    district.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
 
   const handleIncrementItem = (id) => {
     dispatch(incrementItem({ id }));
@@ -41,6 +81,13 @@ export default function page() {
       setSelectedShipping(Number(savedShipping));
     }
   }, []);
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    console.log("Form submitted", formState);
+    
+  }
+
   return (
     <>
 
@@ -68,9 +115,8 @@ export default function page() {
 
                   </div>
                 </div>
-
-
               </div>
+              <form className="w-full" onSubmit={handleFormSubmit}>
               <div className="inner_divs md:flex w-full justify-center ">
 
                 <div className="w-full md:w-5/12 lg:w-1/2  px-4">
@@ -79,156 +125,140 @@ export default function page() {
                       <p className="text-xl font-normal text-gray-900">BILLING & SHIPPING</p>
                     </div>
                     <div className="name_address_district_phone_email_&_additionalInformation">
-                      {/* Name Field */}
-                      <div className=" w-full pb-5">
-                        <label htmlFor="name" className="block text-sm font-normal text-gray-700 pb-1">
-                          Full Name (আপনার সম্পূর্ণ নাম) <span className="text-sm text-red-600">*</span>
-                        </label>
-                        <div className="input  w-full lg:w-1/2">
+                   
+                        {/* Name Field */}
+                        <div className="w-full pb-5">
+                          <label htmlFor="name" className="block text-sm font-normal text-gray-700 pb-1">
+                            Full Name (আপনার সম্পূর্ণ নাম) <span className="text-sm text-red-600">*</span>
+                          </label>
                           <input
                             type="text"
                             id="name"
-                            className="   border-2 border-gray-200 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm focus:outline-none sm:text-sm"
-
+                            value={formState.name}
+                            onChange={handleInputChange}
+                            className="border-2 border-gray-200 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
                           />
                         </div>
 
-                      </div>
-
-
-
-                      {/* Address Field */}
-                      <div className="w-full pb-5">
-                        <label htmlFor="address" className="block text-sm font-normal text-gray-700 pb-1">
-                          Full address(আপনার সম্পূর্ণ ঠিকানা লিখুন) <span className="text-sm text-red-600">*</span>
-                        </label>
-                        <div className="input w-full">
+                        {/* Address Field */}
+                        <div className="w-full pb-5">
+                          <label htmlFor="address" className="block text-sm font-normal text-gray-700 pb-1">
+                            Full Address (আপনার সম্পূর্ণ ঠিকানা লিখুন) <span className="text-sm text-red-600">*</span>
+                          </label>
                           <input
                             type="text"
                             id="address"
-                            className="  px-4 border-2 border-gray-200 p-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm focus:outline-none sm:text-sm"
-
+                            value={formState.address}
+                            onChange={handleInputChange}
+                            className="border-2 border-gray-200 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
                           />
                         </div>
-                      </div>
 
-                      {/* District Field */}
-                      <div className="w-full pb-5">
-                        <label htmlFor="district" className="block text-sm font-normal text-gray-700 pb-1">
-                          District (জেলা) <span className="text-sm text-red-600">*</span>
-                        </label>
-                        <div className="relative inline-block w-full">
-                          <div className="px-4 border-2 border-gray-200 p-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm focus:outline-none sm:text-sm">
-                            <button
-                              className="w-full text-left flex justify-between items-center focus:outline-none"
-                              onClick={() => setShowDistrictOption(!showDistrictOption)}
-                            >
-                              {selectedDistrict}
-                              <svg
-                                className={`w-4 h-4 ml-2 ${showDistrictOption ? 'rotate-180' : 'rotate-0'}`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
+                        {/* District Field */}
+                        <div className="w-full pb-5">
+                          <label htmlFor="district" className="block text-sm font-normal text-gray-700 pb-1">
+                            District (জেলা) <span className="text-sm text-red-600">*</span>
+                          </label>
+                          <div className="relative">
+                            <div className="border-2 border-gray-200 px-4 py-2 mt-1 shadow-sm">
+                              <button
+                                type="button"
+                                className="w-full text-left flex justify-between items-center focus:outline-none"
+                                onClick={() => setShowDistrictOption(!showDistrictOption)}
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-
-
-                            </button>
-                          </div>
-
-                          {/* Search Bar */}
-                          {showDistrictOption && (
-                            <div className="absolute z-10 left-0 right-0 bg-white border-x-2 border-gray-200 shadow-md ">
-                              <div className="relative w-full p-4 bg-gray-200">
-                                <input
-                                  type="text"
-                                  className="w-full px-4 py-2 border-2 border-gray-300 focus:outline-none text-sm"
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-
-                                {/* Search Icon */}
-                                <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600 me-2" />
-                              </div>
-
-
-
-                              <ul className="max-h-[200px] overflow-scroll">
-                                {filteredDistricts.length > 0 ? (
-                                  filteredDistricts.map((district, index) => (
-                                    <li
-                                      key={index}
-                                      className="px-4 py-2.5 cursor-pointer hover:bg-gray-700 hover:text-white text-sm"
-                                      onClick={() => {
-                                        setSelectedDiestrict(district);
-                                        setSearchTerm(""); // Set the selected district in the search bar
-                                        setShowDistrictOption(false); // Close the dropdown
-                                      }}
-                                    >
-                                      {district}
-                                    </li>
-                                  ))
-                                ) : (
-                                  <li className="px-4 py-2.5 text-sm text-gray-500">
-                                    No results found
-                                  </li>
-                                )}
-                              </ul>
+                                {formState.district || "Select District"}
+                                <svg
+                                  className={`w-4 h-4 ml-2 ${showDistrictOption ? "rotate-180" : "rotate-0"}`}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
                             </div>
-                          )}
+
+                            {/* Dropdown Search */}
+                            {showDistrictOption && (
+                              <div className="absolute z-10 left-0 right-0 bg-white border-2 shadow-md">
+                                <div className="relative w-full p-4 bg-gray-200">
+                                  <input
+                                    type="text"
+                                    placeholder="Search District"
+                                    value={formState.searchTerm}
+                                    onChange={handleSearchChange}
+                                    className="w-full px-4 py-2 border-2 border-gray-300 focus:outline-none text-sm"
+                                  />
+                                  <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
+                                </div>
+                                <ul className="max-h-[200px] overflow-scroll">
+                                  {filteredDistricts.length > 0 ? (
+                                    filteredDistricts.map((district, index) => (
+                                      <li
+                                        key={index}
+                                        onClick={() => handleDistrictSelect(district)}
+                                        className="px-4 py-2 cursor-pointer hover:bg-gray-700 hover:text-white text-sm"
+                                      >
+                                        {district}
+                                      </li>
+                                    ))
+                                  ) : (
+                                    <li className="px-4 py-2 text-sm text-gray-500">No results found</li>
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
-                      </div>
-
-                      {/* Phone Field */}
-                      <div className="w-full pb-5">
-                        <label htmlFor="phone" className="block text-sm font-normal text-gray-700 pb-1">
-                          Phone(আপনার ফোন নাম্বরটি লিখুন) <span className="text-sm text-red-600">*</span>
-                        </label>
-                        <div className="input w-full">
+                        {/* Phone Field */}
+                        <div className="w-full pb-5">
+                          <label htmlFor="phone" className="block text-sm font-normal text-gray-700 pb-1">
+                            Phone (আপনার ফোন নাম্বারটি লিখুন) <span className="text-sm text-red-600">*</span>
+                          </label>
                           <input
                             type="tel"
                             id="phone"
-                            className="  px-4 border-2 border-gray-200 p-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm focus:outline-none sm:text-sm"
-
+                            value={formState.phone}
+                            onChange={handleInputChange}
+                            className="border-2 border-gray-200 px-4 py-2 focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
                           />
                         </div>
-                      </div>
 
-                      {/* Email Field */}
-                      <div className="w-full pb-5">
-                        <label htmlFor="email" className="block text-sm font-normal text-gray-700 pb-1">
-                          Email address (optional)
-                        </label>
-                        <div className="input w-full">
+                        {/* Email Field */}
+                        <div className="w-full pb-5">
+                          <label htmlFor="email" className="block text-sm font-normal text-gray-700 pb-1">
+                            Email address (optional)
+                          </label>
                           <input
                             type="email"
                             id="email"
-                            className=" px-4  border-2 border-gray-200 p-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm focus:outline-none sm:text-sm"
-
+                            value={formState.email}
+                            onChange={handleInputChange}
+                            className="border-2 border-gray-200 px-4 py-2 focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
                           />
                         </div>
-                      </div>
 
-                      {/* Additional Information Field */}
-                      <div className="w-full pb-5">
-                        <label htmlFor="additional_info" className="block text-sm font-normal text-gray-700 pb-1">
-                          Additional Information
-                        </label>
-                        <div className="input w-full">
+                        {/* Additional Information */}
+                        <div className="w-full pb-5">
+                          <label htmlFor="additionalInfo" className="block text-sm font-normal text-gray-700 pb-1">
+                            Additional Information
+                          </label>
                           <textarea
-                            id="additional_info"
+                            id="additionalInfo"
                             rows="3"
-                            className=" min-h-[190px] border-2 border-gray-200 p-2 px-4 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm focus:outline-none sm:text-sm resize w-full max-w-full"
+                            value={formState.additionalInfo}
+                            onChange={handleInputChange}
+                            className="border-2 border-gray-200 px-4 py-2 focus:outline-none mt-1 block w-full shadow-sm sm:text-sm resize-none"
                             placeholder="Enter any additional information"
                           ></textarea>
                         </div>
-                      </div>
+                      
+
                     </div>
                   </div>
                 </div>
@@ -357,12 +387,14 @@ export default function page() {
 
 
                     </div>
+
                     <div className="place_order_button bg-black  text-white text-center">
-                      <button className="text-center w-full py-3 text-sm font-medium">PLACE ORDER</button>
+                      <button className="text-center w-full py-3 text-sm font-medium" type='submit'>PLACE ORDER</button>
                     </div>
                   </div>
                 </div>
               </div>
+              </form>
             </>
           ) : (
             <>

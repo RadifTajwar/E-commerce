@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import EachColorBar from './eachColorBar';
 import './scrollbar.css';
 export default function ColorBar({ products }) {
@@ -73,7 +73,7 @@ export default function ColorBar({ products }) {
 
     return (
         <>
-         <Suspense fallback={<div>Loading...</div>}>
+        
             <p className='text-md text-black font-medium my-2'>FILTER BY COLOR</p>
             <div className="rangeBar max-h-56 flex flex-col justify-between gap-y-4 overflow-y-auto mt-5">
                 {filteredColorCounts.length > 0 ? (
@@ -86,7 +86,7 @@ export default function ColorBar({ products }) {
                     </div>
                 )}
             </div>
-            </Suspense>
+     
         </>
     );
 }

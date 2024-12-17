@@ -1,7 +1,7 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from "react";
-export default function topBar() {
+export default function topBar({toggleSidebar }) {
     const router = useRouter();
     const pathName = usePathname();
     const [notificationBarClicked, setNotificationBarClicked] = useState(false)
@@ -10,14 +10,7 @@ export default function topBar() {
         <>
             <header className="z-30 py-4 bg-white shadow-sm dark:bg-gray-800">
                 <div className="max-w-4xl lg:max-w-7xl mx-auto flex items-center justify-between h-full px-6 mx-auto text-blue-500 dark:text-blue-500">
-                    <button type="button" className="hidden lg:block outline-0 focus:outline-none">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-
-                            </path>
-                        </svg>
-                    </button>
-                    <button className="p-1 mr-5 -ml-1 rounded-md lg:hidden focus:outline-none" aria-label="Menu">
+                    <button className="radif p-1 mr-5 -ml-1 rounded-md lg:hidden focus:outline-none" aria-label="Menu" onClick={toggleSidebar}>
                         <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" className="w-6 h-6" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                             <path fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="48" d="M88 152h336M88 256h336M88 360h336">
 

@@ -1,8 +1,8 @@
 'use client';
 
+// import ColorBar from "@/components/ui/components/shop/colorBar";
 import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
-import RangeBar from "@/components/ui/components/shop/rangeBar";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
 import TopRatedProducts from "@/components/ui/components/shop/topRatedProducts";
@@ -11,87 +11,89 @@ import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCatego
 import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from 'react'; // Import Suspense from React
+import { useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
-
+import { useParams } from "next/navigation";
+// import RangeBar from "@/components/ui/components/shop/rangeBar";
 export default function Page() {
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  // Access the parent categories from the store
-  const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
-    (state) => state.allParentCategories
-  );
+    // Access the parent categories from the store
+    const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
+        (state) => state.allParentCategories
+    );
 
-  const searchParams = useSearchParams();
-  
-  const { categories, isLoading: categoryLoading, error: categoryError } = useSelector(
-    (state) => state.categories
-  );
+    const searchParams = useSearchParams();
+    const { parentCategory, childCategory } = searchParams;
+    
+    const { categories, isLoading: categoryLoading, error: categoryError } = useSelector(
+        (state) => state.categories
+    );
 
-  // Fetch all parent categories and categories
-  useEffect(() => {
-    dispatch(fetchAllParentCategories());
-    dispatch(fetchAllCategories());
-  }, [dispatch]);
+    // Fetch all parent categories and categories
+    useEffect(() => {
+        dispatch(fetchAllParentCategories());
+        dispatch(fetchAllCategories());
+    }, [dispatch]);
 
-  const [isSortBarVisible, setSortBarVisible] = useState(false);
+    const [isSortBarVisible, setSortBarVisible] = useState(false);
 
-  // Access products, loading, and error states from the Redux store
-  const { products, isLoading, error } = useSelector((state) => state.allProducts);
+    // Access products, loading, and error states from the Redux store
+    const { products, isLoading, error } = useSelector((state) => state.allProducts);
 
-  // State to track if products have been fetched
-  const [productsFetched, setProductsFetched] = useState(false);
+    // State to track if products have been fetched
+    const [productsFetched, setProductsFetched] = useState(false);
 
-  // Fetch products on component mount
-  useEffect(() => {
-    if (!productsFetched) {
-      dispatch(fetchAllProducts());
-      setProductsFetched(true); // Mark products as fetched
+    // Fetch products on component mount
+    useEffect(() => {
+        if (!productsFetched) {
+            dispatch(fetchAllProducts());
+            setProductsFetched(true); // Mark products as fetched
+        }
+    }, [productsFetched, dispatch]);
+
+    const toggleSortBar = () => {
+        setSortBarVisible(!isSortBarVisible)
+        console.log('sort bar ' + isSortBarVisible);
     }
-  }, [productsFetched, dispatch]);
 
-  const toggleSortBar = () => {
-    setSortBarVisible(!isSortBarVisible)
-    console.log('sort bar ' + isSortBarVisible);
-  }
+    const [isVisible, setIsVisible] = useState(false);
+    const toggleDropdown = () => {
+        setIsVisible(!isVisible);
+    };
 
-  const [isVisible, setIsVisible] = useState(false);
-  const toggleDropdown = () => {
-    setIsVisible(!isVisible);
-  };
+    const router = useRouter();
 
-  const router = useRouter();
+    // Function to handle category click and update the query parameter
+    const handleParentCategoryClick = (categoryName) => {
+        const params = new URLSearchParams(window.location.search);
+        const existingParentCategory = params.get("parentCategory");
 
-  // Function to handle category click and update the query parameter
-  const handleParentCategoryClick = (categoryName) => {
-    const params = new URLSearchParams(window.location.search);
-    const existingParentCategory = params.get("parentCategory");
+        if (existingParentCategory != categoryName) {
+            // If the same parent category is clicked, clear it
+            // Set the new parent category
+            params.set("parentCategory", categoryName);
+            // Clear the child category as it may no longer be relevant
+            params.delete("childCategory");
+            router.push(`${window.location.pathname}?${params.toString()}`);
+        }
+    };
 
-    if (existingParentCategory != categoryName) {
-      // If the same parent category is clicked, clear it
-      // Set the new parent category
-      params.set("parentCategory", categoryName);
-      // Clear the child category as it may no longer be relevant
-      params.delete("childCategory");
-      router.push(`${window.location.pathname}?${params.toString()}`);
-    }
-  };
+    const handleChildCategoryClick = (categoryName, parentCategoryName) => {
+        const params = new URLSearchParams(window.location.search);
+        const existingChildCategory = params.get("childCategory");
 
-  const handleChildCategoryClick = (categoryName, parentCategoryName) => {
-    const params = new URLSearchParams(window.location.search);
-    const existingChildCategory = params.get("childCategory");
-
-    if (existingChildCategory != categoryName) {
-      // If the same child category is clicked, clear it
-      params.set("childCategory", categoryName);
-      params.set("parentCategory", parentCategoryName);
-      router.push(`${window.location.pathname}?${params.toString()}`);
-    }
-  };
+        if (existingChildCategory != categoryName) {
+            // If the same child category is clicked, clear it
+            params.set("childCategory", categoryName);
+            params.set("parentCategory", parentCategoryName);
+            router.push(`${window.location.pathname}?${params.toString()}`);
+        }
+    };
 
     return (
-      
- <Suspense fallback={<div>Loading...</div>}>
+
+        <>
             {/* Overlay */}
             {isSortBarVisible && (
 
@@ -146,7 +148,7 @@ export default function Page() {
                                                                         >
                                                                             <a
                                                                                 href="#"
-                                                                                onClick={() => handleChildCategoryClick(category.name,parentCategory.name)}
+                                                                                onClick={() => handleChildCategoryClick(category.name, parentCategory.name)}
                                                                                 className="group/nested w-full"
                                                                                 style={{ fontSize: '.9rem' }}
                                                                             >
@@ -279,7 +281,7 @@ export default function Page() {
 
                                 <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
 
-                                    <RangeBar />
+                                    {/* <RangeBar /> */}
                                     <div className="line w-full h-px bg-gray-300 my-6">
                                     </div>
                                     <ColorBar products={products} />
@@ -296,7 +298,7 @@ export default function Page() {
                                 <div className={`left w-80 bg-white p-4 overflow-scroll fixed z-20  transition-all duration-300 lg:static  lg:hidden ${isSortBarVisible ? ' top-0 left-0 bottom-0 ' : ' top-0 -left-full'
                                     } `}>
                                     <div className={`${isSortBarVisible ? 'translate-x-0' : '-translate-x-full'}`}>
-                                        <RangeBar />
+                                        {/* <RangeBar /> */}
                                         <div className="line w-full h-px bg-gray-300 my-6">
                                         </div>
                                         <ColorBar products={products} />
@@ -338,10 +340,10 @@ export default function Page() {
             </div>
 
 
+        </>
 
 
-            </Suspense>
 
-      
+
     )
 }

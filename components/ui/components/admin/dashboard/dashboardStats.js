@@ -13,7 +13,7 @@ const StatCard = ({ icon, title, amount, breakdown }) => {
                         <p className="text-2xl font-bold leading-none">{amount}</p>
                     </div>
                     {breakdown && (
-                        <div className="flex text-center text-xs font-normal">
+                        <div className="flex text-center text-xs font-normal justify-center mt-3">
                             {breakdown.map((item, index) => (
                                 <div key={index} className="px-1 mt-3">
                                     {item.label} : {item.value}

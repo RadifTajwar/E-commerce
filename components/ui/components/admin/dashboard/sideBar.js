@@ -1,19 +1,33 @@
 'use client'
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-
-export default function sideBar() {
+export default function SideBar({ isOpen, setIsOpen }) {
     const [catalogButtonForm, setCatalogButtonForm] = useState(false)
+   
     const router = useRouter();
     const pathName = usePathname();
+    const sideBarComponentClicked = (route) => {
+        console.log('SideBar Component Clicked');
+        router.push(`/admin/${route}`);
+        setIsOpen(false);
+    }
+
     return (
         <>
-            {/* side bar of the admin dashboard Pages */}
-            <div className="z-30 flex-shrink-0 hidden shadow-sm w-64 overflow-y-auto bg-white dark:bg-gray-800 lg:block">
-                <div className="py-4 text-gray-500 dark:text-gray-400">
-                    <div className=" text-gray-900 dark:text-gray-200" onClick={() => {
-                        router.push('/admin/dashboard');
-                    }}>
+            {/* Sidebar Component */}
+            <div
+                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-md transform transition-transform duration-300 ease-in-out
+                ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static`}
+            >
+                <div className="py-4 text-gray-500 dark:text-gray-400 h-full">
+                    {/* Close Button for Smaller Screens */}
+                    <button
+                        className="lg:hidden absolute top-4 right-4 text-gray-600 dark:text-gray-300"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        ✕
+                    </button>
+                    <div className=" text-gray-900 dark:text-gray-200" onClick={() => {sideBarComponentClicked('dashboard') }}>
                         <div className="ml-5 flex font-bold">
                             <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="text-2xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                 <line x1="22" y1="2" x2="11" y2="13">
@@ -27,9 +41,7 @@ export default function sideBar() {
                     </div>
                     <ul className="mt-6">
                         <li className="relative">
-                            <div aria-current="page" className={`cursor-pointer px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 dark:hover:text-gray-200 hover:text-blue-600 ${pathName == '/admin/dashboard' ? 'bg-blue-500 text-white' : 'text'} dark:text-gray-100`} target="_self" onClick={() => {
-                                router.push('/admin/dashboard');
-                            }}>
+                            <div aria-current="page" className={`cursor-pointer px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 dark:hover:text-gray-200 hover:text-blue-600 ${pathName == '/admin/dashboard' ? 'bg-blue-500 text-white' : 'text'} dark:text-gray-100`} target="_self" onClick={() => {sideBarComponentClicked('dashboard') }}>
                                 <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="3" y="3" width="7" height="7">
                                     </rect>
@@ -97,9 +109,7 @@ export default function sideBar() {
                                         <ul className="p-2  overflow-hidden text-sm font-medium text-gray-500 rounded-md dark:text-gray-400 dark:bg-gray-900" aria-label="submenu">
                                             <li>
                                                 <div className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
-                                                    onClick={() => {
-                                                        router.push('/admin/products', { shallow: true });
-                                                    }}
+                                                    onClick={() => {sideBarComponentClicked('products') }}
                                                 >
                                                     <span className="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg" aria-hidden="true">
 
@@ -117,9 +127,7 @@ export default function sideBar() {
 
                                             <li>
                                                 <div className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
-                                                    onClick={() => {
-                                                        router.push('/admin/parentCategories', { shallow: true });
-                                                    }}
+                                                    onClick={() => {sideBarComponentClicked('parentCategories') }}
                                                 >
                                                     <span className="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg" aria-hidden="true">
 
@@ -136,17 +144,16 @@ export default function sideBar() {
                                             </li>
 
                                             <li>
-                                                <div className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"  onClick={() => {
-                                                        router.push('/admin/categories', { shallow: true });
-                                                    }}>
+                                                <div className="flex items-center font-serif py-1 text-sm text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => {sideBarComponentClicked('categories') }}
+                                                >
 
 
                                                     <span className="text-xs text-gray-500 pr-1"><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                                    <path fill="none" stroke-linecap="square" stroke-linejoin="round" stroke-width="32" d="M400 256H112">
+                                                        <path fill="none" stroke-linecap="square" stroke-linejoin="round" stroke-width="32" d="M400 256H112">
 
-                                                    </path>
-                                                </svg>
-                                                </span>
+                                                        </path>
+                                                    </svg>
+                                                    </span>
                                                     <span className="text-gray-500 hover:text-blue-600 dark:hover:text-gray-200">Categories</span>
                                                 </div>
                                             </li>
@@ -169,9 +176,8 @@ export default function sideBar() {
                         </li>
                         <li className="relative">
                             <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors  ${pathName == '/admin/customers' ? 'bg-blue-500 text-white' : ''} hover:text-blue-600 cursor-pointer duration-150 dark:hover:text-gray-200`}
-                                target="_self" onClick={() => {
-                                    router.push('/admin/customers', { shallow: true });
-                                }}>
+                                target="_self" onClick={() => {sideBarComponentClicked('customers') }}
+                                >
                                 <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2">
 
@@ -190,9 +196,8 @@ export default function sideBar() {
                             </div>
                         </li>
                         <li className="relative">
-                            <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600 cursor-pointer ${pathName == '/admin/orders' ? 'bg-blue-500 text-white' : ''} duration-150 dark:hover:text-gray-200`} target="_self" onClick={() => {
-                                router.push('/admin/orders', { shallow: true });
-                            }}>
+                            <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600 cursor-pointer ${pathName == '/admin/orders' ? 'bg-blue-500 text-white' : ''} duration-150 dark:hover:text-gray-200`} target="_self" onClick={() => {sideBarComponentClicked('orders') }}
+                            >
                                 <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="12" r="10">
 
@@ -203,11 +208,10 @@ export default function sideBar() {
                                 <span className="ml-4">Orders</span>
                             </div>
                         </li>
-                       
+
                         <li className="relative">
-                            <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600  cursor-pointer duration-150 dark:hover:text-gray-200 ${pathName == '/admin/settings' ? 'bg-blue-500 text-white' : ''}`} target="_self" onClick={() => {
-                                router.push('/admin/settings', { shallow: true });
-                            }} >
+                            <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600  cursor-pointer duration-150 dark:hover:text-gray-200 ${pathName == '/admin/settings' ? 'bg-blue-500 text-white' : ''}`} target="_self" onClick={() => {sideBarComponentClicked('settings') }}
+                            >
                                 <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="12" r="3">
                                     </circle>
