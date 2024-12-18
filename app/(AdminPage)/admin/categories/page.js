@@ -167,7 +167,7 @@ export default function page() {
           )
         }
 
-        <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Products</h1>
+        <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Categories</h1>
 
         <div className="min-w-0  border border-gray-200 rounded-lg ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 shadow-xs mb-5">
           <div className="p-4">

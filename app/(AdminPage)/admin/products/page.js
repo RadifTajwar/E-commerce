@@ -396,7 +396,7 @@ export default function page() {
       </div>
 
       <div
-        className={`drawer-content-wrapper w-full sm:w-10/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
+        className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         <AddProduct toggleAddProductVisible={toggleAddProductVisible} doneAddProduct={doneAddProduct} />

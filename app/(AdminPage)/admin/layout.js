@@ -27,7 +27,7 @@ export default function Layout({ children }) {
           <SideBar
             isOpen={isSidebarOpen}
             setIsOpen={setIsSidebarOpen}
-            className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-md transform transition-transform duration-300 ease-in-out 
+            className={`fixed inset-y-0 left-0 z-10 w-64 bg-white dark:bg-gray-800 shadow-md transform transition-transform duration-300 ease-in-out 
               ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static`}
           />
         </>
