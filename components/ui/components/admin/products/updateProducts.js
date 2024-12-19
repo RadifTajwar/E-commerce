@@ -273,7 +273,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             imagesPreview: Array.isArray(detail.imagesPreview) ? [...detail.imagesPreview] : [],
         }));
 
-        
+
         updatedAdditionalDetails[colorIndex].images = updatedAdditionalDetails[colorIndex].images.filter(
             (_, idx) => idx !== imageIndex
         );
@@ -374,7 +374,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             doneUpdate();
             setImageUploading(false);
             resetId();
-        } 
+        }
     };
 
 
@@ -484,7 +484,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                     <div className="w-full relative  dark:bg-gray-700 dark:text-gray-200  overflow-hidden h-full  bg-white" >
                         <div className="absolute inset-0  mr-0 mb-0 w-full" >
                             <form className="w-full" onSubmit={handleSubmit}>
-                                <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen pb-64 sm:pb-48">
+                                <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen lg:pb-48 md:pb-80 pb-96 ">
                                     {/* product name  */}
                                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 flex items-center">
                                         <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-normal text-sm">
@@ -540,6 +540,56 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                 value={formData.description}
                                                 onChange={handleInputChange}
                                             ></textarea>
+                                        </div>
+                                    </div>
+
+                                    {/* product categories */}
+                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2">
+                                            Category
+                                        </label>
+                                        <div className="col-span-6 sm:col-span-4">
+                                            <div className="relative">
+                                                {/* Parent Category Dropdown */}
+                                                <div
+                                                    ref={parentCategoryRef}
+                                                    className="parentCategory flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer dark:bg-gray-700 dark:border-gray-600"
+                                                    onClick={toggleDropdown} // Toggle the dropdown visibility
+                                                >
+                                                    <span className="text-sm text-gray-700 dark:text-gray-300">{formData.category}</span>
+                                                    <span className="text-gray-500 dark:text-gray-300">▼</span>
+                                                </div>
+
+                                                {/* Dropdown List */}
+                                                {isOpen && (
+                                                    <ul
+                                                        ref={dropdownRef}
+                                                        className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-md dark:bg-gray-700 dark:border-gray-600 max-h-40 overflow-y-auto"
+                                                    >
+                                                        {categories.length > 0 ? (
+                                                            categories.map((parentCategory) => (
+                                                                <li key={parentCategory.id}>
+                                                                    <a
+                                                                        className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                                                                        onClick={() => handleCategorySelect(parentCategory.name)} // Select category and close dropdown
+                                                                    >
+                                                                        {parentCategory.name}
+                                                                    </a>
+                                                                </li>
+                                                            ))
+                                                        ) : (
+                                                            <li>
+                                                                <a
+                                                                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                                                                    disabled
+                                                                >
+                                                                    No Categories Available
+                                                                </a>
+                                                            </li>
+                                                        )}
+                                                    </ul>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                     {/* Product color section */}
@@ -871,55 +921,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                             )}
                                         </div>
                                     </div>
-                                    {/* product categories */}
-                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2">
-                                            Category
-                                        </label>
-                                        <div className="col-span-6 sm:col-span-4">
-                                            <div className="relative">
-                                                {/* Parent Category Dropdown */}
-                                                <div
-                                                    ref={parentCategoryRef}
-                                                    className="parentCategory flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer dark:bg-gray-700 dark:border-gray-600"
-                                                    onClick={toggleDropdown} // Toggle the dropdown visibility
-                                                >
-                                                    <span className="text-sm text-gray-700 dark:text-gray-300">{formData.category}</span>
-                                                    <span className="text-gray-500 dark:text-gray-300">▼</span>
-                                                </div>
 
-                                                {/* Dropdown List */}
-                                                {isOpen && (
-                                                    <ul
-                                                        ref={dropdownRef}
-                                                        className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-md dark:bg-gray-700 dark:border-gray-600"
-                                                    >
-                                                        {categories.length > 0 ? (
-                                                            categories.map((parentCategory) => (
-                                                                <li key={parentCategory.id}>
-                                                                    <a
-                                                                        className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
-                                                                        onClick={() => handleCategorySelect(parentCategory.name)} // Select category and close dropdown
-                                                                    >
-                                                                        {parentCategory.name}
-                                                                    </a>
-                                                                </li>
-                                                            ))
-                                                        ) : (
-                                                            <li>
-                                                                <a
-                                                                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-                                                                    disabled
-                                                                >
-                                                                    No Categories Available
-                                                                </a>
-                                                            </li>
-                                                        )}
-                                                    </ul>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
 
 
 
@@ -939,7 +941,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                     name="originalPrice"
                                                     placeholder="Enter Product Price"
                                                     value={formData.originalPrice}
-                                                onChange={handleInputChange}
+                                                    onChange={handleInputChange}
                                                 />
                                             </div>
                                         </div>
@@ -960,7 +962,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                     name="originalPrice"
                                                     placeholder="Enter Product Price"
                                                     value={formData.discountedPrice}
-                                                onChange={handleInputChange}
+                                                    onChange={handleInputChange}
                                                 />
                                             </div>
                                         </div>
@@ -968,16 +970,16 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
 
                                 </div>
 
-                                <div className="bottom_section absolute z-10 bottom-0 w-full right-0 py-4 lg:py-8 px-6 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex bg-gray-50 border-t border-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >
+                                <div className="bottom_section absolute z-10 bottom-0 w-full right-0 pt-4 pb-32 lg:pb-4 lg:py-8 px-6 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex bg-gray-50 border-t border-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >
                                     <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
                                         <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150  focus:outline-none px-4 py-2 rounded-lg text-sm text-gray-600 border-gray-200 border dark:text-gray-400 focus:outline-none rounded-lg border border-gray-200 px-4 w-full mr-3 flex items-center justify-center cursor-pointer h-12 bg-gray-200 h-12  w-full text-red-500 hover:bg-red-50 hover:border-red-100 hover:text-red-600 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-red-700 font-normal" type="button"
                                             onClick={cancelButtonPressed}
                                         >Cancel</button>
                                     </div>
                                     <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={(updateproductLoading|| imageUploading)}>
+                                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={(updateproductLoading || imageUploading)}>
 
-                                            <span> {(updateproductLoading||imageUploading) ? 'Updating...' : 'Update Product'}</span>
+                                            <span> {(updateproductLoading || imageUploading) ? 'Updating...' : 'Update Product'}</span>
                                         </button>
                                     </div>
                                 </div>

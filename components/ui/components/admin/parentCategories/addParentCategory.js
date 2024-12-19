@@ -151,7 +151,7 @@ export default function addParentCategory({ toggleAddProductVisible, doneAddProd
                     </div>
                     <div className="w-full relative dark:bg-gray-700 dark:text-gray-200 overflow-hidden h-full bg-white">
                         <form className="w-full" onSubmit={handleSubmit}>
-                            <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen pb-64 sm:pb-48">
+                            <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen lg:pb-48 md:pb-80 pb-96">
                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 flex items-center">
                                     <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                                         Parent Category Title/Name

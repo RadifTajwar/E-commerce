@@ -97,7 +97,7 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("abcd",formData);
+        console.log("abcd", formData);
         // Validation: Check if all required fields are filled
         if (!formData.name || !formData.description || !formData.parentCategoryId || !formData.image) {
             console.error("All fields are required.");
@@ -119,7 +119,7 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
             };
             console.log(object)
             // Dispatch the action to create a new category
-            const updateResult = await dispatch(updateCategoryData({id,categoryData})).unwrap();
+            const updateResult = await dispatch(updateCategoryData({ id, categoryData })).unwrap();
 
             // Reset the form data
             setFormData({
@@ -211,7 +211,7 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
                     </div>
                     <div className="w-full relative dark:bg-gray-700 dark:text-gray-200 overflow-hidden h-full bg-white">
                         <form className="w-full" onSubmit={handleSubmit}>
-                            <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen pb-64 sm:pb-48">
+                            <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen lg:pb-48 md:pb-80 pb-96 ">
                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 flex items-center">
                                     <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                                         Category Title/Name
@@ -242,6 +242,56 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
                                             value={formData.description}
                                             onChange={handleInputChange}
                                         ></textarea>
+                                    </div>
+                                </div>
+
+
+                                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2">
+                                        Category
+                                    </label>
+                                    <div className="col-span-6 sm:col-span-4">
+                                        <div className="relative">
+                                            {/* Parent Category Dropdown */}
+                                            <div
+                                                ref={parentCategoryRef}
+                                                className="parentCategory flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer dark:bg-gray-700 dark:border-gray-600"
+                                                onClick={toggleDropdown} // Toggle the dropdown visibility
+                                            >
+                                                <span className="text-sm text-gray-700 dark:text-gray-300">{formData.parentCategory}</span>
+                                                <span className="text-gray-500 dark:text-gray-300">▼</span>
+                                            </div>
+
+                                            {/* Dropdown List */}
+                                            {isOpen && (
+                                                <ul
+                                                    ref={dropdownRef}
+                                                    className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-md dark:bg-gray-700 dark:border-gray-600 max-h-40 overflow-y-auto"
+                                                >
+                                                    {parentCategories.length > 0 ? (
+                                                        parentCategories.map((parentCategory) => (
+                                                            <li key={parentCategory.id}>
+                                                                <a
+                                                                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                                                                    onClick={() => handleCategorySelect(parentCategory.name)} // Select category and close dropdown
+                                                                >
+                                                                    {parentCategory.name}
+                                                                </a>
+                                                            </li>
+                                                        ))
+                                                    ) : (
+                                                        <li>
+                                                            <a
+                                                                className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                                                                disabled
+                                                            >
+                                                                No Categories Available
+                                                            </a>
+                                                        </li>
+                                                    )}
+                                                </ul>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -287,57 +337,10 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2">
-                                        Category
-                                    </label>
-                                    <div className="col-span-6 sm:col-span-4">
-                                        <div className="relative">
-                                            {/* Parent Category Dropdown */}
-                                            <div
-                                                ref={parentCategoryRef}
-                                                className="parentCategory flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer dark:bg-gray-700 dark:border-gray-600"
-                                                onClick={toggleDropdown} // Toggle the dropdown visibility
-                                            >
-                                                <span className="text-sm text-gray-700 dark:text-gray-300">{formData.parentCategory}</span>
-                                                <span className="text-gray-500 dark:text-gray-300">▼</span>
-                                            </div>
 
-                                            {/* Dropdown List */}
-                                            {isOpen && (
-                                                <ul
-                                                    ref={dropdownRef}
-                                                    className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-md dark:bg-gray-700 dark:border-gray-600"
-                                                >
-                                                    {parentCategories.length > 0 ? (
-                                                        parentCategories.map((parentCategory) => (
-                                                            <li key={parentCategory.id}>
-                                                                <a
-                                                                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
-                                                                    onClick={() => handleCategorySelect(parentCategory.name)} // Select category and close dropdown
-                                                                >
-                                                                    {parentCategory.name}
-                                                                </a>
-                                                            </li>
-                                                        ))
-                                                    ) : (
-                                                        <li>
-                                                            <a
-                                                                className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-                                                                disabled
-                                                            >
-                                                                No Categories Available
-                                                            </a>
-                                                        </li>
-                                                    )}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
 
-                            <div className="bottom_section absolute z-10 bottom-0 w-full right-0 py-4 lg:py-8 px-6 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex bg-gray-50 border-t border-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >
+                            <div className="bottom_section absolute z-10 bottom-0 w-full right-0 pt-4 pb-32 lg:pb-4 lg:py-8 px-6 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex bg-gray-50 border-t border-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >
                                 <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
                                     <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150  focus:outline-none px-4 py-2 rounded-lg text-sm text-gray-600 border-gray-200 border dark:text-gray-400 focus:outline-none rounded-lg border border-gray-200 px-4 w-full mr-3 flex items-center justify-center cursor-pointer h-12 bg-gray-200 h-12  w-full text-red-500 hover:bg-red-50 hover:border-red-100 hover:text-red-600 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-red-700 font-normal" type="button"
                                         onClick={cancelButtonPressed}
