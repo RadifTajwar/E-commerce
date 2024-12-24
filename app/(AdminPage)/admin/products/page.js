@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function page() {
 
   const dispatch = useDispatch();
+  const [isInput, setIsInput] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
   const [exportButtonForm, setExportButtonForm] = useState(false)
@@ -138,7 +139,12 @@ export default function page() {
       inputRef.current.value = ""; // Reset the file input
     }
   };
-
+  const handleInputChange = (event) => {
+    const { value } = event.target;
+    setIsInput(value);
+    console.log(isInput);
+    dispatch(fetchAllProducts({searchTerm: value}));
+  };
 
   return (
     <>
@@ -378,7 +384,7 @@ export default function page() {
         </div>
 
         <div className="seaarchForm">
-          <SearchForm />
+          <SearchForm handleInputChange={handleInputChange} isInput={isInput}/>
         </div>
 
 
@@ -388,7 +394,7 @@ export default function page() {
 
 
       <div
-        className={`drawer-content-wrapper w-full sm:w-10/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
+        className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         <UpdateProducts toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId} 

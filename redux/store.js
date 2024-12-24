@@ -6,6 +6,9 @@ import createCategorySlice from "./category/createCategorySlice";
 import deleteCategoryByIdSlice from "./category/deleteCategoryByIdSlice";
 import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
 import createOrderReducer from "./order/createOrderSlice";
+import allOrderReducer from "./order/getAllOrderSlice";
+import getOrderByIdReducer from "./order/getOrderByIdSlice";
+import updateOrderReducer from "./order/updateOrderSlice";
 import allParentCategorySlice from "./parentCategory/allParentCategorySlice";
 import createParentCategoryReducer from "./parentCategory/createParentCategorySlice";
 import deleteParentCategoryByIdSlice from "./parentCategory/deleteParentCategoryByIdSlice";
@@ -65,6 +68,9 @@ const store = configureStore({
         productById: productByIdReducer,
         updateProductData: updateProductReducer,
         createOrderItem: createOrderReducer,
+        allOrders: allOrderReducer,
+        orderById :getOrderByIdReducer,
+        updateOrder: updateOrderReducer,
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser

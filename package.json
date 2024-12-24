@@ -32,6 +32,8 @@
     "easy-magnify": "^1.1.4",
     "embla-carousel-react": "^8.3.0",
     "flowbite": "^2.5.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
     "lucide-react": "^0.452.0",
     "multer": "^1.4.5-lts.1",
     "next": "14.1.1",

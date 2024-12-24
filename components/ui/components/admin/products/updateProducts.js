@@ -305,7 +305,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
         // Validation: Check if all required fields are filled
         if (
             !formData.name ||
-            !formData.description ||
+            
             !formData.categoryId ||
             !formData.imageDefault ||
             !formData.originalPrice ||
@@ -522,24 +522,6 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                 value={formData.barcode}
                                                 onChange={handleInputChange}
                                             />
-                                        </div>
-                                    </div>
-
-                                    {/* Product Description */}
-                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                        <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-                                            Product Description
-                                        </label>
-                                        <div className="col-span-8 sm:col-span-4">
-                                            <textarea
-                                                className="px-3 py-1  block w-full text-sm dark:text-gray-300 rounded-md focus:outline-none form-textarea focus:border-purple-400 border-gray-300 dark:border-gray-600 dark:focus:border-gray-600 dark:bg-gray-700 dark:focus:ring-gray-300 focus:ring focus:ring-purple-300 border text-sm focus:outline-none block w-full bg-gray-100 border-transparent focus:bg-white"
-                                                name="description"
-                                                placeholder="Product Description"
-                                                rows="4"
-                                                spellCheck="false"
-                                                value={formData.description}
-                                                onChange={handleInputChange}
-                                            ></textarea>
                                         </div>
                                     </div>
 

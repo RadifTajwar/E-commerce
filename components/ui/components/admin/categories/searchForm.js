@@ -1,5 +1,5 @@
 
-export default function searchForm() {
+export default function searchForm({isInput, handleInputChange }) {
     return (
         <>
             <div className="min-w-0 rounded-lg border border-gray-200 ring-opacity-4 shadow-xs overflow-hidden bg-white dark:bg-gray-800 rounded-t-lg rounded-0 mb-4">
@@ -12,6 +12,8 @@ export default function searchForm() {
                                 name="search"
                                 placeholder="Search Product"
                                 className="block w-full px-3 py-1 text-sm leading-5 rounded-md focus:outline-none dark:text-gray-300 focus:border-gray-200 border border-gray-200 dark:border-gray-600  dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 h-12 bg-gray-100 border-transparent focus:bg-white"
+                                value={isInput}
+                                onChange={handleInputChange}
                             />
                             <button type="submit" className="absolute right-0 top-0 mt-5 mr-1">
                                 {/* Add your submit icon inside this button if needed */}

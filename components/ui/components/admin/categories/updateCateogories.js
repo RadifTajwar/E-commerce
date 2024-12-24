@@ -117,8 +117,9 @@ export default function updateCategories({ id, toggleVisibility, resetId, doneUp
                 ...formData,
                 image: imageUrl, // Replace the file with the uploaded image URL
             };
-            console.log(object)
             // Dispatch the action to create a new category
+
+            console.log(id, categoryData);
             const updateResult = await dispatch(updateCategoryData({ id, categoryData })).unwrap();
 
             // Reset the form data
