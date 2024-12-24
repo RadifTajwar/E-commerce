@@ -14,10 +14,10 @@ import { useEffect, useState } from "react";
 import { FiPrinter } from "react-icons/fi";
 import { LiaSearchPlusSolid } from "react-icons/lia";
 import { useDispatch, useSelector } from "react-redux";
-export default function RecentOrders({ doneUpdate }) {
+export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrderFetched, isOrderFetched }) {
     const [isMeta, setIsMeta] = useState({
         page: 1,
-        limit: 5,
+        limit: 3,
         total: 0,
     });
 
@@ -34,21 +34,24 @@ export default function RecentOrders({ doneUpdate }) {
     const { orders, meta, isLoading, error } = useSelector((state) => state.allOrders);
 
     // Correct useState syntax
-    const [isOrderFetched, setIsOrderFetched] = useState(false);
+
 
     // Dispatch fetchAllOrders action on component mount
     useEffect(() => {
         console.log(isOrderFetched);
-        if(!isOrderFetched){
-            const page = parseInt(searchParams.get("page"), 10) || 1;
-            console.log("isOrderFetched is ", isOrderFetched);
-            console.log("dhukbe once");
-            console.log("Page is ", page);
-            dispatch(fetchAllOrders({ page: page, limit: 5 }));
-            setIsOrderFetched(true);
-            setIsMeta((prev) => ({ ...prev, page: page }));
+        if (!isOrderFetched) {
+            setTimeout(() => {
+                const page = parseInt(searchParams.get("page"), 10) || 1;
+                console.log("isOrderFetched is ", isOrderFetched);
+                console.log("dhukbe once");
+                console.log("Page is ", page);
+                dispatch(fetchAllOrders({ page: page, limit: 4 }));
+                setIsOrderFetched(true);
+                setIsMeta((prev) => ({ ...prev, page: page }));
+            }, 500);
+
         }
-    }, [searchParams,dispatch,isOrderFetched]);
+    }, [searchParams, dispatch, isOrderFetched]);
 
 
 
@@ -64,7 +67,8 @@ export default function RecentOrders({ doneUpdate }) {
 
     useEffect(() => {
         if (orders) {
-            console.log("Orders updated:", orders);
+            // console.log("Orders updated:", orders);
+            console.log(meta.page, "is it is");
             setIsMeta({
                 page: meta.page || 1,
                 limit: meta.limit || 10,
@@ -81,11 +85,9 @@ export default function RecentOrders({ doneUpdate }) {
             const params = new URLSearchParams(searchParams.toString());
             params.set("page", pageNumber);
             router.push(`?${params.toString()}`);
-
             // Update the local state
             setIsMeta((prev) => ({ ...prev, page: pageNumber }));
             setIsOrderFetched(false);
-            
 
         }
     };
@@ -93,7 +95,7 @@ export default function RecentOrders({ doneUpdate }) {
     const getPageNumbers = () => {
         const totalPages = Math.ceil(isMeta.total / isMeta.limit);
         const currentPage = isMeta.page;
-        console.log("is meta pge", isMeta.page);
+
         const pageNumbers = [];
         console.log(currentPage);
         console.log(totalPages);
@@ -105,12 +107,12 @@ export default function RecentOrders({ doneUpdate }) {
         } else {
             // Always include the first page
             pageNumbers.push(1);
-            console.log(currentPage, "vaia current and total ", totalPages);
+
             // Initial Pages: Show first 5 pages + ellipsis + last page
             if (currentPage <= 4) {
                 for (let i = 2; i <= 5; i++) {
                     pageNumbers.push(i);
-                    console.log("ji vaia ", i);
+
                 }
                 pageNumbers.push("...");
             }
@@ -140,16 +142,23 @@ export default function RecentOrders({ doneUpdate }) {
 
 
     const handleChange = (e, orderId) => {
+
         const selectedStatus = e.target.value;
-        console.log(`Order ID: ${orderId}, Selected Status: ${selectedStatus}`);
-        doneUpdate();     
-        setTimeout(() => {
+        if (selectedStatus === "Cancel") {
+            toggleDeleteVisible(orderId);
+        }
+        else {
+            console.log(`Order ID: ${orderId}, Selected Status: ${selectedStatus}`);
+            doneUpdate();
             dispatch(updateOrderStatus({ id: orderId, status: selectedStatus }))
-            setIsOrderFetched(false); 
-        }, 2000);
-        
-        
-       
+            setTimeout(() => {
+                setIsOrderFetched(false);
+            }, 2000);
+        }
+
+
+
+
     };
 
 
@@ -173,107 +182,119 @@ export default function RecentOrders({ doneUpdate }) {
                     </div>
                 </div>
             )}
-            {/* Add rendering logic for orders */}
-            {!isLoading && !error && orders && (<>
-                <div className="w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 shadow-lg">
-                    <div className="w-full overflow-x-auto">
+          
+                    <div className="w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 shadow-lg">
 
-                        <table className="w-full whitespace-no-wrap">
+                        {
+                            !isLoading && !error && orders && (
+                                <>
+                                    <div className="w-full overflow-x-auto">
 
-                            <thead className="text-xs font-medium tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">
-                                <tr>
-                                    <td className="px-4 py-3 whitespaace-no-wrap">INVOICE NO</td>
-                                    <td className="px-4 py-3">ORDER TIME</td>
-                                    <td className="px-4 py-3">Customer Name </td>
-                                    <td className="px-4 py-3"> METHOD </td>
-                                    <td className="px-4 py-3"> AMOUNT </td>
-                                    <td className="px-4 py-3">STATUS</td>
-                                    <td className="px-4 py-3">ACTION</td>
-                                    <td className="px-4 py-3 text-end">INVOICE</td>
-                                </tr>
-                            </thead>
+                                        <table className="w-full whitespace-no-wrap">
 
-                            <tbody className="bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400 dark:bg-gray-900">
+                                            <thead className="text-xs font-medium tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">
+                                                <tr>
+                                                    <td className="px-4 py-3 whitespaace-no-wrap">INVOICE NO</td>
+                                                    <td className="px-4 py-3">ORDER TIME</td>
+                                                    <td className="px-4 py-3">Customer Name </td>
+                                                    <td className="px-4 py-3"> METHOD </td>
+                                                    <td className="px-4 py-3"> AMOUNT </td>
+                                                    <td className="px-4 py-3">STATUS</td>
+                                                    <td className="px-4 py-3">ACTION</td>
+                                                    <td className="px-4 py-3 text-end">INVOICE</td>
+                                                </tr>
+                                            </thead>
 
-
-                                {
-                                    orders.map((order) => (
-                                        <tr key={order._id} id={order._id} className="border-b border-gray-200 text-black">
-                                            <td className="px-4 py-3">
-                                                <span className="font-semibold uppercase text-xs text-black">{order._id}</span>
-                                            </td>
-
-                                            <td className="px-4 py-3">
-                                                <span className="text-sm text-black">
-                                                    {new Date(order.dateOrdered).toLocaleString('en-US', {
-
-                                                        year: 'numeric',  // '2024'
-                                                        month: 'short',   // 'Nov'
-                                                        day: 'numeric',   // '9'
-                                                        hour: 'numeric',  // '2'
-                                                        minute: 'numeric',// '20'
-                                                        hour12: true,     // Use 12-hour format
-                                                    })}
-                                                </span>
-                                            </td>
-
-                                            <td className="px-4 py-3 text-xs">
-                                                <span className="text-sm text-black">{order.user}</span>
-                                            </td>
-
-                                            <td className="px-4 py-3">
-                                                <span className="text-sm font-semibold text-black">Cash</span>
-                                            </td>
-
-                                            <td className="px-4 py-3">
-                                                <span className="text-sm font-semibold text-black">$ {order.totalPrice}</span>
-                                            </td>
-
-                                            <td className="px-4 py-3 text-xs">
-                                                <span className="font-serif">
-                                                    <span
-                                                        className={`inline-flex px-2 text-sm font-medium leading-5 rounded-full 
-            ${order.status === "Pending" ? "text-yellow-500 bg-yellow-100 " : ""}
-            ${order.status === "Cancel" ? "text-red-500 bg-red-100" : ""}
-            ${order.status === "Processing" ? "text-blue-500 bg-blue-100" : ""}
-            ${order.status === "Delivered" ? "text-green-500 bg-green-100" : ""}`}
-                                                    >
-                                                        {order.status}
-                                                    </span>
-                                                </span>
-                                            </td>
-
-                                            <td className="px-4 py-3 text-center">
-                                                <select
-                                                    className="block w-full px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:shadow-none focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 border border-gray-200 bg-gray-50 dark:border-gray-700 h-8 rounded-md text-xs focus:border-blue-500 focus:outline-none"
-                                                    value={order.status} // Set the initial value to the current status
-                                                    onChange={(e) => handleChange(e, order._id)} // Pass both the event and order ID
-                                                >
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Delivered">Delivered</option>
-                                                    <option value="Processing">Processing</option>
-                                                    <option value="Cancel">Cancel</option>
-                                                </select>
-                                            </td>
-
-                                            <td className="px-4 py-3">
-                                                <div className="flex justify-end gap-x-2">
-                                                    <FiPrinter className="cursor-pointer" />
-                                                    <LiaSearchPlusSolid
-                                                        className="-rotate-90 cursor-pointer"
-                                                        onClick={() => {
-                                                            handleOrderClick(order._id);
-                                                        }}
-                                                    />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                }
+                                            <tbody className="bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400 dark:bg-gray-900">
 
 
-                            </tbody>
-                        </table>
+                                                {
+                                                    orders.map((order) => (
+                                                        <tr key={order._id} id={order._id} className="border-b border-gray-200 text-black">
+                                                            <td className="px-4 py-3">
+                                                                <span className="font-semibold uppercase text-xs text-black">{order._id}</span>
+                                                            </td>
+
+                                                            <td className="px-4 py-3">
+                                                                <span className="text-sm text-black">
+                                                                    {new Date(order.dateOrdered).toLocaleString('en-US', {
+
+                                                                        year: 'numeric',  // '2024'
+                                                                        month: 'short',   // 'Nov'
+                                                                        day: 'numeric',   // '9'
+                                                                        hour: 'numeric',  // '2'
+                                                                        minute: 'numeric',// '20'
+                                                                        hour12: true,     // Use 12-hour format
+                                                                    })}
+                                                                </span>
+                                                            </td>
+
+                                                            <td className="px-4 py-3 text-xs">
+                                                                <span className="text-sm text-black">{order.user}</span>
+                                                            </td>
+
+                                                            <td className="px-4 py-3">
+                                                                <span className="text-sm font-semibold text-black">Cash</span>
+                                                            </td>
+
+                                                            <td className="px-4 py-3">
+                                                                <span className="text-sm font-semibold text-black">$ {order.totalPrice}</span>
+                                                            </td>
+
+                                                            <td className="px-4 py-3 text-xs">
+                                                                <span className="font-serif">
+                                                                    <span
+                                                                        className={`inline-flex px-2 text-sm font-medium leading-5 rounded-full 
+                ${order.status === "Pending" ? "text-yellow-500 bg-yellow-100" : ""}
+                ${order.status === "Cancel" ? "text-red-500 bg-red-100" : ""}
+                ${order.status === "Processing" ? "text-blue-500 bg-blue-100" : ""}
+                ${order.status === "Delivered" ? "text-green-500 bg-green-100" : ""}`}
+                                                                    >
+                                                                        {order.status}
+                                                                    </span>
+                                                                </span>
+                                                            </td>
+
+                                                            <td className="px-4 py-3 text-center">
+                                                                <select
+                                                                    className={`block w-full px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:shadow-none focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 border border-gray-200 bg-gray-50 dark:border-gray-700 h-8 rounded-md text-xs focus:border-blue-500 focus:outline-none 
+            ${order.status === "Cancel" ? "opacity-30 cursor-not-allowed" : ""}`}
+                                                                    value={order.status} // Set the initial value to the current status
+                                                                    onChange={(e) => handleChange(e, order._id)} // Pass both the event and order ID
+                                                                    disabled={order.status === "Cancel"} // Disable if the status is "Cancel"
+                                                                >
+                                                                    <option value="Pending">Pending</option>
+                                                                    <option value="Delivered">Delivered</option>
+                                                                    <option value="Processing">Processing</option>
+                                                                    <option value="Cancel">Cancel</option>
+                                                                </select>
+                                                            </td>
+
+
+                                                            <td className="px-4 py-3">
+                                                                <div className="flex justify-end gap-x-2">
+                                                                    <FiPrinter className="cursor-pointer" />
+                                                                    <LiaSearchPlusSolid
+                                                                        className="-rotate-90 cursor-pointer"
+                                                                        onClick={() => {
+                                                                            handleOrderClick(order._id);
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                }
+
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </>
+                            )
+                        }
+
                         <Pagination>
                             <PaginationContent>
                                 {/* Previous Button */}
@@ -284,7 +305,7 @@ export default function RecentOrders({ doneUpdate }) {
                                         disabled={isMeta.page === 1}
                                         className={` ${isMeta.page === 1 ? "cursor-not-allowed" : "cursor-pointer"}`}
                                     >
-                                        Previous
+                                        
                                     </PaginationPrevious>
                                 </PaginationItem>
 
@@ -319,20 +340,13 @@ export default function RecentOrders({ doneUpdate }) {
                                         className={` ${isMeta.page === totalPages ? "cursor-not-allowed" : "cursor-pointer"}`}
                                     >
 
-                                        Next
-
+                                       
                                     </PaginationNext>
                                 </PaginationItem>
                             </PaginationContent>
                         </Pagination>
-
                     </div>
-                </div>
-            </>
-
-
-
-            )}
+            
         </>
     );
 }

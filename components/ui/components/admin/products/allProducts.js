@@ -29,32 +29,38 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     // Access products, loading, and error states from the Redux store
-    const { products,meta, isLoading, error } = useSelector((state) => state.allProducts);
+    const { products, meta, isLoading, error } = useSelector((state) => state.allProducts);
 
     // State to track if products have been fetched
-    // const [productsFetched, setProductsFetched] = useState(false);
+    const [productsFetched, setProductsFetched] = useState(false);
 
-    // Fetch products on component mount
-     useEffect(() => {
-                const page = parseInt(searchParams.get("page"), 10) || 1;
-                dispatch(fetchAllProducts({ page: page ,limit: 5}));
-                setIsMeta((prev) => ({ ...prev, page: page }));
-        }, [dispatch, searchParams]);
-    
+  
 
-    // Log products after they are updated
+    // Dispatch fetchAllOrders action on component mount
     useEffect(() => {
-        console.log("Updated products:", products); // Logs updated products
-    }, [products]);
+        console.log(productsFetched);
+        if (!productsFetched) {
+            setTimeout(() => {
+                const page = parseInt(searchParams.get("page"), 10) || 1;
+                dispatch(fetchAllProducts({ page: page, limit: 2 }));
+                setIsMeta((prev) => ({ ...prev, page: page }));
+                setProductsFetched(true);
+            }, 500);
+
+        }
+    }, [searchParams, dispatch, productsFetched]);
+
+
+
+
 
     const [checked, setChecked] = useState(true);
 
 
-
-
     useEffect(() => {
         if (products) {
-            console.log("products updated:", products);
+            // console.log("Orders updated:", orders);
+            console.log(meta.page, "is it is");
             setIsMeta({
                 page: meta.page || 1,
                 limit: meta.limit || 10,
@@ -73,6 +79,7 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible }) {
             router.push(`?${params.toString()}`);
             // Update the local state
             setIsMeta((prev) => ({ ...prev, page: pageNumber }));
+            setProductsFetched(false);
 
         }
     };
@@ -80,7 +87,7 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible }) {
     const getPageNumbers = () => {
         const totalPages = Math.ceil(isMeta.total / isMeta.limit);
         const currentPage = isMeta.page;
-        console.log("is meta pge", isMeta.page);
+
         const pageNumbers = [];
         console.log(currentPage);
         console.log(totalPages);
@@ -92,12 +99,12 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible }) {
         } else {
             // Always include the first page
             pageNumbers.push(1);
-            console.log(currentPage, "vaia current and total ", totalPages);
+
             // Initial Pages: Show first 5 pages + ellipsis + last page
             if (currentPage <= 4) {
                 for (let i = 2; i <= 5; i++) {
                     pageNumbers.push(i);
-                    console.log("ji vaia ", i);
+
                 }
                 pageNumbers.push("...");
             }
@@ -121,6 +128,9 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible }) {
 
         return pageNumbers;
     };
+
+
+
 
 
     const handleChange = (event) => {

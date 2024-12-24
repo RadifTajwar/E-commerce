@@ -16,6 +16,7 @@ export const fetchOrderById = createAsyncThunk(
       const response = await axios.get(`https://leather-for-luxury.vercel.app/api/v1/order/ById/${id}`);
       return response.data.data; // Assuming the response contains the order data
     } catch (error) {
+      console.log(id,"yes it is what it is");
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data.message || "Failed to fetch order");
       }

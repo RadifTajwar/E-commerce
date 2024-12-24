@@ -1,7 +1,7 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button";
-import { ChevronLeftIcon, ChevronRightIcon, DotsHorizontalIcon } from "@radix-ui/react-icons"
+import { cn } from "@/lib/utils";
+import { ChevronLeftIcon, ChevronRightIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import * as React from "react";
 
 const Pagination = ({
   className,
@@ -48,13 +48,15 @@ const PaginationPrevious = ({
   className,
   ...props
 }) => (
+
+  
   <PaginationLink
     aria-label="Go to previous page"
     size="default"
     className={cn("gap-1 pl-2.5", className)}
     {...props}>
     <ChevronLeftIcon className="h-4 w-4" />
-    <span>Previous</span>
+    
   </PaginationLink>
 )
 PaginationPrevious.displayName = "PaginationPrevious"
@@ -68,7 +70,7 @@ const PaginationNext = ({
     size="default"
     className={cn("gap-1 pr-2.5", className)}
     {...props}>
-    <span>Next</span>
+    
     <ChevronRightIcon className="h-4 w-4" />
   </PaginationLink>
 )
@@ -90,10 +92,6 @@ PaginationEllipsis.displayName = "PaginationEllipsis"
 
 export {
   Pagination,
-  PaginationContent,
-  PaginationLink,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationEllipsis,
-}
+  PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious
+};
+

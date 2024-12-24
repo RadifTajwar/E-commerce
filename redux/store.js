@@ -5,6 +5,8 @@ import categoryByIdSlice from "./category/categoryByIdSlice";
 import createCategorySlice from "./category/createCategorySlice";
 import deleteCategoryByIdSlice from "./category/deleteCategoryByIdSlice";
 import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
+import heroBannerByIdReducer from "./heroBanner/heroBannerByIdSlice";
+import updateHeroBannerReducer from "./heroBanner/updateHeroBannerSlice";
 import createOrderReducer from "./order/createOrderSlice";
 import allOrderReducer from "./order/getAllOrderSlice";
 import getOrderByIdReducer from "./order/getOrderByIdSlice";
@@ -19,6 +21,7 @@ import createProductReducer from "./product/createProductSlice";
 import deleteProductReducer from "./product/deleteProductByIdSlice";
 import productByIdReducer from "./product/productByIdSlice";
 import updateProductReducer from "./product/updateProductDataSlice";
+import allHeroBannerReducer from "./heroBanner/allHeroBannerSlice";
 // Check if in browser
 const isBrowser = typeof window !== "undefined";
 
@@ -71,6 +74,9 @@ const store = configureStore({
         allOrders: allOrderReducer,
         orderById :getOrderByIdReducer,
         updateOrder: updateOrderReducer,
+        allHeroBanner:allHeroBannerReducer,
+        heroBannerById: heroBannerByIdReducer,
+        updateHeroBanner: updateHeroBannerReducer,
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser
