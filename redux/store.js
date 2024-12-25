@@ -22,6 +22,9 @@ import createProductReducer from "./product/createProductSlice";
 import deleteProductReducer from "./product/deleteProductByIdSlice";
 import productByIdReducer from "./product/productByIdSlice";
 import updateProductReducer from "./product/updateProductDataSlice";
+import allVideoBannerReducer from "./video/allVideoBannerSlice";
+import updateVideoBannerReducer from "./video/updateVideoBannerSlice";
+import videoBannerByIdReducer from "./video/videoBannerByIdSlice";
 // Check if in browser
 const isBrowser = typeof window !== "undefined";
 
@@ -77,6 +80,9 @@ const store = configureStore({
         allHeroBanner:allHeroBannerReducer,
         heroBannerById: heroBannerByIdReducer,
         updateHeroBanners: updateHeroBannerReducer,
+        allVideoBanners: allVideoBannerReducer,
+        videoBannerById: videoBannerByIdReducer,
+        updateVideoBanners: updateVideoBannerReducer,
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser
