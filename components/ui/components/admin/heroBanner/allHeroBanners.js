@@ -1,5 +1,4 @@
 import { fetchAllHeroBanners } from "@/redux/heroBanner/allHeroBannerSlice";
-import Switch from '@mui/material/Switch';
 import { useEffect, useState } from 'react';
 import { FiEdit } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,11 +25,17 @@ export default function allHeroBanners({ toggleVisibility, toggleDeleteVisible }
         setChecked(event.target.checked);
     };
 
+    useEffect(() => {
+        if (heroBanners) {
+            console.log(heroBanners);
+        }
+    }, [heroBanners]);
+
     return (
         <>
             {isLoading && <p>Loading categories...</p>}
             {error && <p>Error: {error}</p>}
-            {!isLoading && (
+            {!isLoading && heroBanners && (
                 <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
                     <div className="w-full overflow-x-auto">
                         <table className='w-full whitespace-no-wrap'>
@@ -40,53 +45,62 @@ export default function allHeroBanners({ toggleVisibility, toggleDeleteVisible }
                                         <input id="selectAll" name="selectAll" type="checkbox" />
                                     </td>
                                     <td className="px-4 py-3">ID</td>
-                                    <td className="px-4 py-3">ICON</td>
+                                    <td className="px-4 py-3">Banner 1</td>
+                                    <td className="px-4 py-3">Banner 2</td>
                                     <td className="px-4 py-3">HEADER</td>
                                     <td className="px-4 py-3 text-right">ACTIONS</td>
                                 </tr>
                             </thead>
                             <tbody className='bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400'>
                                 {
-                                    heroBanners.map((heroBannerData) => {
-                                        <tr key={heroBannerData.id} id={heroBannerData.id}>
+                                    heroBanners && heroBanners.map(heroBanners => (
+
+                                        <tr key={heroBanners._id} id={heroBanners._id}>
                                             <td className="px-4 py-3">
-                                                <input id={heroBannerData.id} name={heroBannerData.name} type="checkbox" />
+                                                <input id={heroBanners._id} name={heroBanners.name} type="checkbox" />
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="text-sm">{heroBannerData.id}</span>
+                                                <span className="text-sm">{heroBanners._id}</span>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
                                                     <img
                                                         className="object-cover w-full h-full "
-                                                        src={heroBannerData.image}
-                                                        alt={heroBannerData.header}
+                                                        src={heroBanners.image[0]}
+                                                        alt={heroBanners.header}
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                            </td>
+
+                                            <td className="px-4 py-3">
+                                                <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
+                                                    <img
+                                                        className="object-cover w-full h-full "
+                                                        src={heroBanners.image[1]}
+                                                        alt={heroBanners.header}
                                                         loading="lazy"
                                                     />
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="text-sm">{heroBannerData.header}</span>
+                                                <span className="text-sm">{heroBanners.header}</span>
                                             </td>
 
-                                            <td className="px-4 py-3 text-center">
-                                                <Switch
-                                                    checked={checked}
-                                                    onChange={handleChange}
-                                                    inputProps={{ 'aria-label': 'controlled' }}
-                                                />
-                                            </td>
+                                           
                                             <td className="px-4 py-3">
                                                 <div className="flex justify-end gap-x-2">
                                                     <FiEdit
                                                         className="cursor-pointer"
-                                                        onClick={() => toggleVisibility(heroBannerData.id)} // No re-fetch
+                                                        onClick={() => toggleVisibility(heroBanners._id)} // No re-fetch
                                                     />
-                                                    
+
                                                 </div>
                                             </td>
                                         </tr>
-                                })
+
+                                    ))
+
                                 }
 
 

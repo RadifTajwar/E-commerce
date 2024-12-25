@@ -8,7 +8,7 @@ export const updateHeroBanner = createAsyncThunk(
   async ({ id, bannerData }, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/v1/banner/Update-Top-Banner/:id/${id}`,
+        `https://leather-for-luxury.vercel.app/api/v1/banner/Update-Top-Banner/${id}`,
         bannerData
       );
       console.log("heroBannerData sent", bannerData);

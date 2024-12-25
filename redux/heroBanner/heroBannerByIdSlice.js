@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Define the API endpoint for fetching a hero banner by ID
-const API_HERO_BANNER_BY_ID_URL = "http://localhost:5000/api/v1/banner/Top-Banner";
+const API_HERO_BANNER_BY_ID_URL = "https://leather-for-luxury.vercel.app/api/v1/banner/Top-Banner";
 
 // Create an async thunk for fetching a hero banner by ID
 export const fetchHeroBannerById = createAsyncThunk(
