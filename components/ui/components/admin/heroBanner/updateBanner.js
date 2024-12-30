@@ -32,19 +32,22 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
         }
     }, [id, dispatch]);
 
- 
+
 
     // Populate the form once both categoryData and parentCategories are available
     useEffect(() => {
-        if (heroBannerData ) {
+        if (heroBannerData) {
             console.log(heroBannerData);
             setFormData({
                 name: heroBannerData.header || 'asdfasd',
-                image: heroBannerData.image[0] || null,
-                previewImage: heroBannerData.image[0] || null,
-                image2: heroBannerData.image[1] || null,
-                previewImage2:heroBannerData.image[2] || null
+                image: heroBannerData.image?.[0] || null,
+                previewImage: heroBannerData.image?.[0] || null,
+                image2: heroBannerData.image?.[1] || null,
+                previewImage2: heroBannerData.image?.[1] || null,
+                title: heroBannerData.title || [], // Dynamically handle title
             });
+            console.log("heroBannerData", heroBannerData);
+            console.log(heroBannerData.title);
         }
     }, [heroBannerData]);
 
@@ -54,7 +57,11 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
         previewImage: null,
         image2: null,
         previewImage2: null,
+        title: [], // Array of dynamic strings
     });
+
+
+
 
 
 
@@ -104,7 +111,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Validation: Check if all required fields are filled
         if (!formData.name || !formData.image || !formData.image2) {
             console.error("All fields are required.");
@@ -123,11 +130,12 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
             // Prepare the final data for the backend
             const bannerData = {
                 header: formData.name,
-                image: [imageUrl,imageUrl2], // Replace the file with the uploaded image URL
+                image: [imageUrl, imageUrl2],
+                title: formData.title // Replace the file with the uploaded image URL
             };
-            console.log("parent category ",bannerData);
+            console.log("parent category ", bannerData);
             // Dispatch the action to create a new category
-            const updateResult = await dispatch(updateHeroBanner({id,bannerData})).unwrap();
+            const updateResult = await dispatch(updateHeroBanner({ id, bannerData })).unwrap();
 
             // Reset the form data
             setFormData({
@@ -135,7 +143,8 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 image: null,
                 previewImage: null,
                 image2: null,
-                previewImage2: null
+                previewImage2: null,
+                title: [], // Array of dynamic strings
             });
 
             doneUpdate();
@@ -156,11 +165,40 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
             image: null,
             previewImage: null,
             image2: null,
-            previewImage2: null
+            previewImage2: null,
+            title: [], // Array of dynamic strings
 
         });
         resetId();
         toggleVisibility();
+    };
+
+    const handleAddTitle = () => {
+        setFormData((prev) => ({
+            ...prev,
+            title: [...prev.title, ''], // Add an empty string for the new title
+        }));
+    };
+
+     // Remove a title by index
+    const handleRemoveTitle = (index) => {
+        setFormData((prev) => ({
+            ...prev,
+            title: prev.title.filter((_, i) => i !== index), // Remove the title at the given index
+        }));
+    };
+
+    // Update a title by index
+    const handleTitleChange = (e, index) => {
+        const { value } = e.target;
+        setFormData((prev) => {
+            const updatedtitle = [...prev.title];
+            updatedtitle[index] = value; // Update the specific title
+            return {
+                ...prev,
+                title: updatedtitle,
+            };
+        });
     };
 
 
@@ -206,183 +244,228 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                                     </div>
                                 </div>
 
-                               
-                                 {/* Banner  Images 1 */}
-                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                        <label
-                                            htmlFor="image-upload"
-                                            className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium"
-                                        >
-                                            Banner Image 1
+
+                                {/* Banner  Images 1 */}
+                                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                    <label
+                                        htmlFor="image-upload"
+                                        className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium"
+                                    >
+                                        Banner Image 1
+                                    </label>
+                                    <div className="col-span-8 sm:col-span-4">
+                                        <div className="w-full text-center mb-4">
+                                            {/* Label to trigger file upload */}
+                                            <label
+                                                htmlFor="image-1-banner"
+                                                className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+                                            >
+                                                <input
+                                                    id="image-1-banner"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={handleImageInputDefault} // Make sure the function is properly attached
+                                                    style={{ display: "none" }} // Input remains hidden but accessible
+                                                />
+                                                {/* Icon and text */}
+                                                <svg
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    className="text-3xl text-blue-500 mb-2"
+                                                    height="1em"
+                                                    width="1em"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <polyline points="16 16 12 12 8 16"></polyline>
+                                                    <line x1="12" y1="12" x2="12" y2="21"></line>
+                                                    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                                                    <polyline points="16 16 12 12 8 16"></polyline>
+                                                </svg>
+                                                <p className="text-sm">Drag your images here</p>
+                                                <em className="text-xs text-gray-400">
+                                                    (Only *.jpeg, *.webp and *.png images will be accepted)
+                                                </em>
+                                            </label>
+                                        </div>
+
+                                        {/* Display preview image */}
+                                        {formData.image && (
+                                            <aside className="flex flex-row flex-wrap mt-4">
+                                                <div draggable className="relative inline-flex items-center">
+                                                    <img
+                                                        className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
+                                                        src={
+                                                            formData.image instanceof File
+                                                                ? URL.createObjectURL(formData.image)
+                                                                : formData.image
+                                                        }
+                                                        alt="Category"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-0 right-0 text-red-500 focus:outline-none"
+
+                                                    >
+                                                        <svg
+                                                            stroke="currentColor"
+                                                            fill="none"
+                                                            strokeWidth="2"
+                                                            viewBox="0 0 24 24"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            height="1em"
+                                                            width="1em"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
+                                                            <circle cx="12" cy="12" r="10"></circle>
+                                                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </aside>
+                                        )}
+                                    </div>
+                                </div>
+                                {/* product hover Images  */}
+                                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                    <label
+
+                                        className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium"
+                                    >
+                                        Banner Image 2
+                                    </label>
+                                    <div className="col-span-8 sm:col-span-4">
+                                        <div className="w-full text-center mb-4">
+                                            {/* Label to trigger file upload */}
+                                            <label
+                                                htmlFor="image-2-banner"
+                                                className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+                                            >
+                                                <input
+                                                    id="image-2-banner"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={handleImageInputHover} // Make sure the function is properly attached
+                                                    style={{ display: "none" }} // Input remains hidden but accessible
+                                                />
+                                                {/* Icon and text */}
+                                                <svg
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    strokeWidth="2"
+                                                    viewBox="0 0 24 24"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    className="text-3xl text-blue-500 mb-2"
+                                                    height="1em"
+                                                    width="1em"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <polyline points="16 16 12 12 8 16"></polyline>
+                                                    <line x1="12" y1="12" x2="12" y2="21"></line>
+                                                    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                                                    <polyline points="16 16 12 12 8 16"></polyline>
+                                                </svg>
+                                                <p className="text-sm">Drag your images here</p>
+                                                <em className="text-xs text-gray-400">
+                                                    (Only *.jpeg, *.webp and *.png images will be accepted)
+                                                </em>
+                                            </label>
+                                        </div>
+
+                                        {/* Display preview image */}
+                                        {formData.image2 && (
+                                            <aside className="flex flex-row flex-wrap mt-4">
+                                                <div draggable className="relative inline-flex items-center">
+                                                    <img
+                                                        className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
+                                                        src={
+                                                            formData.image2 instanceof File
+                                                                ? URL.createObjectURL(formData.image2)
+                                                                : formData.image2
+                                                        }
+                                                        alt="Category"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="absolute top-0 right-0 text-red-500 focus:outline-none"
+
+                                                    >
+                                                        <svg
+                                                            stroke="currentColor"
+                                                            fill="none"
+                                                            strokeWidth="2"
+                                                            viewBox="0 0 24 24"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            height="1em"
+                                                            width="1em"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        >
+                                                            <circle cx="12" cy="12" r="10"></circle>
+                                                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </aside>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/*Banner title */}
+                                <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                        <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                                            Banner Title
                                         </label>
                                         <div className="col-span-8 sm:col-span-4">
-                                            <div className="w-full text-center mb-4">
-                                                {/* Label to trigger file upload */}
-                                                <label
-                                                    htmlFor="image-1-banner"
-                                                    className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
-                                                >
-                                                    <input
-                                                        id="image-1-banner"
-                                                        type="file"
-                                                        accept="image/*"
-                                                        multiple
-                                                        onChange={handleImageInputDefault} // Make sure the function is properly attached
-                                                        style={{ display: "none" }} // Input remains hidden but accessible
-                                                    />
-                                                    {/* Icon and text */}
-                                                    <svg
-                                                        stroke="currentColor"
-                                                        fill="none"
-                                                        strokeWidth="2"
-                                                        viewBox="0 0 24 24"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="text-3xl text-blue-500 mb-2"
-                                                        height="1em"
-                                                        width="1em"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <polyline points="16 16 12 12 8 16"></polyline>
-                                                        <line x1="12" y1="12" x2="12" y2="21"></line>
-                                                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-                                                        <polyline points="16 16 12 12 8 16"></polyline>
-                                                    </svg>
-                                                    <p className="text-sm">Drag your images here</p>
-                                                    <em className="text-xs text-gray-400">
-                                                        (Only *.jpeg, *.webp and *.png images will be accepted)
-                                                    </em>
-                                                </label>
-                                            </div>
-
-                                            {/* Display preview image */}
-                                            {formData.image && (
-                                                <aside className="flex flex-row flex-wrap mt-4">
-                                                    <div draggable className="relative inline-flex items-center">
-                                                        <img
-                                                            className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                            src={
-                                                                formData.image instanceof File
-                                                                    ? URL.createObjectURL(formData.image)
-                                                                    : formData.image
-                                                            }
-                                                            alt="Category"
+                                            {formData.title.map((ttle, index) => (
+                                                <div key={index} className="bg-gray-50 border rounded-md p-4 mb-4">
+                                                    <div className="grid grid-cols-12 gap-2 mb-2">
+                                                        {/* Color Name */}
+                                                        <input
+                                                            type="text"
+                                                            name={`titleName-${index}`}
+                                                            placeholder="Color Name"
+                                                            className="col-span-11 px-3 py-1 rounded-md border border-gray-300 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring focus:ring-purple-300 text-sm"
+                                                            value={ttle}
+                                                            onChange={(e) => handleTitleChange(e, index, "titleName")}
                                                         />
+
+                                                        {/* Remove Color Button */}
                                                         <button
                                                             type="button"
-                                                            className="absolute top-0 right-0 text-red-500 focus:outline-none"
-
+                                                            className="col-span-1 text-red-600 hover:text-red-800 bg-white shadow-md rounded-full w-10 h-10 "
+                                                            onClick={() => handleRemoveTitle(index)}
                                                         >
-                                                            <svg
-                                                                stroke="currentColor"
-                                                                fill="none"
-                                                                strokeWidth="2"
-                                                                viewBox="0 0 24 24"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                height="1em"
-                                                                width="1em"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <circle cx="12" cy="12" r="10"></circle>
-                                                                <line x1="15" y1="9" x2="9" y2="15"></line>
-                                                                <line x1="9" y1="9" x2="15" y2="15"></line>
-                                                            </svg>
+                                                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                                         </button>
                                                     </div>
-                                                </aside>
-                                            )}
+
+                                                  
+                                                    
+                                                </div>
+                                            ))}
+
+                                            {/* Add Color Button */}
+                                            <button
+                                                type="button"
+                                                className="mt-2 text-sm text-white bg-primary-500 px-3 py-1 rounded-md hover:bg-primary-600"
+                                                onClick={handleAddTitle}
+                                            >
+                                                + Add Title
+                                            </button>
                                         </div>
-                                    </div>
-                                    {/* product hover Images  */}
-                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                        <label
+                                </div>
 
-                                            className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium"
-                                        >
-                                            Banner Image 2
-                                        </label>
-                                        <div className="col-span-8 sm:col-span-4">
-                                            <div className="w-full text-center mb-4">
-                                                {/* Label to trigger file upload */}
-                                                <label
-                                                    htmlFor="image-2-banner"
-                                                    className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
-                                                >
-                                                    <input
-                                                        id="image-2-banner"
-                                                        type="file"
-                                                        accept="image/*"
-                                                        multiple
-                                                        onChange={handleImageInputHover} // Make sure the function is properly attached
-                                                        style={{ display: "none" }} // Input remains hidden but accessible
-                                                    />
-                                                    {/* Icon and text */}
-                                                    <svg
-                                                        stroke="currentColor"
-                                                        fill="none"
-                                                        strokeWidth="2"
-                                                        viewBox="0 0 24 24"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="text-3xl text-blue-500 mb-2"
-                                                        height="1em"
-                                                        width="1em"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <polyline points="16 16 12 12 8 16"></polyline>
-                                                        <line x1="12" y1="12" x2="12" y2="21"></line>
-                                                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-                                                        <polyline points="16 16 12 12 8 16"></polyline>
-                                                    </svg>
-                                                    <p className="text-sm">Drag your images here</p>
-                                                    <em className="text-xs text-gray-400">
-                                                        (Only *.jpeg, *.webp and *.png images will be accepted)
-                                                    </em>
-                                                </label>
-                                            </div>
 
-                                            {/* Display preview image */}
-                                            {formData.image2 && (
-                                                <aside className="flex flex-row flex-wrap mt-4">
-                                                    <div draggable className="relative inline-flex items-center">
-                                                        <img
-                                                            className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                            src={
-                                                                formData.image2 instanceof File
-                                                                    ? URL.createObjectURL(formData.image2)
-                                                                    : formData.image2
-                                                            }
-                                                            alt="Category"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            className="absolute top-0 right-0 text-red-500 focus:outline-none"
-
-                                                        >
-                                                            <svg
-                                                                stroke="currentColor"
-                                                                fill="none"
-                                                                strokeWidth="2"
-                                                                viewBox="0 0 24 24"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                height="1em"
-                                                                width="1em"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <circle cx="12" cy="12" r="10"></circle>
-                                                                <line x1="15" y1="9" x2="9" y2="15"></line>
-                                                                <line x1="9" y1="9" x2="15" y2="15"></line>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </aside>
-                                            )}
-                                        </div>
-                                    </div>
-
-                              
                             </div>
 
                             <div className="bottom_section absolute z-10 bottom-0 w-full right-0 pt-4 pb-32 lg:pb-4 lg:py-8 px-6 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex bg-gray-50 border-t border-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >

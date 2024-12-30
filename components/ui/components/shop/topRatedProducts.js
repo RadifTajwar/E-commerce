@@ -10,7 +10,7 @@ export default function topRatedProducts() {
             <div className="topRatedProducts w-full mt-5">
                 <div className="flex w-full gap-x-2">
                     <div className="w-2/6 ">
-                        <Image src="/topRated.jpg" width={65} height={65}></Image>
+                        <Image src="/topRated.jpg" alt='toprated' width={65} height={65}></Image>
                     </div>
                     <div className="w-4/6 " >
                         <p className="text-gray-900 text-sm font-normal cursor-pointer hover:text-gray-600">Classic Bifold Series 2</p>
@@ -26,7 +26,7 @@ export default function topRatedProducts() {
                 </div>
                 <div className="flex w-full gap-x-2">
                     <div className="w-2/6 ">
-                        <Image src="/topRated.jpg" width={65} height={65}></Image>
+                        <Image src="/topRated.jpg" alt='toprated' width={65} height={65}></Image>
                     </div>
                     <div className="w-4/6 " >
                         <p className="text-gray-900 text-sm font-normal cursor-pointer hover:text-gray-600">Classic Bifold Series 2</p>
@@ -42,7 +42,7 @@ export default function topRatedProducts() {
                 </div>
                 <div className="flex w-full gap-x-2">
                     <div className="w-2/6 ">
-                        <Image src="/topRated.jpg" width={65} height={65}></Image>
+                        <Image src="/topRated.jpg"  alt='toprated' width={65} height={65}></Image>
                     </div>
                     <div className="w-4/6 " >
                         <p className="text-gray-900 text-sm font-normal cursor-pointer hover:text-gray-600">Classic Bifold Series 2</p>

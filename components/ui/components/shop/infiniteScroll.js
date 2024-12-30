@@ -75,7 +75,7 @@ export default function InfiniteScroll({ products }) {
     return (
         <>
       
-            <div className="flex grid grid-cols-2 md:grid-cols-3 gap-x-4">
+            <div className="flex grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
                 {elements}
             </div>
     

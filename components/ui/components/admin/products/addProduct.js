@@ -44,6 +44,10 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
         previewImageDefault: null,
         imageHover: null, // URL or file
         previewImageHover: null,
+        leather: {
+            title: [],
+            image: null,
+        },
         // Colors
         color: [
 
@@ -227,6 +231,13 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             const ImageDefault = await uploadToCloudinary(formData.imageDefault, folderName);
             const ImageHover = await uploadToCloudinary(formData.imageHover, folderName);
 
+
+            const updatedLeather = { ...formData.leather }; // Create a copy of the leather object to avoid direct mutation
+
+            if (formData.leather.image) {
+                const leatherImageUrl = await uploadToCloudinary(formData.leather.image, folderName);
+                updatedLeather.image = leatherImageUrl; // Add or update the image property with the uploaded URL
+            }
             // Map through additionalDetails and upload their images to color-specific folders
             const updatedAdditionalDetails = await Promise.all(
                 formData.additionalDetails.map(async (detail) => {
@@ -257,6 +268,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                 imageDefault: ImageDefault,
                 imageHover: ImageHover,
                 additionalDetails: updatedAdditionalDetails,
+                leather: updatedLeather,
             };
 
             // Dispatch the action to create the product
@@ -278,6 +290,25 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             setImageUploading(false);
         }
     };
+
+    const handleLeatherImageInputDefault = (e, colorIndex) => {
+        const file = e.target.files[0];
+        console.log('Uploaded file:', file);
+        if (file) {
+
+            setFormData((prevData) => ({
+                ...prevData,
+                leather: {
+                    ...prevData.leather,
+                    image: file,
+                }
+            }));
+
+        } else {
+            console.error('No file selected.');
+        }
+    };
+
 
 
     const cancelButtonPressed = () => {
@@ -301,6 +332,10 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             previewImageDefault: null,
             imageHover: null, // URL or file
             previewImageHover: null,
+            leather: {
+                title: [],
+                image: null,
+            },
 
             // Colors
             color: [
@@ -354,6 +389,32 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
     const handleCategorySelect = (categoryName) => {
         setFormData({ ...formData, category: categoryName, categoryId: categories.find((category) => category.name === categoryName).id });
         setIsOpen(false); // Close dropdown after selecting a category
+    };
+
+    const handleRemoveTitle = (index) => {
+        const updatedTitle = formData.leather.title.filter((_, i) => i !== index);
+        
+        // Correctly updating the formData state with the updated title inside the leather object
+        setFormData({
+            ...formData,
+            leather: {
+                ...formData.leather,
+                title: updatedTitle, // Update the title array inside leather
+            },
+        });
+    };
+    const handleAddTitle = () => {
+        console.log("here after title  is ", formData.leather);
+        setFormData({
+            ...formData,
+            leather: {
+                ...formData.leather, // Preserve the entire leather object
+                title: [
+                    ...formData.leather.title, // Append to the existing title array
+                    "", // Add an empty string as the new dynamic title
+                ],
+            },
+        });
     };
 
 
@@ -639,6 +700,156 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                     </div>
 
 
+                                     {/* leather section */}
+                                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                        <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                                            Leather (Image size : 638 x 638)
+                                        </label>
+
+                                        <div className="col-span-8 sm:col-span-4">
+                                            {formData.leather && (
+                                                <>
+
+                                                   
+                                                            <div className="col-span-8 sm:col-span-4">
+                                                                <div className="w-full text-center mb-4">
+                                                                    {/* Label to trigger file upload */}
+                                                                    <label
+                                                                        htmlFor="image-leather-adding"
+                                                                        className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+                                                                    >
+                                                                        <input
+                                                                            id="image-leather-adding"
+                                                                            type="file"
+                                                                            accept="image/*"
+                                                                            multiple
+                                                                            onChange={handleLeatherImageInputDefault} // Make sure the function is properly attached
+                                                                            style={{ display: "none" }} // Input remains hidden but accessible
+                                                                        />
+                                                                        {/* Icon and text */}
+                                                                        <svg
+                                                                            stroke="currentColor"
+                                                                            fill="none"
+                                                                            strokeWidth="2"
+                                                                            viewBox="0 0 24 24"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            className="text-3xl text-blue-500 mb-2"
+                                                                            height="1em"
+                                                                            width="1em"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                        >
+                                                                            <polyline points="16 16 12 12 8 16"></polyline>
+                                                                            <line x1="12" y1="12" x2="12" y2="21"></line>
+                                                                            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                                                                            <polyline points="16 16 12 12 8 16"></polyline>
+                                                                        </svg>
+                                                                        <p className="text-sm">Drag your images here</p>
+                                                                        <em className="text-xs text-gray-400">
+                                                                            (Only *.jpeg, *.webp and *.png images will be accepted)
+                                                                        </em>
+                                                                    </label>
+                                                                </div>
+
+                                                                {/* Display preview image */}
+                                                                {formData.leather.image && (
+                                                                    <aside className="flex flex-row flex-wrap mt-4">
+                                                                        <div draggable className="relative inline-flex items-center">
+                                                                            <img
+                                                                                className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
+                                                                                src={
+                                                                                    formData.leather.image instanceof File
+                                                                                        ? URL.createObjectURL(formData.leather.image)
+                                                                                        : formData.leather.image
+                                                                                }
+                                                                                alt="Category"
+                                                                            />
+                                                                            <button
+                                                                                type="button"
+                                                                                className="absolute top-0 right-0 text-red-500 focus:outline-none"
+
+                                                                            >
+                                                                                <svg
+                                                                                    stroke="currentColor"
+                                                                                    fill="none"
+                                                                                    strokeWidth="2"
+                                                                                    viewBox="0 0 24 24"
+                                                                                    strokeLinecap="round"
+                                                                                    strokeLinejoin="round"
+                                                                                    height="1em"
+                                                                                    width="1em"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                >
+                                                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </aside>
+                                                                )}
+                                                            </div>
+                                                       
+                                                    {
+                                                        formData.leather.title?.map((title, index) => {
+                                                            return ( // Ensure you use 'return' to return the JSX
+                                                                <div key={index} className="bg-gray-50 border rounded-md p-4 mb-4">
+                                                                    <div className="grid grid-cols-12 gap-2 mb-2">
+
+                                                                        {/* Available Quantity */}
+                                                                        <input
+                                                                            type="text"
+                                                                            name={`title-${index}`}
+                                                                            placeholder="Title"
+                                                                            className="col-span-3 px-3 py-1 rounded-md border border-gray-300 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring focus:ring-purple-300 text-sm"
+                                                                            value={title}
+                                                                            onChange={(e) => handleTitleChange(e, index)}
+                                                                        />
+
+                                                                        {/* Remove Color Button */}
+                                                                        <button
+                                                                            type="button"
+                                                                            className="col-span-1 text-red-600 hover:text-red-800 bg-white shadow-md rounded-full w-10 h-10 "
+                                                                            onClick={() => handleRemoveTitle(index)}
+                                                                        >
+                                                                            <svg
+                                                                                stroke="currentColor"
+                                                                                fill="none"
+                                                                                strokeWidth="2"
+                                                                                viewBox="0 0 24 24"
+                                                                                strokeLinecap="round"
+                                                                                strokeLinejoin="round"
+                                                                                className="mx-auto"
+                                                                                height="1em"
+                                                                                width="1em"
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                            >
+                                                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    }
+                                                </>
+                                            )}
+
+                                            {/* Add Color Button */}
+                                            <button
+                                                type="button"
+                                                className="mt-2 text-sm text-white bg-primary-500 px-3 py-1 rounded-md hover:bg-primary-600"
+                                                onClick={handleAddTitle}
+                                            >
+                                                + Add Title
+                                            </button>
+                                        </div>
+
+
+                                    </div>
+
+
 
 
 
@@ -871,7 +1082,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                     <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
                                         <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12" type="submit" disabled={(createProductLoading || imageUploading)}>
 
-                                            <span> {(createProductLoading || imageUploading) ? 'Creating...' : 'Create Category'}</span>
+                                            <span> {(createProductLoading || imageUploading) ? 'Creating...' : 'Create Product'}</span>
                                         </button>
                                     </div>
                                 </div>

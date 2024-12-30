@@ -68,6 +68,10 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
         previewImageDefault: null,
         imageHover: null, // URL or file
         previewImageHover: null,
+        leather: {
+            title: [],
+            image: null,
+        },
         // Colors
         color: [
 
@@ -114,6 +118,11 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 // Pricing information
                 originalPrice: productData.originalPrice || 0,
                 discountedPrice: productData.discountedPrice || 0,
+                leather: productData.leather || {
+                    title: [],
+                    image: null,
+                },
+
 
                 // Color field
                 color: productData.color || [
@@ -149,6 +158,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 barcode: productData.barcode || '',
                 id: productData.id || '',
             });
+
         }
     }, [productData, categories]);
 
@@ -196,6 +206,37 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
         }
     };
 
+    const handleLeatherImageInputDefault = (e, colorIndex) => {
+        const file = e.target.files[0];
+        console.log('Uploaded file:', file);
+        if (file) {
+
+            setFormData((prevData) => ({
+                ...prevData,
+                leather: {
+                    ...prevData.leather,
+                    image: file,
+                }
+            }));
+
+        } else {
+            console.error('No file selected.');
+        }
+    };
+
+    const handleTitleChange = (e, index) => {
+        const updatedTitles = [...formData.leather.title];  // Create a shallow copy of the titles array
+        updatedTitles[index] = e.target.value;  // Update the specific title at the given index
+
+        // Update formData state with the updated title array
+        setFormData({
+            ...formData,
+            leather: {
+                ...formData.leather,
+                title: updatedTitles,  // Set the updated titles array
+            }
+        });
+    };
 
     const handleColorChange = (e, index, field) => {
         // Create a deep copy of the colors array
@@ -230,6 +271,21 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             ],
         });
     };
+
+    const handleAddTitle = () => {
+        console.log("here after title  is ", formData.leather);
+        setFormData({
+            ...formData,
+            leather: {
+                ...formData.leather, // Preserve the entire leather object
+                title: [
+                    ...formData.leather.title, // Append to the existing title array
+                    "", // Add an empty string as the new dynamic title
+                ],
+            },
+        });
+    };
+
     const handleImageUpload = (e, colorIndex) => {
         const files = Array.from(e.target.files); // Convert FileList to Array
         console.log("files", files);
@@ -266,6 +322,19 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
         });
     };
 
+    const handleRemoveTitle = (index) => {
+        const updatedTitle = formData.leather.title.filter((_, i) => i !== index);
+        
+        // Correctly updating the formData state with the updated title inside the leather object
+        setFormData({
+            ...formData,
+            leather: {
+                ...formData.leather,
+                title: updatedTitle, // Update the title array inside leather
+            },
+        });
+    };
+
     const handleRemoveImage = (colorIndex, imageIndex) => {
         const updatedAdditionalDetails = formData.additionalDetails.map((detail, index) => ({
             ...detail,
@@ -299,13 +368,14 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             additionalDetails: updatedAdditionalDetails,
         });
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Validation: Check if all required fields are filled
         if (
             !formData.name ||
-            
+
             !formData.categoryId ||
             !formData.imageDefault ||
             !formData.originalPrice ||
@@ -320,6 +390,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
         }
 
         const folderName = `Product/${formData.name}`;
+
         setImageUploading(true);
 
         try {
@@ -328,6 +399,16 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             const ImageHover = await uploadToCloudinary(formData.imageHover, folderName);
             console.log("uploaded image", ImageDefault, ImageHover);
             // Map through additionalDetails and upload their images to color-specific folders
+            const updatedLeather = { ...formData.leather }; // Create a copy of the leather object to avoid direct mutation
+
+            if (formData.leather.image) {
+                const leatherImageUrl = await uploadToCloudinary(formData.leather.image, folderName);
+                updatedLeather.image = leatherImageUrl; // Add or update the image property with the uploaded URL
+            }
+
+            // Proceed with the rest of your work using updatedLeather
+            console.log(updatedLeather, "updatedLeather is this");
+
             const updatedAdditionalDetails = await Promise.all(
                 formData.additionalDetails.map(async (detail) => {
                     if (detail.quantity > 0) {
@@ -358,7 +439,10 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 imageDefault: ImageDefault,
                 imageHover: ImageHover,
                 additionalDetails: updatedAdditionalDetails,
+                leather: updatedLeather
             };
+
+            console.log("Updated data is :", updatedData);
 
             // Dispatch the action to create the product
             const updateResult = await dispatch(updateProductData({ id, updatedData })).unwrap();
@@ -398,6 +482,11 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             // Images
             imageDefault: null, // URL or file
             imageHover: null, // URL or file
+            //leather
+            leather: {
+                title: [],
+                image: null,
+            },
 
             // Colors
             color: [
@@ -723,6 +812,158 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                     </div>
 
 
+                                    {/* leather section */}
+                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                        <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                                        Leather (Image size : 638 x 638)
+                                        </label>
+
+                                        <div className="col-span-8 sm:col-span-4">
+                                            {formData.leather && (
+                                                <>
+
+                                                    {
+                                                        formData.leather.image && (
+                                                            <div className="col-span-8 sm:col-span-4">
+                                                                <div className="w-full text-center mb-4">
+                                                                    {/* Label to trigger file upload */}
+                                                                    <label
+                                                                        htmlFor="image-leather-adding"
+                                                                        className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+                                                                    >
+                                                                        <input
+                                                                            id="image-leather-adding"
+                                                                            type="file"
+                                                                            accept="image/*"
+                                                                            multiple
+                                                                            onChange={handleLeatherImageInputDefault} // Make sure the function is properly attached
+                                                                            style={{ display: "none" }} // Input remains hidden but accessible
+                                                                        />
+                                                                        {/* Icon and text */}
+                                                                        <svg
+                                                                            stroke="currentColor"
+                                                                            fill="none"
+                                                                            strokeWidth="2"
+                                                                            viewBox="0 0 24 24"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            className="text-3xl text-blue-500 mb-2"
+                                                                            height="1em"
+                                                                            width="1em"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                        >
+                                                                            <polyline points="16 16 12 12 8 16"></polyline>
+                                                                            <line x1="12" y1="12" x2="12" y2="21"></line>
+                                                                            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                                                                            <polyline points="16 16 12 12 8 16"></polyline>
+                                                                        </svg>
+                                                                        <p className="text-sm">Drag your images here</p>
+                                                                        <em className="text-xs text-gray-400">
+                                                                            (Only *.jpeg, *.webp and *.png images will be accepted)
+                                                                        </em>
+                                                                    </label>
+                                                                </div>
+
+                                                                {/* Display preview image */}
+                                                                {formData.leather.image && (
+                                                                    <aside className="flex flex-row flex-wrap mt-4">
+                                                                        <div draggable className="relative inline-flex items-center">
+                                                                            <img
+                                                                                className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
+                                                                                src={
+                                                                                    formData.leather.image instanceof File
+                                                                                        ? URL.createObjectURL(formData.leather.image)
+                                                                                        : formData.leather.image
+                                                                                }
+                                                                                alt="Category"
+                                                                            />
+                                                                            <button
+                                                                                type="button"
+                                                                                className="absolute top-0 right-0 text-red-500 focus:outline-none"
+
+                                                                            >
+                                                                                <svg
+                                                                                    stroke="currentColor"
+                                                                                    fill="none"
+                                                                                    strokeWidth="2"
+                                                                                    viewBox="0 0 24 24"
+                                                                                    strokeLinecap="round"
+                                                                                    strokeLinejoin="round"
+                                                                                    height="1em"
+                                                                                    width="1em"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                >
+                                                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </aside>
+                                                                )}
+                                                            </div>
+                                                        )
+                                                    }
+                                                    {
+                                                        formData.leather.title?.map((title, index) => {
+                                                            return ( // Ensure you use 'return' to return the JSX
+                                                                <div key={index} className="bg-gray-50 border rounded-md p-4 mb-4">
+                                                                    <div className="grid grid-cols-12 gap-2 mb-2">
+
+                                                                        {/* Available Quantity */}
+                                                                        <input
+                                                                            type="text"
+                                                                            name={`title-${index}`}
+                                                                            placeholder="Title"
+                                                                            className="col-span-3 px-3 py-1 rounded-md border border-gray-300 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring focus:ring-purple-300 text-sm"
+                                                                            value={title}
+                                                                            onChange={(e) => handleTitleChange(e, index)}
+                                                                        />
+
+                                                                        {/* Remove Color Button */}
+                                                                        <button
+                                                                            type="button"
+                                                                            className="col-span-1 text-red-600 hover:text-red-800 bg-white shadow-md rounded-full w-10 h-10 "
+                                                                            onClick={() => handleRemoveTitle(index)}
+                                                                        >
+                                                                            <svg
+                                                                                stroke="currentColor"
+                                                                                fill="none"
+                                                                                strokeWidth="2"
+                                                                                viewBox="0 0 24 24"
+                                                                                strokeLinecap="round"
+                                                                                strokeLinejoin="round"
+                                                                                className="mx-auto"
+                                                                                height="1em"
+                                                                                width="1em"
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                            >
+                                                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    }
+                                                </>
+                                            )}
+
+                                            {/* Add Color Button */}
+                                            <button
+                                                type="button"
+                                                className="mt-2 text-sm text-white bg-primary-500 px-3 py-1 rounded-md hover:bg-primary-600"
+                                                onClick={handleAddTitle}
+                                            >
+                                                + Add Title
+                                            </button>
+                                        </div>
+
+
+                                    </div>
+
+
 
 
 
@@ -941,7 +1182,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                 <input
                                                     className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 bg-gray-50 mr-2 rounded w-full h-12 p-2 text-sm border border-gray-300 focus:bg-white focus:border-blue-500 focus:outline-none rounded-l-none"
                                                     type="text"
-                                                    name="originalPrice"
+                                                    name="discountedPrice"
                                                     placeholder="Enter Product Price"
                                                     value={formData.discountedPrice}
                                                     onChange={handleInputChange}

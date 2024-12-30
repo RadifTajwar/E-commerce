@@ -6,7 +6,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { createOrder } from '@/redux/order/createOrderSlice';
 export default function page() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
@@ -94,7 +93,7 @@ export default function page() {
 
       <div className="total_container  max-w-7xl mx-auto my-10">
 
-        {
+         {
           cartItems.length !== 0 ? (
             <>
               <div className="coupon_section px-4 w-auto ">
@@ -126,7 +125,7 @@ export default function page() {
                     </div>
                     <div className="name_address_district_phone_email_&_additionalInformation">
                    
-                        {/* Name Field */}
+                        
                         <div className="w-full pb-5">
                           <label htmlFor="name" className="block text-sm font-normal text-gray-700 pb-1">
                             Full Name (আপনার সম্পূর্ণ নাম) <span className="text-sm text-red-600">*</span>
@@ -140,7 +139,7 @@ export default function page() {
                           />
                         </div>
 
-                        {/* Address Field */}
+                      
                         <div className="w-full pb-5">
                           <label htmlFor="address" className="block text-sm font-normal text-gray-700 pb-1">
                             Full Address (আপনার সম্পূর্ণ ঠিকানা লিখুন) <span className="text-sm text-red-600">*</span>
@@ -154,7 +153,7 @@ export default function page() {
                           />
                         </div>
 
-                        {/* District Field */}
+                       
                         <div className="w-full pb-5">
                           <label htmlFor="district" className="block text-sm font-normal text-gray-700 pb-1">
                             District (জেলা) <span className="text-sm text-red-600">*</span>
@@ -182,7 +181,7 @@ export default function page() {
                               </button>
                             </div>
 
-                            {/* Dropdown Search */}
+                           
                             {showDistrictOption && (
                               <div className="absolute z-10 left-0 right-0 bg-white border-2 shadow-md">
                                 <div className="relative w-full p-4 bg-gray-200">
@@ -215,7 +214,7 @@ export default function page() {
                           </div>
                         </div>
 
-                        {/* Phone Field */}
+                      
                         <div className="w-full pb-5">
                           <label htmlFor="phone" className="block text-sm font-normal text-gray-700 pb-1">
                             Phone (আপনার ফোন নাম্বারটি লিখুন) <span className="text-sm text-red-600">*</span>
@@ -229,7 +228,7 @@ export default function page() {
                           />
                         </div>
 
-                        {/* Email Field */}
+                       
                         <div className="w-full pb-5">
                           <label htmlFor="email" className="block text-sm font-normal text-gray-700 pb-1">
                             Email address (optional)
@@ -243,7 +242,7 @@ export default function page() {
                           />
                         </div>
 
-                        {/* Additional Information */}
+                      
                         <div className="w-full pb-5">
                           <label htmlFor="additionalInfo" className="block text-sm font-normal text-gray-700 pb-1">
                             Additional Information
@@ -277,28 +276,30 @@ export default function page() {
                           </div>
                         </div>
                         <div className="all_product">
+                          <div className="inner_products max-h-48 overflow-y-auto">
+
+                          
                           {
-                            cartItems.map((item) => (
-                              <>
-                                <div className="w-full product_container px-3 py-4 flex justify-between items-center border-b border-gray-200" >
-                                  <div className="image_&_text flex items-center w-full">
+                            cartItems.map((item,index) => (
+                              
+                                <div key={index} className="w-full product_container px-3 py-4 flex justify-between items-center border-b border-gray-200" >
+                                  <div key={index} className="image_&_text flex items-center w-full">
                                     <div className="image me-2.5">
-                                      <Image src={item.image} height={65} width={65} className='min-h-[65px] min-w-[65px]' />
+                                      <Image src={item.image} alt={item.name} height={65} width={65} className='min-h-[65px] min-w-[65px]' />
                                     </div>
                                     <div className="sm:flex justify-between items-center w-full">
                                       <div className="text_&_amount">
                                         <p className='text-gray-500 text-sm font-normal'>{item.name}</p>
                                         <div className="quantity_section mt-2.5 mb-2.5 sm:mb-0">
                                           <div className="inner flex">
-                                            {/* Minus Button */}
+                                           
                                             <button className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => { handleDecrementItem(item.colorId) }}>
                                               -
                                             </button>
 
-                                            {/* Quantity Display with left and right borders */}
                                             <span className="px-2 py-1  border-t-2 border-b-2 text-gray-500 text-sm flex items-center justify-center">{item.quantity}</span>
 
-                                            {/* Plus Button */}
+                                          
                                             <button className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center"
                                               onClick={() => { handleIncrementItem(item.colorId) }}>
                                               +
@@ -312,10 +313,12 @@ export default function page() {
                                     </div>
                                   </div>
                                 </div>
-                              </>
+                              
                             ))
                           }
 
+                          
+</div>
                           <div className="subtotal flex flex-wrap w-full justify-between items-center border-b border-gray-200 pt-4 md:pt-0  mb-4 md:mb-0 pb-4 md:pb-0">
                             <div className="h-full text text-sm text-gray-900 font-normal  md:px-2.5 md:py-4 ">
                               Subtotal
@@ -424,8 +427,9 @@ export default function page() {
                 )
               }
             </>
-          )
-        }
+           )
+
+        }  
 
       </div >
 

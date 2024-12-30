@@ -5,18 +5,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
+import CartIcon from "../../icon/icon";
+import SearchIcon from "../../icon/searchIcon";
 export default function card({ product }) {
     const Router = useRouter();
     const dispatch = useDispatch();
 
     const handleAddToCart = () => {
-        
+
         // dispatch(addItemToCart({
         //     id: product?.id,
         //     name: product?.name,
         //     price: product?.discountedPrice,
         //     image: product?.imageDefault,
-            
+
         //     colorId: colorId, // Send the selected color along with other data
         //     color: selectedColor, // Send the selected color along with other data
         // }));
@@ -34,7 +36,7 @@ export default function card({ product }) {
         localStorage.setItem(obfuscatedKey, hashedId);
 
         // Redirect to the product page
-        Router.push(`/products/${product.name}`);
+        Router.push(`/products/${product.slug}`);
     };
     return (
         <>
@@ -67,35 +69,60 @@ export default function card({ product }) {
                                             />
                                         </div>
 
+                                        <div className="absolute top-1 left-1 ">
+
+                                            <div className="flex items-center justify-center">
+                                                <div className="bg-gray-700 rounded-full py-2 px-4 flex flex-col items-center justify-center text-center   h-12 w-12">
+                                                    <p className="m-0 p-0 text-sm font-medium text-white leading-none ">-3%</p>
+
+                                                </div>
+                                            </div>
+                                            {
+                                                product.inStock && (
+                                                    <>
+                                                     <div className="flex items-center justify-center mt-2">
+                                                <div className="bg-white rounded-full py-2 px-4 flex flex-col items-center justify-center text-center   h-12 w-12">
+                                                    <p className="m-0 p-0 text-sm font-medium text-black leading-none">Sold</p>
+                                                    <p className="m-0 p-0 text-sm font-medium text-black leading-none">Out</p>
+                                                </div>
+                                            </div>
+                                                    </>
+                                                )
+                                            }
+                                           
+
+
+
+                                        </div>
+
+
+
 
                                         {/* Icon Pop-Up Div */}
-                                        <div className="absolute top-0 -right-2 mt-2 w-auto bg-white p-3 opacity-0 group-hover:opacity-100 group-hover:-translate-x-1/3 transition-all duration-300 ease-out h-auto transform hidden lg:block ">
-                                            <div className="flex flex-col items-center gap-2 hidden md:block ">
-                                                {/* Search Icon */}
-                                                <div className="text-gray-600 hover:text-black transition-colors duration-200">
-                                                    <svg fill="#000000" xmlns="http://www.w3.org/2000/svg" className="h-5 y-5"
-                                                        viewBox="0 0 488.4 488.4">
+                                        <div className="absolute top-0 -right-2 mt-2 w-auto bg-white opacity-0 group-hover:opacity-100 group-hover:-translate-x-1/3 transition-all duration-300 ease-out h-auto transform hidden lg:block">
+                                            <div className="flex flex-col items-center gap-2 hidden md:block">
+                                                {/* Outer group */}
+                                                <div className="flex group/inner items-center justify-center w-12 h-11">
+                                                    {/* Inner group */}
+                                                    <div className="relative   transition-transform duration-300">
+                                                        {/* Search Icon */}
+                                                        <SearchIcon />
 
-
-                                                        <path d="M0,203.25c0,112.1,91.2,203.2,203.2,203.2c51.6,0,98.8-19.4,134.7-51.2l129.5,129.5c2.4,2.4,5.5,3.6,8.7,3.6
-			                            s6.3-1.2,8.7-3.6c4.8-4.8,4.8-12.5,0-17.3l-129.6-129.5c31.8-35.9,51.2-83,51.2-134.7c0-112.1-91.2-203.2-203.2-203.2
-			                            S0,91.15,0,203.25z M381.9,203.25c0,98.5-80.2,178.7-178.7,178.7s-178.7-80.2-178.7-178.7s80.2-178.7,178.7-178.7
-			                            S381.9,104.65,381.9,203.25z"/>
-
-
-                                                    </svg>
+                                                        {/* The span that appears on hover of group-inner */}
+                                                        {/* <span className="absolute left-0 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                            S
+                                                        </span> */}
+                                                    </div>
                                                 </div>
 
-                                                {/* Love Icon */}
-                                                <div className="text-red-500 hover:text-red-700 transition-colors duration-200 mt-4">
-                                                    <svg fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="h-6 y-6">
-
-                                                        <path d="M20.5,4.609A5.811,5.811,0,0,0,16,2.5a5.75,5.75,0,0,0-4,1.455A5.75,5.75,0,0,0,8,2.5,5.811,5.811,0,0,0,3.5,4.609c-.953,1.156-1.95,3.249-1.289,6.66,1.055,5.447,8.966,9.917,9.3,10.1a1,1,0,0,0,.974,0c.336-.187,8.247-4.657,9.3-10.1C22.45,7.858,21.453,5.765,20.5,4.609Zm-.674,6.28C19.08,14.74,13.658,18.322,12,19.34c-2.336-1.41-7.142-4.95-7.821-8.451-.513-2.646.189-4.183.869-5.007A3.819,3.819,0,0,1,8,4.5a3.493,3.493,0,0,1,3.115,1.469,1.005,1.005,0,0,0,1.76.011A3.489,3.489,0,0,1,16,4.5a3.819,3.819,0,0,1,2.959,1.382C19.637,6.706,20.339,8.243,19.826,10.889Z" />
-
-                                                    </svg>
+                                                {/* Cart Icon (with hover effect on outer group) */}
+                                                <div className="text-gray-600 hover:text-gray-700 transition-colors duration-200 w-12 h-11 justify-center items-center flex">
+                                                    <CartIcon />
                                                 </div>
                                             </div>
                                         </div>
+
+
 
                                         {/* Cart icon div */}
                                         <div className="absolute left-0 bottom-0  w-auto  p-2 h-auto transform lg:opacity-0" style={{ backgroundColor: '#E8A811' }} >
@@ -146,7 +173,7 @@ export default function card({ product }) {
 
                                     <h1
                                         className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-                                        style={{ fontWeight: '400', fontSize: '12px' }} >
+                                        style={{ fontWeight: '400', fontSize: '14px' }} >
                                         {product.name}
                                     </h1>
 
@@ -154,7 +181,7 @@ export default function card({ product }) {
 
                                 <p>
                                     <span className="text-xs" style={{ textDecoration: 'line-through', color: '#a9a9a9' }}>৳ {product.originalPrice}</span>
-                                    <span className="text-sm font-semibold" style={{ color: '#E8A811', marginLeft: '8px' }}>৳ {product.discountedPrice}</span>
+                                    <span className="text-sm font-semibold" style={{ color: '#424242', marginLeft: '8px' }}>৳ {product.discountedPrice}</span>
                                 </p>
                             </div>
                         </div>

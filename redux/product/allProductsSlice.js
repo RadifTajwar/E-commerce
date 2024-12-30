@@ -17,6 +17,7 @@ export const fetchAllProducts = createAsyncThunk(
       // Construct query string if parameters are provided
       const queryParams = params
         ? `?${new URLSearchParams({
+            
             ...(params.page && { page: params.page.toString() }),
             ...(params.limit && { limit: params.limit.toString() }),
             ...(params.searchTerm && { searchTerm: params.searchTerm }),

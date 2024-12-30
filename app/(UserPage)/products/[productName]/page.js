@@ -13,15 +13,16 @@ import AccordionSection from "@/components/ui/components/productCart/accordionSe
 import '@/components/ui/components/shop/scrollbar.css';
 import { cn } from "@/lib/utils";
 import { addItemToCart } from "@/redux/cart/cartSlicer";
-import { fetchProductById } from "@/redux/product/productByIdSlice";
-import DoneIcon from '@mui/icons-material/Done';
+import { fetchProductBySlug } from "@/redux/product/productBySlugSlice";
 import CryptoJS from 'crypto-js';
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import './style.css';
-
 export default function productId() {
+    const pathname = usePathname(); // Get the full pathname
+
     const dispatch = useDispatch();
 
     const handleAddToCart = () => {
@@ -64,24 +65,34 @@ export default function productId() {
 
     // Access the update category data from the store
     const { productData, isLoading, error } = useSelector(
-        (state) => state.productById
+        (state) => state.productBySlug
     );
 
-    const isSamllScreen = window.innerWidth >= 576;
-    const isLargeScreen = window.innerWidth >= 1024;
 
+    const isSamllScreen = typeof window !== 'undefined' && window.innerWidth >= 768;
+    const isLargeScreen = typeof window !== 'undefined' && window.innerWidth >= 1280;
+    const productName = pathname.split('/').pop();
 
-    const isValidId = (id) => /^[a-fA-F0-9]{24}$/.test(id); // Checks for valid MongoDB ObjectId format
-    // console.log(categoryData);
 
     // Fetch the category by ID
     useEffect(() => {
+
+
+
+        console.log("productName", productName);
         console.log("id ashche??", PID);
-        if (PID && isValidId(PID)) {
-            dispatch(fetchProductById(PID));
+        if (productName) {
+
+            dispatch(fetchProductBySlug(productName));
             console.log("dhukse to");
         }
-    }, [PID, dispatch]);
+    }, [productName, dispatch]);
+
+    useEffect(() => {
+        if (productData) {
+            console.log("productData", productData);
+        }
+    }, [productData]);
 
     const [selectedColor, setSelectedColor] = useState(null);
     const [colorId, setColorId] = useState(null);
@@ -242,6 +253,7 @@ export default function productId() {
                                                                         <button onClick={() => handleThumbnailClick(index)} className={cn("border-b", currentIndex === index ? "border-red-500" : "border-transparent")}  >
                                                                             <Image
                                                                                 src={image}
+                                                                                alt="Thumbnail"
                                                                                 height={117}
                                                                                 width={117}
                                                                                 objectFit="contain"
@@ -426,43 +438,58 @@ export default function productId() {
                                         <div className="">
                                             <p className="text-center text-gray-800  text-md font-semibold">Color :</p>
                                         </div>
-                                        <div className=" rangeBar max-w-[300px] max-h-[65px] overflow-scroll flex space-x-2 justify-between">
-                                            <div className="color_palette group cursor-pointer min-w-[62px] min-h-[62px] bg-[#745679] rounded-3xl flex items-center justify-center">
-                                                <div className="tick_icon hidden group-hover:block ">
-                                                    <DoneIcon className='text-white' />
+                                        {/* <div className=" rangeBar max-w-[300px] max-h-[65px] overflow-scroll flex space-x-2 justify-between">
+                                            {Array.from({ length: 5 }).map((_, index) => (
+                                                <div className="color_palette group cursor-pointer min-w-[62px] min-h-[62px] bg-[#740224] rounded-3xl flex items-center justify-center">
+                                                    <div className="tick_icon hidden group-hover:block ">
+                                                        <DoneIcon className='text-white' />
+                                                    </div>
                                                 </div>
+                                            ))}
 
-                                            </div>
-                                            <div className="color_palette group cursor-pointer min-w-[62px] min-h-[62px] bg-[#740224] rounded-3xl flex items-center justify-center">
-                                                <div className="tick_icon hidden group-hover:block ">
-                                                    <DoneIcon className='text-white' />
+                                        </div> */}
+
+                                        <div className="rangeBar h-auto max-w-[300px] max-h-[65px] overflow-scroll flex items-center space-x-2 justify-center mb-2">
+                                            {productData.color.map((color, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="relative group cursor-pointer flex items-center justify-center"
+                                                >
+                                                    <div
+                                                        className={`color_palette rounded-3xl transition-colors flex items-center justify-center mb-1 min-w-[62px] min-h-[62px]`}
+                                                        style={{ backgroundColor: color.hex }}
+                                                        onClick={() => handleColorClick(color.colorName, color.id)}
+                                                    >
+                                                        {/* Color square */}
+                                                    </div>
+
+                                                    {/* Bottom line that will appear on hover */}
+                                                    <div
+                                                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100 `}`}
+                                                    />
                                                 </div>
-                                            </div>
-                                            <div className="color_palette group cursor-pointer min-w-[62px] min-h-[62px] bg-[#740224] rounded-3xl flex items-center justify-center">
-                                                <div className="tick_icon hidden group-hover:block ">
-                                                    <DoneIcon className='text-white' />
-                                                </div>
-                                            </div>
-                                            <div className="color_palette group cursor-pointer min-w-[62px] min-h-[62px] bg-[#740224] rounded-3xl flex items-center justify-center">
-                                                <div className="tick_icon hidden group-hover:block ">
-                                                    <DoneIcon className='text-white' />
-                                                </div>
+                                            ))}
+
+                                            {/* Clear button positioned to the right */}
+                                            <div className={`text-center clear_button ms-2 ${selectedColor ? 'block' : 'hidden'}`}>
+                                                <button className="text-gray-500 hover:text-gray-900 font-regular text-sm" onClick={handleClearClicked}>x clear</button>
                                             </div>
                                         </div>
+
                                     </div>
 
                                     <div className="quantity_section flex justify-center">
                                         <div className="inner flex  my-4">
                                             {/* Minus Button */}
-                                            <button className="border border-2 px-3 py-3 hover:bg-gray-800 hover:text-white transition  hover:border-black">
+                                            <button className="border border-2 px-3 py-3 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={handleDecrease}>
                                                 -
                                             </button>
 
                                             {/* Quantity Display with left and right borders */}
-                                            <span className="px-3 py-3  border-t-2 border-b-2">1</span>
+                                            <span className="px-3 py-3  border-t-2 border-b-2">{quantity}</span>
 
                                             {/* Plus Button */}
-                                            <button className="border border-2 px-3 py-3 hover:bg-gray-800 hover:text-white transition  hover:border-black">
+                                            <button className="border border-2 px-3 py-3 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={handleIncrease}>
                                                 +
                                             </button>
                                         </div>
@@ -471,7 +498,7 @@ export default function productId() {
                                     <div className="Add_to_cart&Buy_now space-y-2">
 
                                         <div className="buttons_ADD_TO_CART bg-black  text-white text-center">
-                                            <button className="text-center w-full py-3 text-sm font-medium">ADD TO CART</button>
+                                            <button className="text-center w-full py-3 text-sm font-medium" onClick={handleAddToCart}>ADD TO CART</button>
                                         </div>
                                         <div className="text-center buttons_BUY_NOW bg-black  text-white">
                                             <button className="text-center w-full py-3 text-sm font-medium">BUY NOW</button>
@@ -570,7 +597,14 @@ export default function productId() {
                 </div>
 
             </div>
-            <Cart />
+            {
+                productData && (
+                    <>
+                        <Cart productName={productData.name} />
+                    </>
+                )
+            }
+
 
 
 

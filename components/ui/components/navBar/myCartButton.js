@@ -19,7 +19,7 @@ export default function MyCartButton({ handleShoppingCartClicked }) {
                 </svg>
 
                 <span className="absolute -top-1 -left-1 flex items-center justify-center h-4 w-4 text-xs font-bold text-white bg-red-500  rounded-full">
-                    {totalCartQuantity}
+                    {totalCartQuantity? totalCartQuantity : 0}
                 </span>
             </div>
 

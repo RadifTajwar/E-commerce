@@ -25,6 +25,7 @@ import updateProductReducer from "./product/updateProductDataSlice";
 import allVideoBannerReducer from "./video/allVideoBannerSlice";
 import updateVideoBannerReducer from "./video/updateVideoBannerSlice";
 import videoBannerByIdReducer from "./video/videoBannerByIdSlice";
+import productBySlugReducer from "./product/productBySlugSlice";
 // Check if in browser
 const isBrowser = typeof window !== "undefined";
 
@@ -83,6 +84,7 @@ const store = configureStore({
         allVideoBanners: allVideoBannerReducer,
         videoBannerById: videoBannerByIdReducer,
         updateVideoBanners: updateVideoBannerReducer,
+        productBySlug: productBySlugReducer,
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser

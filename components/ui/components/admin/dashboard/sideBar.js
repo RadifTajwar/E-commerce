@@ -357,7 +357,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                                     className="p-2 text-sm font-medium text-gray-500 rounded-md dark:text-gray-400 dark:bg-gray-900"
                                     aria-label="submenu"
                                 >
-                                    <li>
+                                    {/* <li>
                                         <div
                                             className="flex items-center font-serif py-2 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
                                             onClick={() => sideBarComponentClicked("topBanner")}
@@ -422,7 +422,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                                             Banner 2
                                             </span>
                                         </div>
-                                    </li>
+                                    </li> */}
                                     <li>
                                         <div
                                             className="flex items-center font-serif py-2 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"

@@ -42,7 +42,7 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible }) {
         if (!productsFetched) {
             setTimeout(() => {
                 const page = parseInt(searchParams.get("page"), 10) || 1;
-                dispatch(fetchAllProducts({ page: page, limit: 2 }));
+                dispatch(fetchAllProducts({ page: page, limit: 10 }));
                 setIsMeta((prev) => ({ ...prev, page: page }));
                 setProductsFetched(true);
             }, 500);
