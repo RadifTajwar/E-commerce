@@ -368,6 +368,19 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
+    const handleTitleChange = (e, index) => {
+        const updatedTitles = [...formData.leather.title];  // Create a shallow copy of the titles array
+        updatedTitles[index] = e.target.value;  // Update the specific title at the given index
+
+        // Update formData state with the updated title array
+        setFormData({
+            ...formData,
+            leather: {
+                ...formData.leather,
+                title: updatedTitles,  // Set the updated titles array
+            }
+        });
+    };
 
     // Close the dropdown if clicked outside
     useEffect(() => {
@@ -393,7 +406,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
 
     const handleRemoveTitle = (index) => {
         const updatedTitle = formData.leather.title.filter((_, i) => i !== index);
-        
+
         // Correctly updating the formData state with the updated title inside the leather object
         setFormData({
             ...formData,
@@ -700,8 +713,8 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                     </div>
 
 
-                                     {/* leather section */}
-                                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                    {/* leather section */}
+                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                                         <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
                                             Leather (Image size : 638 x 638)
                                         </label>
@@ -710,23 +723,65 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                             {formData.leather && (
                                                 <>
 
-                                                   
-                                                            <div className="col-span-8 sm:col-span-4">
-                                                                <div className="w-full text-center mb-4">
-                                                                    {/* Label to trigger file upload */}
-                                                                    <label
-                                                                        htmlFor="image-leather-adding"
-                                                                        className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+
+                                                    <div className="col-span-8 sm:col-span-4">
+                                                        <div className="w-full text-center mb-4">
+                                                            {/* Label to trigger file upload */}
+                                                            <label
+                                                                htmlFor="image-leather-adding"
+                                                                className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+                                                            >
+                                                                <input
+                                                                    id="image-leather-adding"
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    multiple
+                                                                    onChange={handleLeatherImageInputDefault} // Make sure the function is properly attached
+                                                                    style={{ display: "none" }} // Input remains hidden but accessible
+                                                                />
+                                                                {/* Icon and text */}
+                                                                <svg
+                                                                    stroke="currentColor"
+                                                                    fill="none"
+                                                                    strokeWidth="2"
+                                                                    viewBox="0 0 24 24"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    className="text-3xl text-blue-500 mb-2"
+                                                                    height="1em"
+                                                                    width="1em"
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                >
+                                                                    <polyline points="16 16 12 12 8 16"></polyline>
+                                                                    <line x1="12" y1="12" x2="12" y2="21"></line>
+                                                                    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                                                                    <polyline points="16 16 12 12 8 16"></polyline>
+                                                                </svg>
+                                                                <p className="text-sm">Drag your images here</p>
+                                                                <em className="text-xs text-gray-400">
+                                                                    (Only *.jpeg, *.webp and *.png images will be accepted)
+                                                                </em>
+                                                            </label>
+                                                        </div>
+
+                                                        {/* Display preview image */}
+                                                        {formData.leather.image && (
+                                                            <aside className="flex flex-row flex-wrap mt-4">
+                                                                <div draggable className="relative inline-flex items-center">
+                                                                    <img
+                                                                        className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
+                                                                        src={
+                                                                            formData.leather.image instanceof File
+                                                                                ? URL.createObjectURL(formData.leather.image)
+                                                                                : formData.leather.image
+                                                                        }
+                                                                        alt="Category"
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        className="absolute top-0 right-0 text-red-500 focus:outline-none"
+
                                                                     >
-                                                                        <input
-                                                                            id="image-leather-adding"
-                                                                            type="file"
-                                                                            accept="image/*"
-                                                                            multiple
-                                                                            onChange={handleLeatherImageInputDefault} // Make sure the function is properly attached
-                                                                            style={{ display: "none" }} // Input remains hidden but accessible
-                                                                        />
-                                                                        {/* Icon and text */}
                                                                         <svg
                                                                             stroke="currentColor"
                                                                             fill="none"
@@ -734,62 +789,20 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                                                                             viewBox="0 0 24 24"
                                                                             strokeLinecap="round"
                                                                             strokeLinejoin="round"
-                                                                            className="text-3xl text-blue-500 mb-2"
                                                                             height="1em"
                                                                             width="1em"
                                                                             xmlns="http://www.w3.org/2000/svg"
                                                                         >
-                                                                            <polyline points="16 16 12 12 8 16"></polyline>
-                                                                            <line x1="12" y1="12" x2="12" y2="21"></line>
-                                                                            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-                                                                            <polyline points="16 16 12 12 8 16"></polyline>
+                                                                            <circle cx="12" cy="12" r="10"></circle>
+                                                                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                                            <line x1="9" y1="9" x2="15" y2="15"></line>
                                                                         </svg>
-                                                                        <p className="text-sm">Drag your images here</p>
-                                                                        <em className="text-xs text-gray-400">
-                                                                            (Only *.jpeg, *.webp and *.png images will be accepted)
-                                                                        </em>
-                                                                    </label>
+                                                                    </button>
                                                                 </div>
+                                                            </aside>
+                                                        )}
+                                                    </div>
 
-                                                                {/* Display preview image */}
-                                                                {formData.leather.image && (
-                                                                    <aside className="flex flex-row flex-wrap mt-4">
-                                                                        <div draggable className="relative inline-flex items-center">
-                                                                            <img
-                                                                                className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                                                                                src={
-                                                                                    formData.leather.image instanceof File
-                                                                                        ? URL.createObjectURL(formData.leather.image)
-                                                                                        : formData.leather.image
-                                                                                }
-                                                                                alt="Category"
-                                                                            />
-                                                                            <button
-                                                                                type="button"
-                                                                                className="absolute top-0 right-0 text-red-500 focus:outline-none"
-
-                                                                            >
-                                                                                <svg
-                                                                                    stroke="currentColor"
-                                                                                    fill="none"
-                                                                                    strokeWidth="2"
-                                                                                    viewBox="0 0 24 24"
-                                                                                    strokeLinecap="round"
-                                                                                    strokeLinejoin="round"
-                                                                                    height="1em"
-                                                                                    width="1em"
-                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                >
-                                                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                                                    <line x1="15" y1="9" x2="9" y2="15"></line>
-                                                                                    <line x1="9" y1="9" x2="15" y2="15"></line>
-                                                                                </svg>
-                                                                            </button>
-                                                                        </div>
-                                                                    </aside>
-                                                                )}
-                                                            </div>
-                                                       
                                                     {
                                                         formData.leather.title?.map((title, index) => {
                                                             return ( // Ensure you use 'return' to return the JSX

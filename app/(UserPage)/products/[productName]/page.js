@@ -22,7 +22,8 @@ import { useDispatch, useSelector } from "react-redux";
 import './style.css';
 export default function productId() {
     const pathname = usePathname(); // Get the full pathname
-
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [colorId, setColorId] = useState(null);
     const dispatch = useDispatch();
 
     const handleAddToCart = () => {
@@ -94,8 +95,7 @@ export default function productId() {
         }
     }, [productData]);
 
-    const [selectedColor, setSelectedColor] = useState(null);
-    const [colorId, setColorId] = useState(null);
+    
 
     const handleColorClick = (colorName, colorId) => {
         console.log(colorName, colorId);

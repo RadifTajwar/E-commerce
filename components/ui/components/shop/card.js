@@ -4,25 +4,40 @@ import CryptoJS from 'crypto-js';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import CartIcon from "../../icon/icon";
 import SearchIcon from "../../icon/searchIcon";
 export default function card({ product }) {
     const Router = useRouter();
     const dispatch = useDispatch();
-
+    const [showCartClicked, setShowCartClicked] = useState(false);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [colorId, setColorId] = useState(null);
     const handleAddToCart = () => {
-
-        // dispatch(addItemToCart({
-        //     id: product?.id,
-        //     name: product?.name,
-        //     price: product?.discountedPrice,
-        //     image: product?.imageDefault,
-
-        //     colorId: colorId, // Send the selected color along with other data
-        //     color: selectedColor, // Send the selected color along with other data
-        // }));
+        if (!selectedColor) {
+            alert("Please select a color before adding to cart!"); // Alert if no color is selected
+            console.log("Please select a color before adding to cart!");
+        } else {
+            // If a color is selected, dispatch the action with color
+            dispatch(addItemToCart({
+                id: product?.id,
+                name: product?.name,
+                price: product?.discountedPrice,
+                image: product?.imageDefault,
+                quantity: quantity,
+                colorId: colorId, // Send the selected color along with other data
+                color: selectedColor, // Send the selected color along with other data
+            }));
+        }
     };
+
+    const handleColorClick = (colorName, colorId) => {
+        console.log(colorName, colorId);
+        setSelectedColor(colorName); // Update the selected color state
+        setColorId(colorId); // Update the selected color ID state
+    };
+
 
     const handleProductClick = () => {
         // Hash the product ID
@@ -38,6 +53,9 @@ export default function card({ product }) {
         // Redirect to the product page
         Router.push(`/products/${product.slug}`);
     };
+    const handleCardCloseClicked = () => {
+        setShowCartClicked(!showCartClicked);
+    }
     return (
         <>
             <div className=" card ">
@@ -46,7 +64,7 @@ export default function card({ product }) {
                         <Card className="border-0 shadow-none max-w-[364px] md:max-w-[318px] lg:max-w-[287px]  h-auto rounded-none object-contain">
                             <CardContent className="flex items-center justify-center p-0">
                                 <div className="image_3 cursor-pointer">
-                                    <div className="inner_imag h-auto w-full relative group overflow-hidden">
+                                    <div className={`inner_imag h-auto w-full relative ${showCartClicked ? `` : `group`}  overflow-hidden`}>
                                         {/* Default Image */}
                                         <div className="image" onClick={handleProductClick}>
                                             <Image
@@ -80,16 +98,16 @@ export default function card({ product }) {
                                             {
                                                 product.inStock && (
                                                     <>
-                                                     <div className="flex items-center justify-center mt-2">
-                                                <div className="bg-white rounded-full py-2 px-4 flex flex-col items-center justify-center text-center   h-12 w-12">
-                                                    <p className="m-0 p-0 text-sm font-medium text-black leading-none">Sold</p>
-                                                    <p className="m-0 p-0 text-sm font-medium text-black leading-none">Out</p>
-                                                </div>
-                                            </div>
+                                                        <div className="flex items-center justify-center mt-2">
+                                                            <div className="bg-white rounded-full py-2 px-4 flex flex-col items-center justify-center text-center   h-12 w-12">
+                                                                <p className="m-0 p-0 text-sm font-medium text-black leading-none">Sold</p>
+                                                                <p className="m-0 p-0 text-sm font-medium text-black leading-none">Out</p>
+                                                            </div>
+                                                        </div>
                                                     </>
                                                 )
                                             }
-                                           
+
 
 
 
@@ -116,8 +134,10 @@ export default function card({ product }) {
                                                 </div>
 
                                                 {/* Cart Icon (with hover effect on outer group) */}
-                                                <div className="text-gray-600 hover:text-gray-700 transition-colors duration-200 w-12 h-11 justify-center items-center flex">
+                                                <div className="text-gray-600 hover:text-gray-700 transition-colors duration-200 w-12 h-11 justify-center items-center flex"
+                                                    onClick={handleCardCloseClicked}>
                                                     <CartIcon />
+
                                                 </div>
                                             </div>
                                         </div>
@@ -156,13 +176,70 @@ export default function card({ product }) {
 
 
                                         {/* "VIEW ALL" button */}
-                                        <div className="w-full">
+
+                                        <div
+                                            className={`absolute text-center bottom-0 transform ${showCartClicked ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+                                                } transition-all duration-500 hover:text-black lg:block w-full h-full bg-white bg-opacity-90 flex flex-col justify-end`}
+                                        >
+                                            {/* Close Button */}
+
                                             <button
-                                                className="cursor-pointer absolute w-full text-center bottom-0  transform translate-y-full bg-black bg-opacity-60 text-white px-4 py-2 opacity-0 group-hover:-translate-y-full group-hover:opacity-100 transition-all duration-200 hover:text-black hidden lg:block"
-                                                onClick={handleAddToCart}>
-                                                Add To Cartgg
+                                                className="absolute top-2 right-2 px-2 flex group/inner items-center justify-center transition duration-200 flex hover:text-gray-500"
+                                                onClick={handleCardCloseClicked}
+                                            >
+                                                ✕ <span className="ms-1 text-black group-hover/inner:text-gray-500 font-semibold text-sm transition duration-200">Close</span>
                                             </button>
+
+                                            <div className="w-full h-full flex flex-col justify-between">
+                                                <div className="flex-grow flex items-center justify-center">
+                                                    {/* Color Bar in the Middle */}
+                                                    <div className="Inner w-11/12">
+                                                        <div className="color_text text-sm font-semibold text-gray-900 text-center">
+                                                            Color:
+                                                        </div>
+                                                        <div className="color_map justify-center flex flex-wrap gap-2 my-2">
+                                                            {product.color?.map((color, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="relative group cursor-pointer flex items-center justify-center flex-shrink-0"
+                                                                >
+                                                                    <div
+                                                                        className={`color_palette rounded-3xl transition-colors flex items-center justify-center mb-1 w-[62px] h-[62px]`}
+                                                                        style={{ backgroundColor: color.hex }}
+                                                                        onClick={() => handleColorClick(color.colorName, color.id)}
+                                                                    >
+                                                                        {/* Color square */}
+                                                                    </div>
+
+                                                                    {/* Bottom line that will appear on hover */}
+                                                                    <div
+                                                                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-100 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100`}`}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <div className="clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition duration-200 text-center block">
+                                                            ✕ Clear
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Add To Cart Button at the Bottom */}
+                                                <button
+                                                    className="w-full text-white py-2 hover:bg-opacity-100 transition duration-200 bg-black"
+                                                    onClick={handleAddToCart}
+                                                >
+                                                    Add To Cart
+                                                </button>
+                                            </div>
+
+
+
                                         </div>
+
+
+
+
                                     </div>
                                 </div>
                             </CardContent>
