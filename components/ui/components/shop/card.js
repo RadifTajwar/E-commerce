@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 // import { addItemToCart } from "@/redux/cart/cartSlicer";
+import { addItemToCart } from "@/redux/cart/cartSlicer";
 import CryptoJS from 'crypto-js';
 import Image from "next/image";
 import Link from "next/link";
@@ -25,7 +26,7 @@ export default function card({ product }) {
                 name: product?.name,
                 price: product?.discountedPrice,
                 image: product?.imageDefault,
-                quantity: quantity,
+
                 colorId: colorId, // Send the selected color along with other data
                 color: selectedColor, // Send the selected color along with other data
             }));
@@ -55,7 +56,11 @@ export default function card({ product }) {
     };
     const handleCardCloseClicked = () => {
         setShowCartClicked(!showCartClicked);
+        setSelectedColor(null);
     }
+    const handleClearClicked = () => {
+        setSelectedColor(null);
+    };
     return (
         <>
             <div className=" card ">
@@ -213,12 +218,15 @@ export default function card({ product }) {
 
                                                                     {/* Bottom line that will appear on hover */}
                                                                     <div
-                                                                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-100 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100`}`}
+                                                                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100`}`}
                                                                     />
                                                                 </div>
                                                             ))}
                                                         </div>
-                                                        <div className="clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition duration-200 text-center block">
+                                                        <div
+                                                            className={`clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition-all duration-500 text-center block ${selectedColor ? 'opacity-100 visible' : 'opacity-0 invisible'} `}
+                                                            onClick={handleClearClicked}
+                                                        >
                                                             ✕ Clear
                                                         </div>
                                                     </div>
@@ -226,7 +234,7 @@ export default function card({ product }) {
 
                                                 {/* Add To Cart Button at the Bottom */}
                                                 <button
-                                                    className="w-full text-white py-2 hover:bg-opacity-100 transition duration-200 bg-black"
+                                                    className="w-full text-white py-2 hover:bg-opacity-100 transition duration-100 bg-black"
                                                     onClick={handleAddToCart}
                                                 >
                                                     Add To Cart
@@ -267,6 +275,8 @@ export default function card({ product }) {
 
                 </div>
             </div>
+
+          
         </>
     )
 }

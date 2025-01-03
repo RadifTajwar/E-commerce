@@ -6,7 +6,10 @@ import ProductSection from "@/components/ui/components/productSection";
 export default function Home() {
   return (
     <>
-      <CarouselSection />
+      <div className="carousel  mb-14">
+        <CarouselSection />
+      </div>
+
       <ProductSection />
       <BannerSection />
       <div className=" text flex justify-center   border-b border-[#ece1d3] max-w-xl xl:max-w-7xl container mx-auto mt-10">
@@ -22,7 +25,7 @@ export default function Home() {
       </div>
       <Cart />
       {/* <Collection/> */}
-    
+
     </>
   );
 }

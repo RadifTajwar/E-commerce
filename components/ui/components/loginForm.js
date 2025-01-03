@@ -2,14 +2,12 @@ import Link from "next/link";
 export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
     return (
         <>
-            
 
-            <section
-                className={`bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center overflow-y-auto z-50  transition-transform duration-300 ${isVisibleLogInForm ? 'translate-x-0' : '-translate-x-full'}`}
-            >
-                <div className="flex flex-col items-center h-screen justify-center px-6 py-8 mx-auto w-full sm:max-w-md lg:py-0">
+
+            <section className="bg-white dark:bg-gray-900 min-h-screen max-h-screen flex items-center justify-center overflow-y-auto z-50 transition-transform duration-300 min-w-[300px] lg:min-w-[340px]">
+                <div className="flex flex-col items-center h-screen justify-center px-4 py-4 mx-auto w-full sm:max-w-md lg:py-0">
                     <div className="w-full bg-white h-screen rounded-lg dark:border dark:bg-gray-800 dark:border-gray-700 overflow-y-auto">
-                        <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+                        <div className="p-4 space-y-4 md:space-y-6 sm:p-4">
                             <div className="flex justify-between">
                                 <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                                     Sign in
@@ -73,25 +71,22 @@ export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
                                             </label>
                                         </div>
                                     </div>
-                                    <a href="#" className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">
+                                    <a href="#" className="text-sm font-regular text-gray-600 hover:underline dark:text-primary-500">
                                         Forgot password?
                                     </a>
                                 </div>
                                 <button
                                     type="submit"
-                                    className="bg-black  text-white w-full  hover:bg-primary-700 focus:ring-none focus:outline-none focus:ring-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                    className="bg-black  text-white w-full  focus:ring-none focus:outline-none focus:ring-none font-medium  text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                 >
                                     Sign in
                                 </button>
 
-                                <div className="buttons_ADD_TO_CART ">
-                                    <button className="text-center w-full py-3 text-sm font-medium">ADD TO CART</button>
-                                </div>
                                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                     Don't have an account yet?{' '}
                                     <Link href="/my-account" >
-                                    <button className="font-medium text-primary-600 hover:underline dark:text-primary-500" onClick={toggleLogInForm}>Sign up</button>
-                                        
+                                        <button className="font-medium text-primary-600 hover:underline dark:text-primary-500" onClick={toggleLogInForm}>Sign up</button>
+
                                     </Link>
                                 </p>
                             </form>

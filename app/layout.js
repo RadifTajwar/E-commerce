@@ -4,6 +4,7 @@ import LoginForm from '@/components/ui/components/loginForm';
 import MyCartButton from '@/components/ui/components/navBar/myCartButton';
 import NavMenu from '@/components/ui/components/navBar/navMenu';
 import ShoppingCart from '@/components/ui/components/productCart/shoppingCart';
+import SideBar from '@/components/ui/components/sideBar';
 import store from "@/redux/store";
 import { Inter } from "next/font/google";
 import Link from 'next/link';
@@ -20,6 +21,7 @@ export default function Rootlayout({ children }) {
   console.log(pathname);
   const isMyAccountPage = pathname === '/my-account';
   const [isVisibleLogInForm, setIsVisibleLogInForm] = useState(false);
+  const [isVisibleSideBar, setIsVisibleSideBar] = useState(false);
   const [isVisibleShoppingCart, setIsVisibleShoppingCart] = useState(false);
 
 
@@ -43,6 +45,10 @@ export default function Rootlayout({ children }) {
     console.log("clicked on account")
     setIsVisibleLogInForm(!isVisibleLogInForm);
   };
+  const toggleSideBar = () => {
+    console.log("clicked on account")
+    setIsVisibleSideBar(!isVisibleSideBar);
+  };
   const toggleShoppingCart = () => {
     console.log("clicked on shopping cart")
     setIsVisibleShoppingCart(!isVisibleShoppingCart);
@@ -63,12 +69,17 @@ export default function Rootlayout({ children }) {
               ) : (
 
                 <>
-                  <nav className="bg-white dark:bg-gray-800 antialiased sticky top-0 z-50">
+                  <nav className="bg-white dark:bg-gray-800 antialiased sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700">
                     <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0 py-2">
 
                       {/* Overlay */}
                       {isVisibleLogInForm && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={toggleLogInForm} />
+                      )}
+
+                      {/* Overlay */}
+                      {isVisibleSideBar && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={toggleSideBar} />
                       )}
 
                       {/* Overlay */}
@@ -78,9 +89,16 @@ export default function Rootlayout({ children }) {
                       {/* Log in form  */}
 
                       <div
-                        className={`loginForm fixed z-50 transition-all duration-300 ${isVisibleLogInForm ? 'top-0 left-0 bottom-0' : 'top-0 -left-full'
+                        className={`loginForm fixed z-50 transition-all duration-300 ${isVisibleLogInForm ? 'top-0 right-0 ' : 'top-0 -right-full'
                           }`}>
                         <LoginForm toggleLogInForm={toggleLogInForm} isVisibleLogInForm={isVisibleLogInForm} />
+                      </div>
+
+
+                      <div
+                        className={`sideBarForm fixed z-50 transition-all duration-300 ${isVisibleSideBar ? 'top-0 left-0 bottom-0' : 'top-0 -left-full'
+                          }`}>
+                        <SideBar toggleSideBar={toggleSideBar} isVisibleSideBar={isVisibleSideBar} toggleLogInForm={toggleLogInForm}/>
                       </div>
 
                       {/* Shopping cart  */}
@@ -184,15 +202,16 @@ export default function Rootlayout({ children }) {
                       <div className="flex items-center justify-between">
 
                         {/* Dropdown Hamburger menu  */}
-                        <div className="dropdownButton lg:hidden">
-                          <button type="button" data-drawer-target="drawer-navigation" data-drawer-show="drawer-navigation" aria-controls="drawer-navigation" className="inline-flex lg:hidden items-center justify-center hover:bg-gray-100 rounded-md dark:hover:bg-gray-700 p-2 text-gray-900 dark:text-white">
-                            <span className="sr-only">
-                              Open Menu
-                            </span>
-                            <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                              <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14" />
+                        <div className="dropdownButton lg:hidden p-2 flex items-center justify-center">
+                          <button type="button" className="group inline-flex lg:hidden items-center justify-center  rounded-md   text-gray-900 dark:text-white hover:text-gray-500 transition-all duration-200" onClick={toggleSideBar}>
+                            
+                            <svg className="w-7 h-7" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="" height="24" fill="none" viewBox="0 0 24 24">
+                              <path stroke="currentColor" strokeLinecap="round" strokeWidth="1" d="M5 7h14M5 12h14M5 17h14" />
 
                             </svg>
+                            <span className="text-sm font-medium  dark:text-white">
+                               MENU
+                            </span>
 
                           </button>
                         </div>

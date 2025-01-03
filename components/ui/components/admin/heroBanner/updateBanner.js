@@ -3,12 +3,21 @@ import { updateHeroBanner } from "@/redux/heroBanner/updateHeroBannerSlice";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate }) {
     const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const parentCategoryRef = useRef(null);
+
+    const [formData, setFormData] = useState({
+        name: '',
+        image: null,
+        previewImage: null,
+        image2: null,
+        previewImage2: null,
+        title: [],
+        images: [],
+    });
     // Access the category data from the store
     const { heroBannerData, isLoading: categoryLoading, error: categoryError } = useSelector(
         (state) => state.heroBannerById
@@ -44,21 +53,14 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 previewImage: heroBannerData.image?.[0] || null,
                 image2: heroBannerData.image?.[1] || null,
                 previewImage2: heroBannerData.image?.[1] || null,
-                title: heroBannerData.title || [], // Dynamically handle title
+                title: heroBannerData.title || [],
+                images: heroBannerData.image || [],
             });
             console.log("heroBannerData", heroBannerData);
             console.log(heroBannerData.title);
         }
     }, [heroBannerData]);
 
-    const [formData, setFormData] = useState({
-        name: '',
-        image: null,
-        previewImage: null,
-        image2: null,
-        previewImage2: null,
-        title: [], // Array of dynamic strings
-    });
 
 
 
@@ -110,6 +112,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
 
 
     const handleSubmit = async (e) => {
+        console.log("form data", formData);
         e.preventDefault();
 
         // Validation: Check if all required fields are filled
@@ -128,9 +131,14 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
             const imageUrl2 = await uploadToCloudinary(formData.image2, folderName);
             setImageUploading(false);
             // Prepare the final data for the backend
+
+            const updatedImages = [...formData.images]; // Copy the existing images array
+            updatedImages[0] = imageUrl; // Set the first image to the uploaded URL
+            updatedImages[1] = imageUrl2;
+
             const bannerData = {
                 header: formData.name,
-                image: [imageUrl, imageUrl2],
+                image: updatedImages, // Replace the file with the uploaded image URL
                 title: formData.title // Replace the file with the uploaded image URL
             };
             console.log("parent category ", bannerData);
@@ -145,6 +153,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 image2: null,
                 previewImage2: null,
                 title: [], // Array of dynamic strings
+                images: [],
             });
 
             doneUpdate();
@@ -167,6 +176,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
             image2: null,
             previewImage2: null,
             title: [], // Array of dynamic strings
+            images: [],
 
         });
         resetId();
@@ -180,7 +190,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
         }));
     };
 
-     // Remove a title by index
+    // Remove a title by index
     const handleRemoveTitle = (index) => {
         setFormData((prev) => ({
             ...prev,
@@ -422,47 +432,47 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
 
                                 {/*Banner title */}
                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                                        <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-                                            Banner Title
-                                        </label>
-                                        <div className="col-span-8 sm:col-span-4">
-                                            {formData.title.map((ttle, index) => (
-                                                <div key={index} className="bg-gray-50 border rounded-md p-4 mb-4">
-                                                    <div className="grid grid-cols-12 gap-2 mb-2">
-                                                        {/* Color Name */}
-                                                        <input
-                                                            type="text"
-                                                            name={`titleName-${index}`}
-                                                            placeholder="Color Name"
-                                                            className="col-span-11 px-3 py-1 rounded-md border border-gray-300 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring focus:ring-purple-300 text-sm"
-                                                            value={ttle}
-                                                            onChange={(e) => handleTitleChange(e, index, "titleName")}
-                                                        />
+                                    <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
+                                        Banner Title
+                                    </label>
+                                    <div className="col-span-8 sm:col-span-4">
+                                        {formData.title.map((ttle, index) => (
+                                            <div key={index} className="bg-gray-50 border rounded-md p-4 mb-4">
+                                                <div className="grid grid-cols-12 gap-2 mb-2">
+                                                    {/* Color Name */}
+                                                    <input
+                                                        type="text"
+                                                        name={`titleName-${index}`}
+                                                        placeholder="Color Name"
+                                                        className="col-span-11 px-3 py-1 rounded-md border border-gray-300 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring focus:ring-purple-300 text-sm"
+                                                        value={ttle}
+                                                        onChange={(e) => handleTitleChange(e, index, "titleName")}
+                                                    />
 
-                                                        {/* Remove Color Button */}
-                                                        <button
-                                                            type="button"
-                                                            className="col-span-1 text-red-600 hover:text-red-800 bg-white shadow-md rounded-full w-10 h-10 "
-                                                            onClick={() => handleRemoveTitle(index)}
-                                                        >
-                                                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                                        </button>
-                                                    </div>
-
-                                                  
-                                                    
+                                                    {/* Remove Color Button */}
+                                                    <button
+                                                        type="button"
+                                                        className="col-span-1 text-red-600 hover:text-red-800 bg-white shadow-md rounded-full w-10 h-10 "
+                                                        onClick={() => handleRemoveTitle(index)}
+                                                    >
+                                                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                    </button>
                                                 </div>
-                                            ))}
 
-                                            {/* Add Color Button */}
-                                            <button
-                                                type="button"
-                                                className="mt-2 text-sm text-white bg-primary-500 px-3 py-1 rounded-md hover:bg-primary-600"
-                                                onClick={handleAddTitle}
-                                            >
-                                                + Add Title
-                                            </button>
-                                        </div>
+
+
+                                            </div>
+                                        ))}
+
+                                        {/* Add Color Button */}
+                                        <button
+                                            type="button"
+                                            className="mt-2 text-sm text-white bg-primary-500 px-3 py-1 rounded-md hover:bg-primary-600"
+                                            onClick={handleAddTitle}
+                                        >
+                                            + Add Title
+                                        </button>
+                                    </div>
                                 </div>
 
 

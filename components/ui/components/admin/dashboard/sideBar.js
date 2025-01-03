@@ -357,43 +357,10 @@ export default function SideBar({ isOpen, setIsOpen }) {
                                     className="p-2 text-sm font-medium text-gray-500 rounded-md dark:text-gray-400 dark:bg-gray-900"
                                     aria-label="submenu"
                                 >
-                                    {/* <li>
-                                        <div
-                                            className="flex items-center font-serif py-2 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
-                                            onClick={() => sideBarComponentClicked("topBanner")}
-                                        >
-                                            <span
-                                                className="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg"
-                                                aria-hidden="true"
-                                            ></span>
-                                            <span className="text-xs text-gray-500 pr-1">
-                                                <svg
-                                                    stroke="currentColor"
-                                                    fill="currentColor"
-                                                    strokeWidth="0"
-                                                    viewBox="0 0 512 512"
-                                                    height="1em"
-                                                    width="1em"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path
-                                                        fill="none"
-                                                        strokeLinecap="square"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth="32"
-                                                        d="M400 256H112"
-                                                    />
-                                                </svg>
-                                            </span>
-                                            <span className="text-gray-500 hover:text-blue-600 dark:hover:text-gray-200">
-                                                Banner 1
-                                            </span>
-                                        </div>
-                                    </li>
                                     <li>
                                         <div
                                             className="flex items-center font-serif py-2 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
-                                            onClick={() => sideBarComponentClicked("midBanner")}
+                                            onClick={() => sideBarComponentClicked("mainBanner")}
                                         >
                                             <span
                                                 className="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg"
@@ -419,10 +386,11 @@ export default function SideBar({ isOpen, setIsOpen }) {
                                                 </svg>
                                             </span>
                                             <span className="text-gray-500 hover:text-blue-600 dark:hover:text-gray-200">
-                                            Banner 2
+                                               Main Banner
                                             </span>
                                         </div>
-                                    </li> */}
+                                    </li>
+                                    
                                     <li>
                                         <div
                                             className="flex items-center font-serif py-2 text-sm text-gray-600 hover:text-blue-600 cursor-pointer"
