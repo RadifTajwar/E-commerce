@@ -11,8 +11,8 @@ import { fetchAllOrders } from "@/redux/order/getAllOrderSlice";
 import { updateOrderStatus } from "@/redux/order/updateOrderSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiPrinter } from "react-icons/fi";
-import { LiaSearchPlusSolid } from "react-icons/lia";
+import OrderRow from "./orderRow";
+
 import { useDispatch, useSelector } from "react-redux";
 export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrderFetched, isOrderFetched }) {
     const [isMeta, setIsMeta] = useState({
@@ -20,7 +20,11 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
         limit: 3,
         total: 0,
     });
+    const [trackingNumber, setTrackingNumber] = useState('');
 
+    const handleInputChange = (e) => {
+        setTrackingNumber(e.target.value); // Update the state with the input value
+    };
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -141,7 +145,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
 
 
 
-    const handleChange = (e, orderId) => {
+    const handleUpdate = (e, orderId) => {
 
         const selectedStatus = e.target.value;
         if (selectedStatus === "Cancel") {
@@ -155,10 +159,24 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                 setIsOrderFetched(false);
             }, 2000);
         }
+    };
 
+    const handleTrackCode = (id, track) => {
+        // Check if track is empty or null
+        if (!track) {
+            return;  // Do nothing if track is empty
+        }
 
+        // If track is not empty, proceed with the update
+        doneUpdate(); // Assuming this is a function to mark the update as done
 
+        // Dispatch the updateOrderStatus action to update the order
+        dispatch(updateOrderStatus({ id, trackCode: track }));
 
+        // Reset the isOrderFetched state after a short delay (2 seconds)
+        setTimeout(() => {
+            setIsOrderFetched(false);
+        }, 2000);
     };
 
 
@@ -182,171 +200,105 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                     </div>
                 </div>
             )}
-          
-                    <div className="w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 shadow-lg">
 
-                        {
-                            !isLoading && !error && orders && (
-                                <>
-                                    <div className="w-full overflow-x-auto">
+            <div className="w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 shadow-lg">
 
-                                        <table className="w-full whitespace-no-wrap">
+                {
+                    !isLoading && !error && orders && (
+                        <>
+                            <div className="w-full overflow-x-auto">
 
-                                            <thead className="text-xs font-medium tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">
-                                                <tr>
-                                                    <td className="px-4 py-3 whitespaace-no-wrap">INVOICE NO</td>
-                                                    <td className="px-4 py-3">ORDER TIME</td>
-                                                    <td className="px-4 py-3">Customer Name </td>
-                                                    <td className="px-4 py-3"> METHOD </td>
-                                                    <td className="px-4 py-3"> AMOUNT </td>
-                                                    <td className="px-4 py-3">STATUS</td>
-                                                    <td className="px-4 py-3">ACTION</td>
-                                                    <td className="px-4 py-3 text-end">INVOICE</td>
-                                                </tr>
-                                            </thead>
+                                <table className="w-full whitespace-no-wrap">
 
-                                            <tbody className="bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400 dark:bg-gray-900">
+                                    <thead className="text-xs font-medium tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">
+                                        <tr>
+                                            <td className="px-4 py-3 whitespaace-no-wrap">INVOICE NO</td>
+                                            <td className="px-4 py-3">ORDER TIME</td>
+                                            <td className="px-4 py-3">EMAIL </td>
+                                            <td className="px-4 py-3"> TRACKING NUMBER </td>
+                                            <td className="px-4 py-3"> AMOUNT </td>
+                                            <td className="px-4 py-3">STATUS</td>
+                                            <td className="px-4 py-3">ACTION</td>
+                                            <td className="px-4 py-3 text-end">INVOICE</td>
+                                        </tr>
+                                    </thead>
 
-
-                                                {
-                                                    orders.map((order) => (
-                                                        <tr key={order._id} id={order._id} className="border-b border-gray-200 text-black">
-                                                            <td className="px-4 py-3">
-                                                                <span className="font-semibold uppercase text-xs text-black">{order._id}</span>
-                                                            </td>
-
-                                                            <td className="px-4 py-3">
-                                                                <span className="text-sm text-black">
-                                                                    {new Date(order.dateOrdered).toLocaleString('en-US', {
-
-                                                                        year: 'numeric',  // '2024'
-                                                                        month: 'short',   // 'Nov'
-                                                                        day: 'numeric',   // '9'
-                                                                        hour: 'numeric',  // '2'
-                                                                        minute: 'numeric',// '20'
-                                                                        hour12: true,     // Use 12-hour format
-                                                                    })}
-                                                                </span>
-                                                            </td>
-
-                                                            <td className="px-4 py-3 text-xs">
-                                                                <span className="text-sm text-black">{order.user}</span>
-                                                            </td>
-
-                                                            <td className="px-4 py-3">
-                                                                <span className="text-sm font-semibold text-black">Cash</span>
-                                                            </td>
-
-                                                            <td className="px-4 py-3">
-                                                                <span className="text-sm font-semibold text-black">$ {order.totalPrice}</span>
-                                                            </td>
-
-                                                            <td className="px-4 py-3 text-xs">
-                                                                <span className="font-serif">
-                                                                    <span
-                                                                        className={`inline-flex px-2 text-sm font-medium leading-5 rounded-full 
-                ${order.status === "Pending" ? "text-yellow-500 bg-yellow-100" : ""}
-                ${order.status === "Cancel" ? "text-red-500 bg-red-100" : ""}
-                ${order.status === "Processing" ? "text-blue-500 bg-blue-100" : ""}
-                ${order.status === "Delivered" ? "text-green-500 bg-green-100" : ""}`}
-                                                                    >
-                                                                        {order.status}
-                                                                    </span>
-                                                                </span>
-                                                            </td>
-
-                                                            <td className="px-4 py-3 text-center">
-                                                                <select
-                                                                    className={`block w-full px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:shadow-none focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 border border-gray-200 bg-gray-50 dark:border-gray-700 h-8 rounded-md text-xs focus:border-blue-500 focus:outline-none 
-            ${order.status === "Cancel" ? "opacity-30 cursor-not-allowed" : ""}`}
-                                                                    value={order.status} // Set the initial value to the current status
-                                                                    onChange={(e) => handleChange(e, order._id)} // Pass both the event and order ID
-                                                                    disabled={order.status === "Cancel"} // Disable if the status is "Cancel"
-                                                                >
-                                                                    <option value="Pending">Pending</option>
-                                                                    <option value="Delivered">Delivered</option>
-                                                                    <option value="Processing">Processing</option>
-                                                                    <option value="Cancel">Cancel</option>
-                                                                </select>
-                                                            </td>
+                                    <tbody className="bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400 dark:bg-gray-900">
 
 
-                                                            <td className="px-4 py-3">
-                                                                <div className="flex justify-end gap-x-2">
-                                                                    <FiPrinter className="cursor-pointer" />
-                                                                    <LiaSearchPlusSolid
-                                                                        className="-rotate-90 cursor-pointer"
-                                                                        onClick={() => {
-                                                                            handleOrderClick(order._id);
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                }
+                                        {
+                                            orders.map((order) => (
+                                                <OrderRow
+                                                    key={order._id}
+                                                    order={order}
+                                                    handleTrackCode={handleTrackCode}
+                                                    handleUpdate={handleUpdate}
+                                                    handleOrderClick={handleOrderClick}
+                                                />
+                                            ))
+                                        }
 
 
-                                            </tbody>
-                                        </table>
+                                    </tbody>
+                                </table>
 
-                                    </div>
-                                </>
-                            )
-                        }
+                            </div>
+                        </>
+                    )
+                }
 
-                        <Pagination>
-                            <PaginationContent>
-                                {/* Previous Button */}
-                                <PaginationItem>
-                                    <PaginationPrevious
+                <Pagination>
+                    <PaginationContent>
+                        {/* Previous Button */}
+                        <PaginationItem>
+                            <PaginationPrevious
 
-                                        onClick={() => handlePageChange(isMeta.page - 1)}
-                                        disabled={isMeta.page === 1}
-                                        className={` ${isMeta.page === 1 ? "cursor-not-allowed" : "cursor-pointer"}`}
+                                onClick={() => handlePageChange(isMeta.page - 1)}
+                                disabled={isMeta.page === 1}
+                                className={` ${isMeta.page === 1 ? "cursor-not-allowed" : "cursor-pointer"}`}
+                            >
+
+                            </PaginationPrevious>
+                        </PaginationItem>
+
+                        {/* Page Numbers */}
+                        {getPageNumbers().map((pageNumber, index) => (
+                            <PaginationItem key={index}>
+                                {pageNumber === "..." ? (
+                                    <span className="px-3 py-1 text-gray-500">...</span>
+                                ) : (
+                                    <PaginationLink
+                                        href="#"
+                                        onClick={() => handlePageChange(pageNumber)}
+                                        className={`${isMeta.page === pageNumber
+                                            ? "bg-blue-500 text-white font-bold"
+                                            : "bg-gray-200 text-black"
+                                            } rounded px-3 py-1`}
                                     >
-                                        
-                                    </PaginationPrevious>
-                                </PaginationItem>
-
-                                {/* Page Numbers */}
-                                {getPageNumbers().map((pageNumber, index) => (
-                                    <PaginationItem key={index}>
-                                        {pageNumber === "..." ? (
-                                            <span className="px-3 py-1 text-gray-500">...</span>
-                                        ) : (
-                                            <PaginationLink
-                                                href="#"
-                                                onClick={() => handlePageChange(pageNumber)}
-                                                className={`${isMeta.page === pageNumber
-                                                    ? "bg-blue-500 text-white font-bold"
-                                                    : "bg-gray-200 text-black"
-                                                    } rounded px-3 py-1`}
-                                            >
-                                                {pageNumber}
-                                            </PaginationLink>
-                                        )}
-                                    </PaginationItem>
-                                ))}
+                                        {pageNumber}
+                                    </PaginationLink>
+                                )}
+                            </PaginationItem>
+                        ))}
 
 
 
-                                {/* Next Button */}
-                                <PaginationItem>
-                                    <PaginationNext
+                        {/* Next Button */}
+                        <PaginationItem>
+                            <PaginationNext
 
-                                        onClick={() => handlePageChange(isMeta.page + 1)}
-                                        disabled="true"
-                                        className={` ${isMeta.page === totalPages ? "cursor-not-allowed" : "cursor-pointer"}`}
-                                    >
+                                onClick={() => handlePageChange(isMeta.page + 1)}
+                                disabled="true"
+                                className={` ${isMeta.page === totalPages ? "cursor-not-allowed" : "cursor-pointer"}`}
+                            >
 
-                                       
-                                    </PaginationNext>
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
-            
+
+                            </PaginationNext>
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            </div>
+
         </>
     );
 }

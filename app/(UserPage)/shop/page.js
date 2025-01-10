@@ -13,7 +13,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "next/navigation";
 // import RangeBar from "@/components/ui/components/shop/rangeBar";
 export default function Page() {
     const dispatch = useDispatch();
@@ -213,17 +212,24 @@ export default function Page() {
                     {error && <p>Error: {error}</p>}
                     {!isLoading && (
                         <>
-                            <div className="inner p-3 w-full">
+                        
+                        
+                        
+                        {
+                            parentCategories.length > 0 && (
+                                <div className="inner p-3 w-full">
                                 <div className="dropdown_inner px-2 bg-white w-full">
                                     <ul className="w-full lg:hidden items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 ">
-                                        <li className="group relative w-full py-3 cursor-pointer">
+
+                                    {parentCategories.map((parentCategory) => (
+                                        <li key={parentCategory.id} className="group relative w-full py-3 cursor-pointer">
                                             <a
                                                 href="#"
                                                 onClick={() => handleCategoryClick('WALLETS', false)}
-                                                className="py-3 text-gray-900 group-hover:text-gray-600 text-start font-semibold text-kg"
+                                                className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
                                                 style={{ fontSize: '.9rem' }}
                                             >
-                                                WALLETS
+                                               {parentCategory.name}
                                                 <p className="text-gray-400 text-start text-sm group-hover:text-gray-400">
                                                     8 Products
                                                 </p>
@@ -233,26 +239,15 @@ export default function Page() {
                                                 ></span>
                                             </a>
                                         </li>
-                                        <li className="group relative w-full py-3 cursor-pointer">
-                                            <a
-                                                href="#"
-                                                onClick={() => handleCategoryClick('WALLETS', false)}
-                                                className="py-3 text-gray-900 group-hover:text-gray-600 text-start font-semibold text-lg"
-                                                style={{ fontSize: '.9rem' }}
-                                            >
-                                                WALLETS
-                                                <p className="text-gray-400 text-start text-sm group-hover:text-gray-400">
-                                                    8 Products
-                                                </p>
-                                                <span
-                                                    className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
-                                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                                                ></span>
-                                            </a>
-                                        </li>
+                                         ))}
                                     </ul>
                                 </div>
                             </div>
+
+
+                            )
+                        }
+                       
                         </>
                     )}
                 </div>
@@ -272,16 +267,16 @@ export default function Page() {
 
             <div className="full_lower_container_small_screen my-14 lg:px-3 z-20">
                 <div className="text_section  max-w-7xl mx-auto  my-6 lg:px-3">
-                    {isLoading && <p>Loading products...</p>}
+                    {isLoading && <p>Loading Initial Products...</p>}
                     {error && <p>Error: {error}</p>}
-                    {!isLoading && (
+                    { productsFetched && products &&  (
                         <>
 
                             <div className="flex py-3 justify-between  lg:px-3 gap-x-6">
 
                                 <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
-
-                                    {/* <RangeBar /> */}
+                                    
+                                    {/* <RangeBar />    */}
                                     <div className="line w-full h-px bg-gray-300 my-6">
                                     </div>
                                     <ColorBar products={products} />
@@ -330,7 +325,7 @@ export default function Page() {
                                     </div>
 
                                     <div className="infiniteScroll ">
-                                        <InfiniteScroll products={products} />
+                                        <InfiniteScroll  products={products}/>
                                     </div>
                                 </div>
                             </div>

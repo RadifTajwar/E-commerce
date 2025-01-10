@@ -4,13 +4,21 @@ import axios from "axios";
 // Async thunk for the PATCH request
 export const updateOrderStatus = createAsyncThunk(
   "order/updateStatus",
-  async ({ id, status }, { rejectWithValue }) => {
+  async ({ id, status, trackCode }, { rejectWithValue }) => {
     try {
+      // Construct the payload object
+      const payload = { id };
+      if (status) payload.status = status;
+      if (trackCode) payload.trackCode = trackCode;
+
+      // Send the PATCH request with the constructed payload
       const response = await axios.patch(
         `https://leather-for-luxury.vercel.app/api/v1/order/update/${id}`,
-        { status }
+        payload
       );
-      return response.data.data; // Assuming API returns the updated order data
+
+      // Return the updated order data
+      return response.data.data;
     } catch (error) {
       // Handle error and reject
       return rejectWithValue(
@@ -19,7 +27,6 @@ export const updateOrderStatus = createAsyncThunk(
     }
   }
 );
-
 
 const updateCategorySlice = createSlice({
   name: "updateCategory",

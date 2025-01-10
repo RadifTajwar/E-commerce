@@ -1,18 +1,25 @@
 'use client'
-import { decrementItem, incrementItem } from '@/redux/cart/cartSlicer';
+import { decrementItem, incrementItem, resetCart } from '@/redux/cart/cartSlicer';
+import { createOrder, resetOrder } from '@/redux/order/createOrderSlice';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ProductionQuantityLimitsOutlinedIcon from '@mui/icons-material/ProductionQuantityLimits';
 import SearchIcon from '@mui/icons-material/Search';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 export default function page() {
+  const router = useRouter();
+
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const cartTotal = useSelector((state) => state.cart.total);
+  const {order,isLoading,error,status} = useSelector((state) => state.createOrderItem);
+
   const [selectedShipping, setSelectedShipping] = useState(60);
   const [showCoupon, setShowCoupon] = useState(false);
-  
+
   const [formState, setFormState] = useState({
     name: "",
     address: "",
@@ -21,6 +28,7 @@ export default function page() {
     phone: "",
     email: "",
     additionalInfo: "",
+    zip: "",
   });
 
   const [showDistrictOption, setShowDistrictOption] = useState(false);
@@ -30,11 +38,23 @@ export default function page() {
   // Handler for updating form state
   const handleInputChange = (e) => {
     const { id, value } = e.target;
+
+    // Update form state
     setFormState((prevState) => ({
       ...prevState,
       [id]: value,
     }));
+
+    // Clear error for the specific field if it has a value
+    setErrors((prevErrors) => {
+      if (value.trim()) {
+        const { [id]: _, ...remainingErrors } = prevErrors; // Remove the error for the current field
+        return remainingErrors;
+      }
+      return prevErrors;
+    });
   };
+
 
   // Filter districts based on search term
   const handleSearchChange = (e) => {
@@ -57,6 +77,13 @@ export default function page() {
       district,
       searchTerm: "",
     }));
+
+    // Clear the district error
+    setErrors((prevErrors) => {
+      const { district: _, ...remainingErrors } = prevErrors; // Remove 'district' error
+      return remainingErrors;
+    });
+
     setShowDistrictOption(false);
   };
 
@@ -81,11 +108,81 @@ export default function page() {
     }
   }, []);
 
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    
+
+    if (status === 'succeeded' && order) {
+   
+      router.push(`checkout/orderReceived/${order._id}`); // Redirect on success
+
+      // Reset order and status after redirection
+      dispatch(resetOrder());
+      dispatch(resetCart());
+    }
+  }, [status, order, router, dispatch]);
+
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    console.log("Form submitted", formState);
-    
-  }
+
+    const newErrors = {};
+    if (!formState.name.trim()) newErrors.name = "Billing Full Name(আপনার সম্পূর্ণ নাম) is a required field";
+    if (!formState.address.trim()) newErrors.address = "Full Address (আপনার সম্পূর্ণ ঠিকানা লিখুন) is a required field.";
+    if (!formState.district.trim()) newErrors.district = "District (জেলা)  is a required field.";
+    if (!formState.phone.trim()) { newErrors.phone = "Phone (আপনার ফোন নাম্বারটি লিখুন) is a required field."; }
+    else if (formState.phone.length != 11) {
+      newErrors.phone = "Phone (আপনার ফোন নাম্বারটি লিখুন) must be 11 digits";
+    }
+    if (!formState.zip.trim()) { newErrors.zip = "Zip Code (আপনার পোষ্টকোড) is a required field."; }
+    else if (formState.zip.length != 4) { newErrors.zip = "Zip Code (আপনার পোষ্টকোড) must be 4 digits"; }
+    if (!formState.email.trim()) newErrors.email = "Email address is a required field.";
+
+
+
+    setErrors(newErrors);
+    console.log("submit clicked", formState);
+    if (Object.keys(newErrors).length === 0) {
+      console.log("Form submitted", formState);
+      const simplifiedCartItems = cartItems.map((item) => ({
+        quantity: item.quantity,
+        product: item.id, // Ensure 'product' is set to the product ID (not 'id')
+        color: item.color,
+        // Include other properties if needed
+      }));
+      console.log(simplifiedCartItems);
+
+      const orderData = {
+        orderItems: simplifiedCartItems, // Include the simplified cart items
+        shippingAddress: formState.address,
+        name: formState.name,
+        email: formState.email,
+        city: formState.district,
+        zip: formState.zip,
+        country: "Bangladesh",
+        phone: formState.phone,
+        status: "Pending",
+        totalPrice: cartTotal,
+        additionalDetails: formState.additionalInfo,
+      };
+      console.log("the whole order is ", orderData);;
+      dispatch(createOrder(orderData));
+      if(status === 'succeeded'){
+      setFormState({
+        name: "",
+        address: "",
+        district: "",
+        searchTerm: "",
+        phone: "",
+        email: "",
+        additionalInfo: "",
+        zip: "",
+      });
+      }
+      // Handle actual form submission logic here
+    }
+  };
 
   return (
     <>
@@ -93,7 +190,7 @@ export default function page() {
 
       <div className="total_container  max-w-7xl mx-auto my-10">
 
-         {
+        {
           cartItems.length !== 0 ? (
             <>
               <div className="coupon_section px-4 w-auto ">
@@ -103,30 +200,53 @@ export default function page() {
                 <div className={`coupon_apply transition-max-height duration-1000 ease-in-out overflow-hidden  ${showCoupon ? 'max-h-screen ' : 'max-h-0 '}`}>
                   <div className="scoupon_apply_inner inline-block p-8 border-2 border-gray-200 mb-6"  >
                     <div className="promo_text">
-                      <p className="text-gray-500 font-normal text-sm">If you have a coupon code, please apply it below.</p>
+                      <p className="text-gray-600 font-normal text-xs">If you have a coupon code, please apply it below.</p>
                     </div>
                     <div className="coupon_box sm:flex sm:space-x-4 pt-4 space-y-2 sm:space-y-0">
-                      <input type="text" className="w-full border-2 border-gray-200 p-2 placeholder:text-sm focus:outline-none" placeholder="Coupon code" />
+                      <input
+                        type="text"
+                        id="name"
+                        value={formState.name}
+                        onChange={handleInputChange}
+                        className={`border-2 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm  'border-gray-200'
+                              }`}
+                        placeholder='Coupon Code'
+                      />
                       <div className="Apply_coupon_button bg-black  text-white text-center inline-block">
-                        <button className="text-center  py-3 px-4 text-sm font-medium">APPLY COUPON</button>
+                        <button className="text-center  py-3 px-4 text-sm font-medium">APPLY</button>
                       </div>
                     </div>
 
                   </div>
                 </div>
               </div>
-              <form className="w-full" onSubmit={handleFormSubmit}>
-              <div className="inner_divs md:flex w-full justify-center ">
-
-                <div className="w-full md:w-5/12 lg:w-1/2  px-4">
-                  <div className="inner mt-8 mb-6 ">
-                    <div className="billing_shipping_text pb-5">
-                      <p className="text-xl font-normal text-gray-900">BILLING & SHIPPING</p>
+              {Object.values(errors).length > 0 && (
+                <div className="coupon_section px-4 w-auto">
+                  <div className="flex items-center justify-start bg-red-500 p-2 rounded">
+                    <div className="icon mr-2">
+                      <ErrorOutlineIcon className="text-white" />
                     </div>
-                    <div className="name_address_district_phone_email_&_additionalInformation">
-                   
-                        
-                        <div className="w-full pb-5">
+                    <div className="texts">
+                      {Object.values(errors).map((error, index) => (
+                        <div key={index} className="text-white text-sm">{error}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <form className="w-full" onSubmit={handleFormSubmit}>
+                <div className="inner_divs md:flex w-full justify-center ">
+
+                  <div className="w-full md:w-5/12 lg:w-1/2  px-4">
+                    <div className="inner mt-8 mb-6 ">
+                      <div className="billing_shipping_text pb-5">
+                        <p className="text-xl font-normal text-gray-900">BILLING & SHIPPING</p>
+                      </div>
+                      <div className="name_address_district_phone_email_&_additionalInformation">
+
+
+                        <div className="w-1/2 pb-5">
                           <label htmlFor="name" className="block text-sm font-normal text-gray-700 pb-1">
                             Full Name (আপনার সম্পূর্ণ নাম) <span className="text-sm text-red-600">*</span>
                           </label>
@@ -135,11 +255,16 @@ export default function page() {
                             id="name"
                             value={formState.name}
                             onChange={handleInputChange}
-                            className="border-2 border-gray-200 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
+                            className={`border-2 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm ${errors.name ? 'border-red-500' : 'border-gray-200'
+                              }`}
                           />
                         </div>
 
-                      
+
+
+
+
+
                         <div className="w-full pb-5">
                           <label htmlFor="address" className="block text-sm font-normal text-gray-700 pb-1">
                             Full Address (আপনার সম্পূর্ণ ঠিকানা লিখুন) <span className="text-sm text-red-600">*</span>
@@ -149,20 +274,24 @@ export default function page() {
                             id="address"
                             value={formState.address}
                             onChange={handleInputChange}
-                            className="border-2 border-gray-200 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
+
+                            className={`border-2 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm ${errors.address ? 'border-red-500' : 'border-gray-200'
+                              }`}
                           />
                         </div>
 
-                       
+
                         <div className="w-full pb-5">
                           <label htmlFor="district" className="block text-sm font-normal text-gray-700 pb-1">
                             District (জেলা) <span className="text-sm text-red-600">*</span>
                           </label>
                           <div className="relative">
-                            <div className="border-2 border-gray-200 px-4 py-2 mt-1 shadow-sm">
+                            <div className={`border-2 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm ${errors.district ? 'border-red-500' : 'border-gray-200'
+                              }`}>
                               <button
                                 type="button"
                                 className="w-full text-left flex justify-between items-center focus:outline-none"
+
                                 onClick={() => setShowDistrictOption(!showDistrictOption)}
                               >
                                 {formState.district || "Select District"}
@@ -181,7 +310,7 @@ export default function page() {
                               </button>
                             </div>
 
-                           
+
                             {showDistrictOption && (
                               <div className="absolute z-10 left-0 right-0 bg-white border-2 shadow-md">
                                 <div className="relative w-full p-4 bg-gray-200">
@@ -214,35 +343,54 @@ export default function page() {
                           </div>
                         </div>
 
-                      
-                        <div className="w-full pb-5">
-                          <label htmlFor="phone" className="block text-sm font-normal text-gray-700 pb-1">
-                            Phone (আপনার ফোন নাম্বারটি লিখুন) <span className="text-sm text-red-600">*</span>
-                          </label>
-                          <input
-                            type="tel"
-                            id="phone"
-                            value={formState.phone}
-                            onChange={handleInputChange}
-                            className="border-2 border-gray-200 px-4 py-2 focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
-                          />
+
+
+
+                        <div className="flex space-x-4">
+                          <div className="w-1/2 pb-5">
+                            <label htmlFor="phone" className="block text-sm font-normal text-gray-700 pb-1">
+                              Phone (আপনার ফোন নাম্বারটি লিখুন) <span className="text-sm text-red-600">*</span>
+                            </label>
+                            <input
+                              type="tel"
+                              id="phone"
+                              value={formState.phone}
+                              onChange={handleInputChange}
+                              className={`border-2 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm ${errors.phone ? 'border-red-500' : 'border-gray-200'
+                                }`}
+                            />
+                          </div>
+                          <div className="w-1/2 pb-5">
+                            <label htmlFor="name" className="block text-sm font-normal text-gray-700 pb-1">
+                              Zip Code (আপনার পোষ্টকোড) <span className="text-sm text-red-600">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              id="zip"
+                              value={formState.zip}
+                              onChange={handleInputChange}
+                              className={`border-2 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm ${errors.zip ? 'border-red-500' : 'border-gray-200'
+                                }`}
+                            />
+                          </div>
                         </div>
 
-                       
+
                         <div className="w-full pb-5">
                           <label htmlFor="email" className="block text-sm font-normal text-gray-700 pb-1">
-                            Email address (optional)
+                            Email address (optional) <span className="text-sm text-red-600">*</span>
                           </label>
                           <input
                             type="email"
                             id="email"
                             value={formState.email}
                             onChange={handleInputChange}
-                            className="border-2 border-gray-200 px-4 py-2 focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
+                            className={`border-2 px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm ${errors.email ? 'border-red-500' : 'border-gray-200'
+                              }`}
                           />
                         </div>
 
-                      
+
                         <div className="w-full pb-5">
                           <label htmlFor="additionalInfo" className="block text-sm font-normal text-gray-700 pb-1">
                             Additional Information
@@ -253,150 +401,157 @@ export default function page() {
                             value={formState.additionalInfo}
                             onChange={handleInputChange}
                             className="border-2 border-gray-200 px-4 py-2 focus:outline-none mt-1 block w-full shadow-sm sm:text-sm resize-none"
-                            placeholder="Enter any additional information"
+                            placeholder="Notes about your order, e.g. special notes for delivery."
                           ></textarea>
                         </div>
-                      
 
+
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="w-full md:w-7/12 lg:w-1/2  px-4">
-                  <div className="inner p-8 bg-gray-100 bg-opacity-70">
-                    <div className="your_order_text text-center text-xl mb-5">YOUR ORDER</div>
+                  <div className="w-full md:w-7/12 lg:w-1/2  px-4">
+                    <div className="inner p-8 bg-gray-100 bg-opacity-70">
+                      <div className="your_order_text text-center text-xl mb-5">YOUR ORDER</div>
 
-                    <div className="product_detail py-1 px-4 bg-white  mb-5">
-                      <div className="inner">
-                        <div className="header flex justify-between border-b-2 border-gray-200 ">
-                          <div className="text_product px-2.5 py-4">
-                            PRODUCT
+                      <div className="product_detail py-1 px-4 bg-white  mb-5">
+                        <div className="inner">
+                          <div className="header flex justify-between border-b-2 border-gray-200 ">
+                            <div className="text_product px-2.5 py-4">
+                              PRODUCT
+                            </div>
+                            <div className="text_subtotal px-2.5 py-4">
+                              SUBTOTAL
+                            </div>
                           </div>
-                          <div className="text_subtotal px-2.5 py-4">
-                            SUBTOTAL
-                          </div>
-                        </div>
-                        <div className="all_product">
-                          <div className="inner_products max-h-48 overflow-y-auto">
+                          <div className="all_product">
+                            <div className="inner_products max-h-48 overflow-y-auto">
 
-                          
-                          {
-                            cartItems.map((item,index) => (
-                              
-                                <div key={index} className="w-full product_container px-3 py-4 flex justify-between items-center border-b border-gray-200" >
-                                  <div key={index} className="image_&_text flex items-center w-full">
-                                    <div className="image me-2.5">
-                                      <Image src={item.image} alt={item.name} height={65} width={65} className='min-h-[65px] min-w-[65px]' />
-                                    </div>
-                                    <div className="sm:flex justify-between items-center w-full">
-                                      <div className="text_&_amount">
-                                        <p className='text-gray-500 text-sm font-normal'>{item.name}</p>
-                                        <div className="quantity_section mt-2.5 mb-2.5 sm:mb-0">
-                                          <div className="inner flex">
-                                           
-                                            <button className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center" onClick={() => { handleDecrementItem(item.colorId) }}>
-                                              -
-                                            </button>
 
-                                            <span className="px-2 py-1  border-t-2 border-b-2 text-gray-500 text-sm flex items-center justify-center">{item.quantity}</span>
+                              {
+                                cartItems.map((item, index) => (
 
-                                          
-                                            <button className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center"
-                                              onClick={() => { handleIncrementItem(item.colorId) }}>
-                                              +
-                                            </button>
+                                  <div key={index} className="w-full product_container px-3 py-4 flex justify-between items-center border-b border-gray-200" >
+                                    <div key={index} className="image_&_text flex items-center w-full">
+                                      <div className="image me-2.5">
+                                        <Image src={item.image} alt={item.name} height={65} width={65} className='min-h-[65px] min-w-[65px]' />
+                                      </div>
+                                      <div className="sm:flex justify-between items-center w-full">
+                                        <div className="text_&_amount">
+                                          <p className='text-gray-500 text-sm font-normal'>{item.name}-{item.color}</p>
+                                          <div className="quantity_section mt-2.5 mb-2.5 sm:mb-0">
+                                            <div className="inner flex">
+
+                                              <div className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center cursor-pointer" onClick={() => { handleDecrementItem(item.colorId) }}>
+                                                -
+                                              </div>
+
+                                              <span className="px-2 py-1  border-t-2 border-b-2 text-gray-500 text-sm flex items-center justify-center">{item.quantity}</span>
+
+
+                                              <div className="border border-2 px-2 py-1 hover:bg-gray-800 hover:text-white transition  hover:border-black text-gray-500 flex items-center justify-center cursor-pointer"
+                                                onClick={() => { handleIncrementItem(item.colorId) }}>
+                                                +
+                                              </div>
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                      <div className="price">
-                                        <p className='text-gray-500 text-sm font-normal'>$ {item.quantity * item.price}</p>
+                                        <div className="price">
+                                          <p className='text-gray-500 text-sm font-normal'>$ {item.quantity * item.price}</p>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              
-                            ))
-                          }
 
-                          
-</div>
-                          <div className="subtotal flex flex-wrap w-full justify-between items-center border-b border-gray-200 pt-4 md:pt-0  mb-4 md:mb-0 pb-4 md:pb-0">
-                            <div className="h-full text text-sm text-gray-900 font-normal  md:px-2.5 md:py-4 ">
-                              Subtotal
+                                ))
+                              }
+
+
                             </div>
-                            <div className="amount text-sm text-gray-500 font-normal  md:px-3 md:py-4">
-                              $ {cartTotal}
+                            <div className="subtotal flex flex-wrap w-full justify-between items-center border-b border-gray-200 pt-4 md:pt-0  mb-4 md:mb-0 pb-4 md:pb-0">
+                              <div className="h-full text text-sm text-gray-900 font-normal  md:px-2.5 md:py-4 ">
+                                Subtotal
+                              </div>
+                              <div className="amount text-sm text-gray-500 font-normal  md:px-3 md:py-4">
+                                $ {cartTotal}
+                              </div>
                             </div>
-                          </div>
-                          <div className="shipping  flex flex-wrap md:flex-nowrap md:items-center border-b border-gray-200 justify-between mb-4 md:mb-0 pb-4 md:pb-0">
-                            <div className="shipping_left flex flex-wrap md:px-2.5 md:py-4 text-gray-900 text-sm font-normal">
-                              Shipping
+                            <div className="shipping  flex flex-wrap md:flex-nowrap md:items-center border-b border-gray-200 justify-between mb-4 md:mb-0 pb-4 md:pb-0">
+                              <div className="shipping_left flex flex-wrap md:px-2.5 md:py-4 text-gray-900 text-sm font-normal">
+                                Shipping
+                              </div>
+                              <div className="shipping_right md:px-3 md:py-4">
+                                <ul className="space-y-4">
+                                  <li className="flex items-start justify-end text-end space-x-2">
+                                    <p className="text-sm text-black font-normal">Home Delivery - Chattogram City: $60.00</p>
+                                    <input
+                                      type="radio"
+                                      name="shipping_method"
+                                      value={60}
+                                      checked={selectedShipping === 60}
+                                      onChange={handleShippingChange}
+                                      className="shipping_method mt-1"
+                                    />
+                                  </li>
+                                  <li className="flex items-start justify-end text-end space-x-2">
+                                    <p className="text-sm text-black font-normal">Home Delivery - Dhaka City: $100.00</p>
+                                    <input
+                                      type="radio"
+                                      name="shipping_method"
+                                      value={100}
+                                      checked={selectedShipping === 100}
+                                      onChange={handleShippingChange}
+                                      className="shipping_method mt-1"
+                                    />
+                                  </li>
+                                  <li className="flex items-start justify-end text-end space-x-2">
+                                    <p className="text-sm text-black font-normal">Home Delivery - Outside District: $120.00</p>
+                                    <input
+                                      type="radio"
+                                      name="shipping_method"
+                                      value={120}
+                                      checked={selectedShipping === 120}
+                                      onChange={handleShippingChange}
+                                      className="shipping_method mt-1"
+                                    />
+                                  </li>
+                                </ul>
+                                <p className="mt-4 text-sm text-gray-700">Selected Shipping Cost: ${selectedShipping}</p>
+                              </div>
                             </div>
-                            <div className="shipping_right md:px-3 md:py-4">
-                              <ul className="space-y-4">
-                                <li className="flex items-start justify-end text-end space-x-2">
-                                  <p className="text-sm text-black font-normal">Home Delivery - Chattogram City: $60.00</p>
-                                  <input
-                                    type="radio"
-                                    name="shipping_method"
-                                    value={60}
-                                    checked={selectedShipping === 60}
-                                    onChange={handleShippingChange}
-                                    className="shipping_method mt-1"
-                                  />
-                                </li>
-                                <li className="flex items-start justify-end text-end space-x-2">
-                                  <p className="text-sm text-black font-normal">Home Delivery - Dhaka City: $100.00</p>
-                                  <input
-                                    type="radio"
-                                    name="shipping_method"
-                                    value={100}
-                                    checked={selectedShipping === 100}
-                                    onChange={handleShippingChange}
-                                    className="shipping_method mt-1"
-                                  />
-                                </li>
-                                <li className="flex items-start justify-end text-end space-x-2">
-                                  <p className="text-sm text-black font-normal">Home Delivery - Outside District: $120.00</p>
-                                  <input
-                                    type="radio"
-                                    name="shipping_method"
-                                    value={120}
-                                    checked={selectedShipping === 120}
-                                    onChange={handleShippingChange}
-                                    className="shipping_method mt-1"
-                                  />
-                                </li>
-                              </ul>
-                              <p className="mt-4 text-sm text-gray-700">Selected Shipping Cost: ${selectedShipping}</p>
-                            </div>
-                          </div>
-                          <div className="total flex justify-between">
-                            <div className="text md:px-2.5 md:py-4 text-gray-900 text-sm md:text-lg font-normal">
-                              Total
-                            </div>
-                            <div className="amount md:px-3 md:py-4 text-gray-500 text-lg md:text-xl font-medium">
-                              $ {cartTotal + selectedShipping}
+                            <div className="total flex justify-between">
+                              <div className="text md:px-2.5 md:py-4 text-gray-900 text-sm md:text-lg font-normal">
+                                Total
+                              </div>
+                              <div className="amount md:px-3 md:py-4 text-gray-500 text-lg md:text-xl font-medium">
+                                $ {cartTotal + selectedShipping}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="cash_on_delivery_text text-start  mb-5 text-gray-900 text sm font-normal">Cash on delivery</div>
-                    <div className="delivery_method w-full bg-white p-4 mt-4">
-                      <p className='text-sm text-gray-500 font-normal'> Pay with cash upon delivery.</p>
-                    </div>
-                    <div className="place_order_section mt-5 py-5 border-t border-gray-200">
-                      <p className='text-gray-500 text-sm font-normal'>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <span className='text-black text-sm font-medium'>privacy policy.</span> </p>
+                      <div className="cash_on_delivery_text text-start  mb-5 text-gray-900 text sm font-normal">Cash on delivery</div>
+                      <div className="delivery_method w-full bg-white p-4 mt-4">
+                        <p className='text-sm text-gray-500 font-normal'> Pay with cash upon delivery.</p>
+                      </div>
+                      <div className="place_order_section mt-5 py-5 border-t border-gray-200">
+                        <p className='text-gray-500 text-sm font-normal'>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <span className='text-black text-sm font-medium'>privacy policy.</span> </p>
 
 
-                    </div>
+                      </div>
 
-                    <div className="place_order_button bg-black  text-white text-center">
-                      <button className="text-center w-full py-3 text-sm font-medium" type='submit'>PLACE ORDER</button>
+                      <div className="place_order_button bg-black  text-white text-center">
+                        <button className="text-center w-full py-3 text-sm font-medium" type='submit'>
+                          {
+                            isLoading ? "Processing..." : "PLACE ORDER"
+                          }
+                        
+
+
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
               </form>
             </>
           ) : (
@@ -427,9 +582,9 @@ export default function page() {
                 )
               }
             </>
-           )
+          )
 
-        }  
+        }
 
       </div >
 

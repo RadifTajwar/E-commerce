@@ -67,6 +67,7 @@ export default function ShoppingCart({ toggleShoppingCart, isVisibleShoppingCart
                                         </div>
                                         <div className="cart_text mx-4">
                                             <p className="text-sm text-gray-900 font-normal">{item.name}</p>
+                                            <p className="text-xs text-gray-600 font-normal">{item.color}</p>
                                             <div className="quantity_section flex justify-start my-2">
                                                 <div className="inner flex">
                                                     {/* Minus Button */}

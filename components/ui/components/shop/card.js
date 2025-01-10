@@ -77,7 +77,7 @@ export default function card({ product }) {
                                                 src={product.imageDefault}
                                                 height={500}
                                                 width={500}
-                                                objectFit="contain"
+                                               
                                                 className=" group-hover:opacity-0 duration-500"
                                             />
 
@@ -87,7 +87,7 @@ export default function card({ product }) {
                                                 src={product.imageHover}
                                                 height={500}
                                                 width={500}
-                                                objectFit="contain"
+                                               
                                                 className="absolute top-0 left-0  h-auto opacity-0 group-hover:opacity-100 group-hover:duration-1000 group-hover:scale-110"
                                             />
                                         </div>

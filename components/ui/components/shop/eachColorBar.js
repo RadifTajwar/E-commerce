@@ -7,7 +7,7 @@ export default function eachColorBar({ colorName, count, hex }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const filter_color = searchParams.get('filter_color');
-    console.log("filter_color", filter_color);
+    // console.log("filter_color", filter_color);
 
     const handleFilterClick = () => {
         const params = new URLSearchParams(window.location.search);

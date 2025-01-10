@@ -1,12 +1,37 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { fetchAllCategories } from '@/redux/category/allCategoriesSlice';
+import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { User } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from "../icon/searchIcon";
-export default function SideBar({ toggleSideBar, isVisibleSideBar ,toggleLogInForm}) {
+export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInForm }) {
+
+    const dispatch = useDispatch();
+
+    // Access the parent categories from the store
+    const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
+        (state) => state.allParentCategories
+    );
+
+    const { categories, isLoading, error } = useSelector((state) => state.categories);
+
+    // Fetch all parent categories and categories
+    useEffect(() => {
+        dispatch(fetchAllParentCategories());
+        dispatch(fetchAllCategories());
+    }, [dispatch]);
     const [searchBar, setSearchBar] = useState("");
     const [isSelected, setIsSelected] = useState(true);
+    const [expandedStates, setExpandedStates] = useState({});
+    const toggleExpand = (id) => {
+        setExpandedStates((prev) => ({
+            ...prev,
+            [id]: !prev[id], // Toggle the expand state for the given parentCategory id
+        }));
+    };
     const changeSearchBarText = (e) => {
         setSearchBar(e.target.value);
     }
@@ -19,10 +44,9 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar ,toggleLogInFo
     const handleLoginClicked = () => {
         toggleSideBar();
         toggleLogInForm();
-        
+
     }
 
-    const [isExpanded, setIsExpanded] = useState(false);
     return (
         <>
 
@@ -68,46 +92,67 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar ,toggleLogInFo
                         </div>
                         <div>
                             {/* Main Category Item */}
-                            {/* mapping start */}
-                            <div
-                                className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold">
-                                {/* mapping start  */}
-                                <div className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? `bg-[#F7F7F7]` : ``}`} >
-                                    BAGS
-                                </div>
-                                <div className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`} onClick={() => setIsExpanded(!isExpanded)}>
-                                    <ChevronRightIcon
-                                        fontSize="medium"
-                                        className={` transition-transform duration-200 ${isExpanded ? 'rotate-90 text-white' : 'text-gray-500'
-                                            }`}
-                                        style={{ strokeWidth: 1 }}
-                                    />
-                                </div>
 
-                                {/* mapping end */}
+                            {parentCategories?.map((parentCategory) => {
+                                const childCategories = categories?.filter(
+                                    (category) => category.parentCategoryId === parentCategory.id
+                                );
 
+                                const isExpanded = expandedStates[parentCategory.id] || false;
 
+                                return (
+                                  <div className=""  key={parentCategory.id}>
 
+                                  
+                                        <div
+                                           
+                                            className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
+                                        >
+                                            <div
+                                                className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? 'bg-[#F7F7F7]' : ''}`}
+                                            >
+                                                {parentCategory.name}
+                                            </div>
+                                            <div
+                                                className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
+                                                onClick={() => toggleExpand(parentCategory.id)}
+                                            >
+                                                <ChevronRightIcon
+                                                    fontSize="medium"
+                                                    className={`transition-transform duration-200 ${isExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
+                                                    style={{ strokeWidth: 1 }}
+                                                />
+                                            </div>
+                                        </div>
+                                        {childCategories?.length > 0 && (
+                                            <div
+                                                className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
+                                            >
+                                                {childCategories?.map((category) => (
+                                                    <div
+                                                        key={category.id}
+                                                        className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                    >
+                                                        {category.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        </div>
+                                   
+                                );
+                            })}
 
-                            </div>
 
                             {/* Collapsible Content */}
-                            <div
-                                className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40' : 'max-h-0'
-                                    }`}
-                            >
-                                <div className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800">
-                                    Backpack
-                                </div>
 
-                            </div>
                             {/* mapping end  */}
 
-                           <Link href="/shop">
-                           <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={handleToggleSideBar} >
-                                SHOP
-                            </div >
-                           </Link>
+                            <Link href="/shop">
+                                <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={handleToggleSideBar} >
+                                    SHOP
+                                </div >
+                            </Link>
 
                             <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" >
                                 ABOUT US

@@ -1,9 +1,10 @@
 'use client'
-
 import Footer from "@/components/ui/components/footer";
+import emailjs from 'emailjs-com';
 import { useState } from "react";
 export default function page() {
     const [isChecked, setIsChecked] = useState(false)
+    const [email, setEmail] = useState('');
     const [registerToLoginToggleState, setRegisterToLoginToggleState] = useState(false)
     const toggleChecked = () => {
         setIsChecked(!isChecked);
@@ -11,6 +12,32 @@ export default function page() {
     const RegisterToLoginToggle = () => {
         setRegisterToLoginToggleState(!registerToLoginToggleState);
     }
+
+    const handleChange = (e) => {
+      setEmail(e.target.value);
+    };
+  
+    const handleSubmit = (e) => {
+        e.preventDefault();
+    
+        const dynamicPassword = Math.random().toString(36).slice(-8);
+    
+        const templateParams = {
+          to_email: email,
+          dynamic_password: dynamicPassword,
+        };
+        console.log(dynamicPassword);
+    
+        emailjs
+          .send('service_p5i09vd', 'template_65b3mvb', templateParams, 'bTYfvC_lPLdd40JEu')
+          .then((response) => {
+            console.log('Email sent successfully:', response.status, response.text);
+          })
+          .catch((error) => {
+            console.error('Failed to send email:', error);
+          });
+      };
+    
     return (
         <>
             <div className="my_account entire_section bg-gray-50 dark:bg-gray-900">
@@ -126,7 +153,7 @@ export default function page() {
                                                 <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                                                     Register
                                                 </h1>
-                                                <form className="space-y-4 md:space-y-6" action="#">
+                                                <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                                                     <div>
                                                         <label
                                                             htmlFor="email"
@@ -139,7 +166,9 @@ export default function page() {
                                                             name="email"
                                                             id="email"
                                                             className="bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
-                                                            placeholder=""
+                                                            placeholder="Enter your email"
+                                                            value={email}
+                                                            onChange={handleChange}
                                                             required
                                                         />
                                                     </div>
@@ -182,7 +211,14 @@ export default function page() {
                                     </div>
                                     <div className="lower_right_button text-center">
                                         <button className="inline-flex items-center rounded-full justify-center py-3 px-5 hover:bg-gray-100 dark:hover:bg-gray-700 text-md font-medium leading-none text-gray-900 dark:text-white" onClick={RegisterToLoginToggle}>
-                                            <span>Register</span>
+                                            {
+                                                registerToLoginToggleState ? (
+                                                    <span>Login</span>
+                                                ) : (
+                                                    <span>Register</span>
+                                                )
+                                            }
+
                                         </button>
                                     </div>
 

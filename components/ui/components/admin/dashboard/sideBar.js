@@ -499,19 +499,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                             </div>
                         </li>
 
-                        <li className="relative">
-                            <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600  cursor-pointer duration-150 dark:hover:text-gray-200 ${pathName == '/admin/settings' ? 'bg-blue-500 text-white' : ''}`} target="_self" onClick={() => { sideBarComponentClicked('settings') }}
-                            >
-                                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="12" cy="12" r="3">
-                                    </circle>
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-
-                                    </path>
-                                </svg>
-                                <span className="ml-4">Settings</span>
-                            </div>
-                        </li>
+                       
 
 
                         <li className="relative px-6 py-3">
@@ -535,13 +523,8 @@ export default function SideBar({ isOpen, setIsOpen }) {
                                         <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z">
                                         </path>
                                     </svg>
-                                    <span className="ml-4 mt-1">Pages</span>
-                                    <span className="pl-4 mt-1">
-                                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="48" d="M184 112l144 144-144 144">
-                                            </path>
-                                        </svg>
-                                    </span>
+                                    <span className="ml-4 mt-1">Page</span>
+                                    
                                 </span>
                             </button>
                         </li>

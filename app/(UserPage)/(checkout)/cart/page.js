@@ -76,7 +76,7 @@ export default function page() {
                                                                 <td className="text-start py-4 px-2.5 w-[104px] text-md text-gray-900 font-normal flex items-center flex items-center">
                                                                     <Image src={item.image} alt={item.name} height={80} width={80} className="min-h-[80px] min-w-[80px]" />
                                                                 </td>
-                                                                <td className="text-start py-4 px-2.5 w-[258px] text-sm text-gray-900 font-normal flex items-center hover:text-gray-500 cursor-pointer transition-color duration-200">{item.name}</td>
+                                                                <td className="text-start py-4 px-2.5 w-[258px] text-sm text-gray-900 font-normal flex items-center hover:text-gray-500 cursor-pointer transition-color duration-200">{item.name}-{item.color}</td>
                                                                 <td className="text-start py-4 px-2.5 w-[117px] text-sm text-gray-600 font-normal flex items-center">$ {item.price}</td>
                                                                 <td className="text-start py-4 px-2.5 w-[133px] text-sm text-gray-900 font-normal flex items-center">
                                                                     <div className="quantity_section flex justify-center">
@@ -128,8 +128,8 @@ export default function page() {
                                                                 </div>
                                                                 <div className="product_details w-full ps-6">
                                                                     <div className="name_remote_button flex  justify-between  mb-1">
-                                                                        <p className='text-sm text-gray-900 font-normal  hover:text-gray-500 cursor-pointer transition-color duration-200 mb-2.5'>{item.name}</p>
-                                                                        <button className="m-0 min-w-[30px] min-h-[30px] flex justify-center items-center  cursor-pointer group mb-1" onClick={() => { handleRemovefromCart(item.id) }}>
+                                                                        <p className='text-sm text-gray-900 font-normal  hover:text-gray-500 cursor-pointer transition-color duration-200 mb-2.5'>{item.name}-{item.color}</p>
+                                                                        <button className="m-0 min-w-[30px] min-h-[30px] flex justify-center items-center  cursor-pointer group mb-1"  onClick={() => { handleRemovefromCart(item.colorId) }}>
                                                                             <svg className="h-3 w-3 fill-black group-hover:fill-gray-600" viewBox="0 0 24 24">
                                                                                 <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"></path>
                                                                             </svg>

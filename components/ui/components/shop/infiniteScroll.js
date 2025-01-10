@@ -1,84 +1,94 @@
 'use client';
-import { useSearchParams } from 'next/navigation'; // Import useSearchParams
-import { useEffect, useState } from 'react';
+import { fetchAllProducts } from '@/redux/product/allProductsSlice';
+import { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Card from './card';
-export default function InfiniteScroll({ products }) {
-    const searchParams = useSearchParams(); // Get search parameters
-    const min_price = searchParams.get('min_price'); // Get min_price from search params
-    const max_price = searchParams.get('max_price'); // Get max_price from search params
-    const filter_color = searchParams.get('filter_color');
-    const parentCategory = searchParams.get('parentCategory');
-    const childCategory = searchParams.get('childCategory');
-    const stock_status = searchParams.get('stock_status');
-    const orderby = searchParams.get('orderby');
-    const [count, setCount] = useState(20);
 
-    // Transform the products object into an array for easier sorting and filtering
-    const productArray = Object.values(products);
+export default function InfiniteScroll({ products: initialProducts }) {
+    const dispatch = useDispatch();
+    const { products: fetchedProducts, isLoading, error, meta } = useSelector((state) => state.allProducts);
+    const [allProducts, setAllProducts] = useState(initialProducts || []);
+    const [pageNumber, setPageNumber] = useState(1);
+    const observerRef = useRef(null);
+    const lastProductRef = useRef(null);
+    const isFetchingRef = useRef(false); // Prevent multiple fetches
 
-    // Filter and sort the products based on the criteria
-    const filteredProducts = productArray
-        .filter(product => {
-            const originalPrice = product.discountedPrice;
-            const productColors = product.color; // Access the array of colors
-            const isInStock = product.inStock;
-            const isOnSale = product.onSale;
+    const maxPages = meta ? Math.ceil(meta.total / meta.limit) : Infinity;
 
-            const minPrice = min_price ? parseInt(min_price) : 0;
-            const maxPrice = max_price ? parseInt(max_price) : Infinity;
-            const selectedColors = filter_color ? filter_color.split(",") : [];
-            const selectedStockStatuses = stock_status ? stock_status.split(",") : [];
+    // Log page and products length
+    useEffect(() => console.log('Current Page:', pageNumber), [pageNumber]);
+    useEffect(() => console.log('Updated Products Length:', allProducts.length), [allProducts]);
 
-            const withinPriceRange = originalPrice >= minPrice && originalPrice <= maxPrice;
-
-            // Check if any color in the product's colors matches the selected colors
-            const matchesColor = selectedColors.length === 0 || 
-                productColors.some(color => selectedColors.includes(color.colorName));
-
-            const matchesStockStatus =
-                selectedStockStatuses.length === 0 ||
-                (selectedStockStatuses.includes("inStock") && isInStock) ||
-                (selectedStockStatuses.includes("onSale") && isOnSale);
-
-            return withinPriceRange && matchesColor && matchesStockStatus;
-        })
-        .sort((a, b) => {
-            if (orderby === "price_asc") {
-                return a.discountedPrice - b.discountedPrice;
-            } else if (orderby === "price_desc") {
-                return b.discountedPrice - a.discountedPrice;
-            }
-            return 0; // No sorting for other values
-        });
-
-    const total = filteredProducts.length; // Use the number of filtered products
-
+    // Set initial products
     useEffect(() => {
-        const onscroll = () => {
-            if (window.innerHeight + window.scrollY >= window.document.body.offsetHeight - 200) {
-                setCount(prevCount => Math.min(prevCount + 10, total)); // Prevent exceeding total
-            }
+        if (initialProducts?.length > 0 && allProducts.length === 0) {
+            setAllProducts(initialProducts);
+        }
+    }, [initialProducts, allProducts]);
+
+    // Fetch products when page number changes
+    useEffect(() => {
+        if (pageNumber > 1 && pageNumber <= maxPages && !isFetchingRef.current) {
+            isFetchingRef.current = true;
+            dispatch(fetchAllProducts({ page: pageNumber, limit: 5 })).finally(() => {
+                isFetchingRef.current = false; // Reset after fetch
+            });
+        }
+    }, [dispatch, pageNumber, maxPages]);
+
+    // Append new products
+    useEffect(() => {
+        if (fetchedProducts?.length > 0 && pageNumber > 1) {
+            setAllProducts((prevProducts) => {
+                const newProducts = fetchedProducts.filter(
+                    (product) => !prevProducts.some((prevProduct) => prevProduct.id === product.id)
+                );
+                return [...prevProducts, ...newProducts];
+            });
+        }
+    }, [fetchedProducts, pageNumber]);
+
+    // Intersection Observer setup
+    useEffect(() => {
+        if (!lastProductRef.current || isLoading || isFetchingRef.current) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const [entry] = entries;
+                if (entry.isIntersecting && pageNumber < maxPages && !isFetchingRef.current) {
+                    setPageNumber((prevPage) => prevPage + 1);
+                }
+            },
+            { threshold: 0.2 }
+        );
+
+        observer.observe(lastProductRef.current);
+        observerRef.current = observer;
+
+        return () => {
+            if (observerRef.current) observerRef.current.disconnect();
         };
-
-        window.addEventListener('scroll', onscroll);
-
-        return () => window.removeEventListener('scroll', onscroll);
-    }, [total, min_price, max_price, filter_color]); // Add min_price and max_price as dependencies
-
-    const elements = [];
-    const effectiveCount = count >= total ? total : count; // Use total if count exceeds it
-
-    for (let i = 0; i < effectiveCount; i++) {
-        elements.push(<Card key={filteredProducts[i].id} product={filteredProducts[i]} />); // Pass product as prop
-    }
+    }, [allProducts, isLoading, pageNumber, maxPages]); // Observe again when `allProducts` changes
 
     return (
         <>
-      
             <div className="flex grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
-                {elements}
+                {allProducts.length > 0 ? (
+                    allProducts.map((product, index) => (
+                        <div
+                            key={product.id}
+                            ref={index === allProducts.length - 1 ? lastProductRef : null} // Attach ref to the last product
+                        >
+                            <Card product={product} />
+                        </div>
+                    ))
+                ) : (
+                    <div>Loading products...</div>
+                )}
             </div>
-    
+
+            {isLoading && <div>Loading more products...</div>}
+            {error && <div>Error loading products: {error}</div>}
         </>
     );
 }
