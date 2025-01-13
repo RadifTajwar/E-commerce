@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function page() {
 
   const dispatch = useDispatch();
+  const [categoryId,setCategoryId ] = useState("");
   const [isInput, setIsInput] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
@@ -143,8 +144,17 @@ export default function page() {
     const { value } = event.target;
     setIsInput(value);
     console.log(isInput);
+    setCategoryId("");
     dispatch(fetchAllProducts({searchTerm: value}));
   };
+
+  const handleCategorySelect = ( id) => {
+    setCategoryId(id);
+    setIsInput("");
+    dispatch(fetchAllProducts({searchTerm: categoryId}));
+    
+  };
+  const [productsFetched, setProductsFetched] = useState(false);
 
   return (
     <>
@@ -241,115 +251,9 @@ export default function page() {
                         )
                       }
                     </div>
-                    <div className="lg:flex-1 md:flex-1 mr-3 sm:flex-none">
-                      <div className="border flex justify-center items-center h-10 w-20 hover:text-yellow-400 border-gray-300 dark:text-gray-300 cursor-pointer py-2 hover:border-yellow-400 rounded-md focus:outline-none" onClick={() => { setImportButtonForm(!importButtonForm) }}>
-                        <svg
-                          stroke="currentColor"
-                          fill="none"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="mr-2"
-                          height="1em"
-                          width="1em"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                          <polyline points="7 10 12 15 17 10"></polyline>
-                          <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        <span className="text-xs">Import</span>
-                      </div>
-
-
-                    </div>
+                   
                   </div>
-                  {
-                    importButtonForm && (
-                      <>
-                        <div className="w-full my-2 lg:my-0 md:my-0 flex">
-                          <div className="h-10 border border-dashed border-blue-500 rounded-md">
-                            {fileName ? (
-                              <div className="w-full rounded-lg h-10 flex items-center text-xs dark:text-gray-400 leading-none cursor-pointer">
-                                <span className="text-sm dark:text-gray-400">{fileName}</span>
-                                <button
-                                  type="button"
-                                  className="text-red-500 focus:outline-none mx-4 text-lg"
-                                  onClick={handleRemoveFile}
-                                >
-                                  <svg
-                                    stroke="currentColor"
-                                    fill="none"
-                                    strokeWidth="2"
-                                    viewBox="0 0 24 24"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    height="1em"
-                                    width="1em"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="15" y1="9" x2="9" y2="15" />
-                                    <line x1="9" y1="9" x2="15" y2="15" />
-                                  </svg>
-                                </button>
-                              </div>
-                            ) : (
-                              <label
-                                htmlFor="file-upload"
-                                className="w-full rounded-lg h-10 flex justify-center items-center text-xs dark:text-gray-400 leading-none cursor-pointer"
-                              >
-                                <input
-                                  id="file-upload"
-                                  ref={inputRef}
-                                  className="hidden"
-                                  type="file"
-                                  accept=".csv,.xls,.json"
-                                  onChange={handleFileChange}
-                                />
-                                <svg
-                                  stroke="currentColor"
-                                  fill="none"
-                                  strokeWidth="2"
-                                  viewBox="0 0 24 24"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="mx-2 text-blue-500 text-lg dark:text-gray-400"
-                                  height="1em"
-                                  width="1em"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <polyline points="16 16 12 12 8 16" />
-                                  <line x1="12" y1="12" x2="12" y2="21" />
-                                  <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-                                  <polyline points="16 16 12 12 8 16" />
-                                </svg>
-                                Select Your JSON Customers File
-                              </label>
-                            )}
-
-
-                          </div>
-
-                          <div className="flex">
-                            <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full rounded-md h-10 ml-2  text-xs px-2" type="button">
-                              <span className="">
-                                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                  <line x1="12" y1="5" x2="12" y2="19">
-
-                                  </line>
-                                  <line x1="5" y1="12" x2="19" y2="12">
-                                  </line>
-                                </svg>
-                              </span>
-                              <span className=" text-sx w-20">ImportNow</span>
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )
-                  }
+                  
                 </div>
               </div>
               <div className="lg:flex md:flex xl:justify-end xl:w-1/2 md:w-full md:justify-start flex-grow-0">
@@ -384,11 +288,11 @@ export default function page() {
         </div>
 
         <div className="seaarchForm">
-          <SearchForm handleInputChange={handleInputChange} isInput={isInput}/>
+          <SearchForm handleCatSelect={handleCategorySelect} handleInputChange={handleInputChange} isInput={isInput} categoryId={categoryId} setCategoryId={setCategoryId}/>
         </div>
 
 
-        <AllProducts toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} />
+        <AllProducts toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} categoryId={categoryId} productsFetched={productsFetched} setProductsFetched={setProductsFetched} isInput={isInput}/>
 
       </div>
 
@@ -405,7 +309,7 @@ export default function page() {
         className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <AddProduct toggleAddProductVisible={toggleAddProductVisible} doneAddProduct={doneAddProduct} />
+        <AddProduct toggleAddProductVisible={toggleAddProductVisible} doneAddProduct={doneAddProduct} categoryId={categoryId} isInput={isInput} />
       </div>
 
       <div

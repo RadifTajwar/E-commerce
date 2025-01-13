@@ -1,5 +1,4 @@
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import Switch from '@mui/material/Switch';
 import { useEffect, useState } from 'react';
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -44,7 +43,7 @@ export default function allParentCategories({ toggleVisibility, toggleDeleteVisi
                                     <td className="px-4 py-3">ID</td>
                                     <td className="px-4 py-3">ICON</td>
                                     <td className="px-4 py-3">NAME</td>
-                                    <td className="px-4 py-3 text-center">PUBLISHED</td>
+                                  
                                     <td className="px-4 py-3 text-right">ACTIONS</td>
                                 </tr>
                             </thead>
@@ -70,16 +69,8 @@ export default function allParentCategories({ toggleVisibility, toggleDeleteVisi
                                         <td className="px-4 py-3">
                                             <span className="text-sm">{category.name}</span>
                                         </td>
-                                        <td className="px-4 py-3">
-                                            <span className="text-sm">{category.description}</span>
-                                        </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <Switch
-                                                checked={checked}
-                                                onChange={handleChange}
-                                                inputProps={{ 'aria-label': 'controlled' }}
-                                            />
-                                        </td>
+                                      
+                                       
                                         <td className="px-4 py-3">
                                             <div className="flex justify-end gap-x-2">
                                                 <FiEdit

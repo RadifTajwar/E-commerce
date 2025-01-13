@@ -15,7 +15,7 @@ export default function page() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const cartTotal = useSelector((state) => state.cart.total);
-  const {order,isLoading,error,status} = useSelector((state) => state.createOrderItem);
+  const { order, isLoading, error, status } = useSelector((state) => state.createOrderItem);
 
   const [selectedShipping, setSelectedShipping] = useState(60);
   const [showCoupon, setShowCoupon] = useState(false);
@@ -34,6 +34,9 @@ export default function page() {
   const [showDistrictOption, setShowDistrictOption] = useState(false);
   const [filteredDistricts, setFilteredDistricts] = useState([]); // Example: populate this with districts
   const districts = ["Dhaka", "Chittagong", "Khulna", "Barisal", "Sylhet"]; // Example list of districts
+  useEffect(() => {
+    setFilteredDistricts(districts);
+  }, []);
 
   // Handler for updating form state
   const handleInputChange = (e) => {
@@ -111,10 +114,10 @@ export default function page() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    
+
 
     if (status === 'succeeded' && order) {
-   
+
       router.push(`checkout/orderReceived/${order._id}`); // Redirect on success
 
       // Reset order and status after redirection
@@ -168,17 +171,17 @@ export default function page() {
       };
       console.log("the whole order is ", orderData);;
       dispatch(createOrder(orderData));
-      if(status === 'succeeded'){
-      setFormState({
-        name: "",
-        address: "",
-        district: "",
-        searchTerm: "",
-        phone: "",
-        email: "",
-        additionalInfo: "",
-        zip: "",
-      });
+      if (status === 'succeeded') {
+        setFormState({
+          name: "",
+          address: "",
+          district: "",
+          searchTerm: "",
+          phone: "",
+          email: "",
+          additionalInfo: "",
+          zip: "",
+        });
       }
       // Handle actual form submission logic here
     }
@@ -321,7 +324,7 @@ export default function page() {
                                     onChange={handleSearchChange}
                                     className="w-full px-4 py-2 border-2 border-gray-300 focus:outline-none text-sm"
                                   />
-                                  <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
+                                  <SearchIcon className="absolute right-7 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
                                 </div>
                                 <ul className="max-h-[200px] overflow-scroll">
                                   {filteredDistricts.length > 0 ? (
@@ -346,8 +349,8 @@ export default function page() {
 
 
 
-                        <div className="flex space-x-4">
-                          <div className="w-1/2 pb-5">
+                        <div className="sm:flex sm:space-x-4">
+                          <div className="w-full sm:w-1/2 pb-5">
                             <label htmlFor="phone" className="block text-sm font-normal text-gray-700 pb-1">
                               Phone (আপনার ফোন নাম্বারটি লিখুন) <span className="text-sm text-red-600">*</span>
                             </label>
@@ -360,7 +363,7 @@ export default function page() {
                                 }`}
                             />
                           </div>
-                          <div className="w-1/2 pb-5">
+                          <div className="w-full sm:w-1/2 pb-5">
                             <label htmlFor="name" className="block text-sm font-normal text-gray-700 pb-1">
                               Zip Code (আপনার পোষ্টকোড) <span className="text-sm text-red-600">*</span>
                             </label>
@@ -544,7 +547,7 @@ export default function page() {
                           {
                             isLoading ? "Processing..." : "PLACE ORDER"
                           }
-                        
+
 
 
                         </button>

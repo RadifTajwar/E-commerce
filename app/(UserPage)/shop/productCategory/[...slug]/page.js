@@ -1,7 +1,7 @@
 'use client';
 
 // import ColorBar from "@/components/ui/components/shop/colorBar";
-// import ColorBar from "@/components/ui/components/shop/colorBar";
+import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
@@ -10,18 +10,24 @@ import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 import MenuIcon from '@mui/icons-material/Menu';
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
+
 // import RangeBar from "@/components/ui/components/shop/rangeBar";
+
 export default function Page() {
+    const params = useParams();
+
+    const router = useRouter();
+    const slug  = params.slug;
+    console.log("slug", slug);
     const dispatch = useDispatch();
 
     // Access the parent categories from the store
     const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.allParentCategories
     );
-    
 
     const searchParams = useSearchParams();
     const { parentCategory, childCategory } = searchParams;
@@ -54,7 +60,7 @@ export default function Page() {
 
     const toggleSortBar = () => {
         setSortBarVisible(!isSortBarVisible)
-        console.log('sort bar ' + isSortBarVisible);
+        // console.log('sort bar ' + isSortBarVisible);
     }
 
     const [isVisible, setIsVisible] = useState(false);
@@ -62,7 +68,7 @@ export default function Page() {
         setIsVisible(!isVisible);
     };
 
-    const router = useRouter();
+    
 
     // Function to handle category click and update the query parameter
     const handleParentCategoryClick = (categoryName) => {
@@ -280,7 +286,7 @@ export default function Page() {
                                     {/* <RangeBar />    */}
                                     <div className="line w-full h-px bg-gray-300 my-6">
                                     </div>
-                                    {/* <ColorBar products={products} /> */}
+                                    <ColorBar products={products} />
                                     <div className="line w-full h-px bg-gray-300 my-6">
                                     </div>
                                     <StockStatus />
@@ -297,7 +303,7 @@ export default function Page() {
                                         {/* <RangeBar /> */}
                                         <div className="line w-full h-px bg-gray-300 my-6">
                                         </div>
-                                        {/* <ColorBar products={products} /> */}
+                                        <ColorBar products={products} />
                                         <div className="line w-full h-px bg-gray-300 my-6">
                                         </div>
                                         <StockStatus />

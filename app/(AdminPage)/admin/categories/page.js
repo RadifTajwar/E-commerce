@@ -142,7 +142,7 @@ export default function page() {
     const { value } = event.target;
     setIsInput(value);
     console.log(isInput);
-    // dispatch(fetchAllCategories(value));
+    dispatch(fetchAllCategories({searchTerm: value}));
   };
 
   return (

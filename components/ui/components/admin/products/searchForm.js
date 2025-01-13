@@ -1,5 +1,34 @@
+import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+export default function searchForm({ isInput, handleInputChange ,setCategoryId,handleCatSelect}) {
+    const dispatch = useDispatch();
+    const dropdownRef = useRef(null);
+    const [category, setCategory] = useState("All Categories");
+    const parentCategoryRef = useRef(null);
+    const { categories, isLoading: parentLoading, error: parentError } = useSelector(
+        (state) => state.categories
+    );
+    const [isOpen, setIsOpen] = useState(false);
 
-export default function searchForm({ isInput, handleInputChange }) {
+    useEffect(() => {
+        dispatch(fetchAllCategories());
+
+    }, [dispatch]);
+    const toggleDropdown = () => {
+        setIsOpen(!isOpen);
+    };
+
+    const handleCategorySelect = (category,id) => {
+        setCategory(category);
+        setIsOpen(false);
+        setCategoryId(id);
+        handleCatSelect(id);
+        console.log(category,id);
+    };
+
+
+
     return (
         <>
             <div className="min-w-0 rounded-lg border border-gray-200 ring-opacity-4 shadow-xs overflow-hidden bg-white dark:bg-gray-800 rounded-t-lg rounded-0 mb-4">
@@ -18,17 +47,56 @@ export default function searchForm({ isInput, handleInputChange }) {
 
                         </div>
 
-                        {/* Category Select */}
-                        <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                            <select className="block w-full px-2 py-1 text-sm dark:text-gray-300 rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 border dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 h-12 bg-gray-100 border-transparent focus:bg-white">
-                                <option value="All" hidden>
-                                    Category
-                                </option>
-                                <option value="63f12afdcc480f0454f475dd">Baby Food</option>
-                                <option value="632aca9b4d87ff2494210c4f">Rui</option>
-                                {/* Add more categories as needed */}
-                            </select>
-                        </div>
+                        
+                         {/* product categories */}
+                                    <div className="grid grid-cols-6 gap-3  xl:gap-6 lg:gap-6 mb-6">
+                                        <label htmlFor="category" className=" flex items-center md:justify-center block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2">
+                                            Category
+                                        </label>
+                                        <div className="col-span-6 sm:col-span-4">
+                                            <div className="relative">
+                                                {/* Parent Category Dropdown */}
+                                                <div
+                                                    ref={parentCategoryRef}
+                                                    className="parentCategory bg-white flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer dark:bg-gray-700 dark:border-gray-600"
+                                                    onClick={toggleDropdown} // Toggle the dropdown visibility
+                                                >
+                                                    <span className="text-sm text-gray-700 dark:text-gray-300">{category}</span>
+                                                    <span className="text-gray-500 dark:text-gray-300">▼</span>
+                                                </div>
+
+                                                {/* Dropdown List */}
+                                                {isOpen && (
+                                                    <ul
+                                                        ref={dropdownRef}
+                                                        className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-md shadow-md dark:bg-gray-700 dark:border-gray-600 max-h-40 overflow-y-auto"
+                                                    >
+                                                        {categories.length > 0 ? (
+                                                            categories.map((parentCategory) => (
+                                                                <li key={parentCategory.id}>
+                                                                    <a
+                                                                        className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                                                                        onClick={() => handleCategorySelect(parentCategory.name,parentCategory.id)} // Select category and close dropdown
+                                                                    >
+                                                                        {parentCategory.name}
+                                                                    </a>
+                                                                </li>
+                                                            ))
+                                                        ) : (
+                                                            <li>
+                                                                <a
+                                                                    className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                                                                    disabled
+                                                                >
+                                                                    No Categories Available
+                                                                </a>
+                                                            </li>
+                                                        )}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
 
                         {/* Price Select */}
                         <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">

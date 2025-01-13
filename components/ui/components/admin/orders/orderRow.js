@@ -39,7 +39,7 @@ export default function orderRow({ order, handleTrackCode, handleUpdate, handleO
                     
                         <input
                             type="text"
-                            className="text-sm font-semibold text-black border border-gray-300 rounded px-2 py-1"
+                            className="text-sm font-semibold text-black border border-gray-300 rounded px-2 py-1 w-40"
                         
                             value={trackingNumber}  // Bind the input field to the state
                             onChange={handleInputChange}  // Update the state on input change

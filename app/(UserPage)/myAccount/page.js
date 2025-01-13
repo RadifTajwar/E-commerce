@@ -1,10 +1,37 @@
-export default function page() {
+'use client'
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+
+export default function Page() {
+  const [userEmail, setUserEmail] = useState('');
+  const [accessToken, setAccessToken] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    // Retrieve userEmail and accessToken from localStorage
+    const storedEmail = localStorage.getItem('userEmail');
+    const storedToken = localStorage.getItem('accessToken');
+
+    if (!storedEmail || !storedToken) {
+      // Redirect to 'my-account' page if either is missing
+      router.push('/my-account');
+    } else {
+      setUserEmail(storedEmail);
+      setAccessToken(storedToken);
+    }
+  }, [router]);
+
+  // Render nothing if either userEmail or accessToken is missing
+  if (!userEmail || !accessToken) {
+    return null;
+  }
+
   return (
     
       
         <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
           <div className="upper_text">
-            <p className="text-sm text-gray-500 mb-5">Hello <span className="font-medium text-gray-700">radiftajwarmahi420</span>  (not <span className="font-medium text-gray-700">radiftajwarmahi420</span>? <span className="text-black cursor-pointer">Log out</span>)</p>
+            <p className="text-sm text-gray-500 mb-5">Hello <span className="font-medium text-gray-700">{userEmail}</span>  (not <span className="font-medium text-gray-700">{userEmail}</span>? <span className="text-black cursor-pointer">Log out</span>)</p>
             <p className="text-sm text-gray-500 mb-5">From your account dashboard you can view your <span className="text-black cursor-pointer">recent orders</span>, manage your <span className="text-black cursor-pointer">shipping and billing addresses</span> , and edit your  <span className="text-black cursor-pointer">password</span> and  <span className="text-black cursor-pointer">account details.</span></p>
           </div>
           <div className="lowerBoxes mt-8 grid grid-cols-1 sm:gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 ">

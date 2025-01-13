@@ -11,6 +11,7 @@ import updateHeroBannerReducer from "./heroBanner/updateHeroBannerSlice";
 import createOrderReducer from "./order/createOrderSlice";
 import allOrderReducer from "./order/getAllOrderSlice";
 import getOrderByIdReducer from "./order/getOrderByIdSlice";
+import getOrderByUserReducer from "./order/getOrderByUserSlice";
 import updateOrderReducer from "./order/updateOrderSlice";
 import allParentCategorySlice from "./parentCategory/allParentCategorySlice";
 import createParentCategoryReducer from "./parentCategory/createParentCategorySlice";
@@ -21,11 +22,13 @@ import allProductReducer from "./product/allProductsSlice";
 import createProductReducer from "./product/createProductSlice";
 import deleteProductReducer from "./product/deleteProductByIdSlice";
 import productByIdReducer from "./product/productByIdSlice";
+import productBySlugReducer from "./product/productBySlugSlice";
 import updateProductReducer from "./product/updateProductDataSlice";
+import createUserReducer from "./user/createUserSlice";
+import loginUserReducer from "./user/userLoginSlice";
 import allVideoBannerReducer from "./video/allVideoBannerSlice";
 import updateVideoBannerReducer from "./video/updateVideoBannerSlice";
 import videoBannerByIdReducer from "./video/videoBannerByIdSlice";
-import productBySlugReducer from "./product/productBySlugSlice";
 // Check if in browser
 const isBrowser = typeof window !== "undefined";
 
@@ -85,6 +88,9 @@ const store = configureStore({
         videoBannerById: videoBannerByIdReducer,
         updateVideoBanners: updateVideoBannerReducer,
         productBySlug: productBySlugReducer,
+        createUser: createUserReducer,
+        loginUser: loginUserReducer,
+        getOrderByUser: getOrderByUserReducer,
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser

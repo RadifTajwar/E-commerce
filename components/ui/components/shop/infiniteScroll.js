@@ -30,7 +30,7 @@ export default function InfiniteScroll({ products: initialProducts }) {
     useEffect(() => {
         if (pageNumber > 1 && pageNumber <= maxPages && !isFetchingRef.current) {
             isFetchingRef.current = true;
-            dispatch(fetchAllProducts({ page: pageNumber, limit: 5 })).finally(() => {
+            dispatch(fetchAllProducts({ page: pageNumber })).finally(() => {
                 isFetchingRef.current = false; // Reset after fetch
             });
         }

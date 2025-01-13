@@ -17,7 +17,7 @@ export const createOrder = createAsyncThunk(
   async (orderData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/v1/order/create-order',
+        'https://leather-for-luxury.vercel.app/api/v1/order/create-order',
         orderData
       );
       return response.data.data;

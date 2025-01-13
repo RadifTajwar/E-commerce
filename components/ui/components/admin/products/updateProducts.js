@@ -58,7 +58,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
         categoryId: "",
         inStock: false, // Boolean for availability
         onSale: false, // Boolean for sale status
-
+        parentCategoryId: "",
         // Pricing
         originalPrice: "0", // Default numeric value
         discountedPrice: "0", // Default numeric value
@@ -101,6 +101,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             const matchingCategory = categories.find(
                 (parentCategory) => parentCategory.id === productData.parentCategoryId
             );
+            console.log("matchingCategory", matchingCategory);
 
             setFormData({
                 // Basic information
@@ -114,7 +115,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 // Category-related information
                 category: matchingCategory?.name || categories[0]?.name || '', // Default to the first parent category if no match
                 categoryId: matchingCategory?.id || categories[0]?.id || '',  // Default to the first parent category ID if no match
-
+                parentCategoryId: productData.parentCategoryId || categories[0]?.parentCategoryId || '',  // Default to the first parent category ID if no match
                 // Pricing information
                 originalPrice: productData.originalPrice || 0,
                 discountedPrice: productData.discountedPrice || 0,
@@ -375,7 +376,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
         // Validation: Check if all required fields are filled
         if (
             !formData.name ||
-
+            !formData.parentCategoryId ||
             !formData.categoryId ||
             !formData.imageDefault ||
             !formData.originalPrice ||
@@ -474,7 +475,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             categoryId: "",
             inStock: true, // Boolean for availability
             onSale: false, // Boolean for sale status
-
+            parentCategoryId: "",
             // Pricing
             originalPrice: "0", // Default numeric value
             discountedPrice: "0", // Default numeric value
@@ -538,10 +539,19 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
     }, []);
 
     const handleCategorySelect = (categoryName) => {
-        setFormData({ ...formData, category: categoryName, categoryId: categories.find((category) => category.name === categoryName).id });
+        const selectedCategory = categories.find((category) => category.name === categoryName);
+
+        if (selectedCategory) {
+            setFormData({
+                ...formData,
+                category: categoryName,
+                categoryId: selectedCategory.id,
+                parentCategoryId: selectedCategory.parentCategoryId, // Set parentCategoryId
+            });
+        }
+
         setIsOpen(false); // Close dropdown after selecting a category
     };
-
     useEffect(() => {
         console.log("Updated products:", productData); // Logs updated products
     }, [productData]);

@@ -1,10 +1,24 @@
 'use client'
 import Footer from "@/components/ui/components/footer";
+import { loginUser } from "@/redux/user/userLoginSlice";
 import emailjs from 'emailjs-com';
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 export default function page() {
+    const router = useRouter();
+    const dispatch = useDispatch();
     const [isChecked, setIsChecked] = useState(false)
     const [email, setEmail] = useState('');
+    const [logMail, setLogMail] = useState("");
+    const [logPass, setLogPass] = useState("");
+    const onLogMailChange = (e) => {
+        setLogMail(e.target.value);
+    };
+    const onLogPassChange = (e) => {
+        setLogPass(e.target.value);
+    };
+
     const [registerToLoginToggleState, setRegisterToLoginToggleState] = useState(false)
     const toggleChecked = () => {
         setIsChecked(!isChecked);
@@ -14,30 +28,52 @@ export default function page() {
     }
 
     const handleChange = (e) => {
-      setEmail(e.target.value);
+        setEmail(e.target.value);
     };
-  
+
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+
         const dynamicPassword = Math.random().toString(36).slice(-8);
-    
+
         const templateParams = {
-          to_email: email,
-          dynamic_password: dynamicPassword,
+            to_email: email,
+            dynamic_password: dynamicPassword,
         };
         console.log(dynamicPassword);
-    
+
         emailjs
-          .send('service_p5i09vd', 'template_65b3mvb', templateParams, 'bTYfvC_lPLdd40JEu')
-          .then((response) => {
-            console.log('Email sent successfully:', response.status, response.text);
-          })
-          .catch((error) => {
-            console.error('Failed to send email:', error);
-          });
-      };
-    
+            .send('service_p5i09vd', 'template_65b3mvb', templateParams, 'bTYfvC_lPLdd40JEu')
+            .then((response) => {
+                console.log('Email sent successfully:', response.status, response.text);
+            })
+            .catch((error) => {
+                console.error('Failed to send email:', error);
+            });
+    };
+
+    const handleLogSubmit = async (e) => {
+        e.preventDefault(); // Prevent default form submission behavior
+
+        try {
+            // Dispatch the loginUser thunk and wait for its result
+            const result = await dispatch(loginUser({ email: logMail, password: logPass })).unwrap();
+
+            // Store email and accessToken in localStorage
+            localStorage.setItem('userEmail', logMail);
+            localStorage.setItem('accessToken', result.accessToken);
+
+            // Handle successful login if needed
+            console.log('Login successful:', result);
+            router.push('/myAccount');
+        } catch (error) {
+            // Handle errors (e.g., invalid credentials)
+            console.error('Login failed:', error.message);
+            // Optionally, set an error state to display an error message in the UI
+            setError(error.message);
+        }
+    };
+
     return (
         <>
             <div className="my_account entire_section bg-gray-50 dark:bg-gray-900">
@@ -61,24 +97,26 @@ export default function page() {
                                     <div className="lower_left md:w-1/2 flex flex-col items-center justify-center px-5  mx-auto overflow-y-auto lg:py-0 bg-gray-50 dark:bg-gray-900">
                                         <div className=" w-full dark:border md:mt-0 md:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                                             <div className=" space-y-4 md:space-y-6 ">
-                                                <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                                                    Login
+                                                <h1 className="text-xl  leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                                                    LOGIN
                                                 </h1>
-                                                <form className="space-y-4 md:space-y-6" action="#">
+                                                <form className="space-y-4 md:space-y-6" onSubmit={handleLogSubmit}>
                                                     <div>
                                                         <label
                                                             htmlFor="email"
+
                                                             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                                         >
                                                             Username or email address <span className="text-red-700">*</span>
                                                         </label>
                                                         <input
                                                             type="email"
-                                                            name="email"
-                                                            id="email"
+                                                            name="logMail"
+
                                                             className="bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
-                                                            placeholder=""
+                                                            placeholder="Enter your email"
                                                             required
+                                                            onChange={onLogMailChange}
                                                         />
                                                     </div>
                                                     <div>
@@ -90,11 +128,12 @@ export default function page() {
                                                         </label>
                                                         <input
                                                             type="password"
-                                                            name="password"
+                                                            name="logPass"
                                                             id="password"
                                                             placeholder=""
                                                             className="bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
                                                             required
+                                                            onChange={onLogPassChange}
                                                         />
 
 
@@ -107,7 +146,6 @@ export default function page() {
                                                                     aria-describedby="remember"
                                                                     type="checkbox"
                                                                     className="w-4 h-4 border border-gray-300 bg-gray-50 focus:ring-0 focus:outline-none dark:bg-gray-700 dark:border-gray-600"
-                                                                    required
                                                                     checked={isChecked}
                                                                     onChange={toggleChecked}
                                                                 />
@@ -135,7 +173,7 @@ export default function page() {
                                                         type="submit"
                                                         className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                                     >
-                                                        Sign in
+                                                        SIGN IN
                                                     </button>
 
                                                 </form>
@@ -150,8 +188,8 @@ export default function page() {
                                     <div className="lower_left md:w-1/2 flex flex-col items-center justify-center px-5  mx-auto overflow-y-auto lg:py-0 bg-gray-50 dark:bg-gray-900">
                                         <div className=" w-full dark:border md:mt-0 md:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                                             <div className=" space-y-4 md:space-y-6 ">
-                                                <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                                                    Register
+                                                <h1 className="text-xl  leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                                                REGISTER
                                                 </h1>
                                                 <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                                                     <div>
@@ -180,7 +218,7 @@ export default function page() {
                                                         type="submit"
                                                         className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                                     >
-                                                        Register
+                                                        REGISTER
                                                     </button>
 
                                                 </form>
@@ -204,15 +242,15 @@ export default function page() {
                             <div className=" w-full dark:border md:mt-0 md:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                                 <div className=" space-y-4 md:space-y-6 ">
                                     <div className="lower_right_text">
-                                        <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                                            Login
+                                        <h1 className="text-xl text-center  leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                                            REGISTER
                                         </h1>
                                         <p className="text-[13px] text-center text-gray-500 my-[20px]">Registering for this site allows you to access your order status and history. Just fill in the fields below, and we'll get a new account set up for you in no time. We will only ask you for information necessary to make the purchase process faster and easier.</p>
                                     </div>
                                     <div className="lower_right_button text-center">
-                                        <button className="inline-flex items-center rounded-full justify-center py-3 px-5 hover:bg-gray-100 dark:hover:bg-gray-700 text-md font-medium leading-none text-gray-900 dark:text-white" onClick={RegisterToLoginToggle}>
+                                        <button className="inline-flex items-center  justify-center py-3 px-5 bg-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 text-md font-medium leading-none text-gray-900 dark:text-white" onClick={RegisterToLoginToggle}>
                                             {
-                                                registerToLoginToggleState ? (
+                                                !registerToLoginToggleState ? (
                                                     <span>Login</span>
                                                 ) : (
                                                     <span>Register</span>

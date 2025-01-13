@@ -20,6 +20,11 @@ export const fetchAllOrders = createAsyncThunk(
             ...(params.page && { page: params.page.toString() }),
             ...(params.limit && { limit: params.limit.toString() }),
             ...(params.searchTerm && { searchTerm: params.searchTerm }),
+            ...(params.status && { status: params.status }),
+            ...(params.email && { email: params.email }),
+            ...(params.startDate && { startDate: params.startDate }),
+            ...(params.endDate && { endDate: params.endDate }),
+            
           })}`
         : "";
 

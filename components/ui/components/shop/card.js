@@ -1,20 +1,26 @@
 import { Card, CardContent } from "@/components/ui/card";
 // import { addItemToCart } from "@/redux/cart/cartSlicer";
 import { addItemToCart } from "@/redux/cart/cartSlicer";
+import { fetchProductById } from "@/redux/product/productByIdSlice";
 import CryptoJS from 'crypto-js';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import CartIcon from "../../icon/icon";
 import SearchIcon from "../../icon/searchIcon";
 export default function card({ product }) {
     const Router = useRouter();
     const dispatch = useDispatch();
+    const [productsData, setProductsData] = useState([null]);
     const [showCartClicked, setShowCartClicked] = useState(false);
     const [selectedColor, setSelectedColor] = useState(null);
     const [colorId, setColorId] = useState(null);
+    const [isLoadingCart, setIsLoadingCart] = useState(false);
+    const { productData, isLoading, error } = useSelector(
+        (state) => state.productById
+    );
     const handleAddToCart = () => {
         if (!selectedColor) {
             alert("Please select a color before adding to cart!"); // Alert if no color is selected
@@ -55,12 +61,28 @@ export default function card({ product }) {
         Router.push(`/products/${product.slug}`);
     };
     const handleCardCloseClicked = () => {
-        setShowCartClicked(!showCartClicked);
+        setShowCartClicked(false);
         setSelectedColor(null);
     }
+    const [localProductData, setLocalProductData] = useState(null);
+    const handleCartOpenClicked = () => {
+        setIsLoadingCart(true); // Show loader initially
+        dispatch(fetchProductById(product.id)); // Fetch product data
+    };
+
     const handleClearClicked = () => {
         setSelectedColor(null);
     };
+
+
+
+    useEffect(() => {
+        if (productData?.id === product.id) {
+            setLocalProductData(productData); // Set local product data
+            setIsLoadingCart(false); // Hide loader
+            setShowCartClicked(true); // Show cart
+        }
+    }, [productData, product.id]);
     return (
         <>
             <div className=" card ">
@@ -77,7 +99,7 @@ export default function card({ product }) {
                                                 src={product.imageDefault}
                                                 height={500}
                                                 width={500}
-                                               
+
                                                 className=" group-hover:opacity-0 duration-500"
                                             />
 
@@ -87,7 +109,7 @@ export default function card({ product }) {
                                                 src={product.imageHover}
                                                 height={500}
                                                 width={500}
-                                               
+
                                                 className="absolute top-0 left-0  h-auto opacity-0 group-hover:opacity-100 group-hover:duration-1000 group-hover:scale-110"
                                             />
                                         </div>
@@ -140,7 +162,7 @@ export default function card({ product }) {
 
                                                 {/* Cart Icon (with hover effect on outer group) */}
                                                 <div className="text-gray-600 hover:text-gray-700 transition-colors duration-200 w-12 h-11 justify-center items-center flex"
-                                                    onClick={handleCardCloseClicked}>
+                                                    onClick={handleCartOpenClicked}>
                                                     <CartIcon />
 
                                                 </div>
@@ -182,6 +204,19 @@ export default function card({ product }) {
 
                                         {/* "VIEW ALL" button */}
 
+
+                                        {isLoadingCart && (
+                                            <div
+                                                className="absolute text-center bottom-0 left-0 right-0 top-0 transform translate-y-0 opacity-100
+                transition-all duration-500 hover:text-black lg:block w-full h-full bg-white bg-opacity-60 "
+                                            >
+                                                <div className="flex justify-center items-center h-full">
+                                                    <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                                </div>
+
+                                            </div>
+                                        )}
+
                                         <div
                                             className={`absolute text-center bottom-0 transform ${showCartClicked ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
                                                 } transition-all duration-500 hover:text-black lg:block w-full h-full bg-white bg-opacity-90 flex flex-col justify-end`}
@@ -194,52 +229,60 @@ export default function card({ product }) {
                                             >
                                                 ✕ <span className="ms-1 text-black group-hover/inner:text-gray-500 font-semibold text-sm transition duration-200">Close</span>
                                             </button>
-
-                                            <div className="w-full h-full flex flex-col justify-between">
-                                                <div className="flex-grow flex items-center justify-center">
-                                                    {/* Color Bar in the Middle */}
-                                                    <div className="Inner w-11/12">
-                                                        <div className="color_text text-sm font-semibold text-gray-900 text-center">
-                                                            Color:
-                                                        </div>
-                                                        <div className="color_map justify-center flex flex-wrap gap-2 my-2">
-                                                            {product.color?.map((color, index) => (
-                                                                <div
-                                                                    key={index}
-                                                                    className="relative group cursor-pointer flex items-center justify-center flex-shrink-0"
-                                                                >
-                                                                    <div
-                                                                        className={`color_palette rounded-3xl transition-colors flex items-center justify-center mb-1 w-[62px] h-[62px]`}
-                                                                        style={{ backgroundColor: color.hex }}
-                                                                        onClick={() => handleColorClick(color.colorName, color.id)}
-                                                                    >
-                                                                        {/* Color square */}
-                                                                    </div>
-
-                                                                    {/* Bottom line that will appear on hover */}
-                                                                    <div
-                                                                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100`}`}
-                                                                    />
+                                            {
+                                                localProductData && showCartClicked && (
+                                                    <div className="w-full h-full flex flex-col justify-between">
+                                                        <div className="flex-grow flex items-center justify-center">
+                                                            {/* Color Bar in the Middle */}
+                                                            <div className="Inner w-11/12">
+                                                                <div className="color_text text-sm font-semibold text-gray-900 text-center">
+                                                                    Color:
                                                                 </div>
-                                                            ))}
-                                                        </div>
-                                                        <div
-                                                            className={`clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition-all duration-500 text-center block ${selectedColor ? 'opacity-100 visible' : 'opacity-0 invisible'} `}
-                                                            onClick={handleClearClicked}
-                                                        >
-                                                            ✕ Clear
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                                <div className="color_map justify-center flex flex-wrap gap-2 my-2">
+                                                                    {localProductData.color?.map((color, index) => (
+                                                                        <div
+                                                                            key={index}
+                                                                            className="relative group cursor-pointer flex items-center justify-center flex-shrink-0"
+                                                                        >
+                                                                            <div
+                                                                                className={`color_palette rounded-3xl transition-colors flex items-center justify-center mb-1 w-[62px] h-[62px]`}
+                                                                                style={{ backgroundColor: color.hex }}
+                                                                                onClick={() => handleColorClick(color.colorName, color.id)}
+                                                                            >
+                                                                                {/* Color square */}
+                                                                            </div>
 
-                                                {/* Add To Cart Button at the Bottom */}
-                                                <button
-                                                    className="w-full text-white py-2 hover:bg-opacity-100 transition duration-100 bg-black"
-                                                    onClick={handleAddToCart}
-                                                >
-                                                    Add To Cart
-                                                </button>
-                                            </div>
+                                                                            {/* Bottom line that will appear on hover */}
+                                                                            <div
+                                                                                className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100`}`}
+                                                                            />
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                                <div
+                                                                    className={`clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition-all duration-500 text-center block ${selectedColor ? 'opacity-100 visible' : 'opacity-0 invisible'} `}
+                                                                    onClick={handleClearClicked}
+                                                                >
+                                                                    ✕ Clear
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Add To Cart Button at the Bottom */}
+                                                        <button
+                                                            className="w-full text-white py-2 hover:bg-opacity-100 transition duration-100 bg-black"
+                                                            onClick={handleAddToCart}
+                                                        >
+                                                            Add To Cart
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
+
+
+
+
+
 
 
 
@@ -276,7 +319,7 @@ export default function card({ product }) {
                 </div>
             </div>
 
-          
+
         </>
     )
 }

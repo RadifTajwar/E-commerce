@@ -180,8 +180,8 @@ export default function updateParentCategories({ id, toggleVisibility, resetId, 
                     <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 min-h-0">
                         <div className="flex md:flex-row flex-col justify-between mr-20">
                             <div>
-                                <h4 className="text-xl font-medium dark:text-gray-300">Update Category</h4>
-                                <p className="mb-0 text-sm font-normal dark:text-gray-300">Update your Category necessary information from here</p>
+                                <h4 className="text-xl font-medium dark:text-gray-300">Update Parent Category</h4>
+                                <p className="mb-0 text-sm font-normal dark:text-gray-300">Update your Parent Category necessary information from here</p>
                             </div>
                         </div>
                     </div>
@@ -190,7 +190,7 @@ export default function updateParentCategories({ id, toggleVisibility, resetId, 
                             <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen lg:pb-48 md:pb-80 pb-96 ">
                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 flex items-center">
                                     <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-                                        Category Title/Name
+                                        Parent Category Title/Name
                                     </label>
                                     <div className="col-span-8 sm:col-span-4">
                                         <input
@@ -207,7 +207,7 @@ export default function updateParentCategories({ id, toggleVisibility, resetId, 
                                
                                 <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                                     <label htmlFor="product-images" className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium">
-                                        Category Image
+                                       Parent Category Image
                                     </label>
                                     <div className="col-span-8 sm:col-span-4">
                                         <div className="w-full text-center mb-4">

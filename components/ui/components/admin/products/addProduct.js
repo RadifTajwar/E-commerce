@@ -32,6 +32,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
         slug: "",
         category: "", // Set default category ID if necessary
         categoryId: "",
+        parentCategoryId: "",
         inStock: false, // Boolean for availability
         onSale: false, // Boolean for sale status
 
@@ -211,6 +212,8 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             !formData.name ||
             // !formData.description ||
             !formData.categoryId ||
+            !formData.parentCategoryId ||
+
             !formData.imageDefault ||
             !formData.originalPrice ||
             !formData.discountedPrice ||
@@ -270,7 +273,8 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                 additionalDetails: updatedAdditionalDetails,
                 leather: updatedLeather,
             };
-
+            console.log("formData", formData);
+            console.log("formData updated", updatedFormData);
             // Dispatch the action to create the product
             const updateResult = await dispatch(createProduct(updatedFormData)).unwrap();
 
@@ -322,7 +326,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             categoryId: "",
             inStock: true, // Boolean for availability
             onSale: false, // Boolean for sale status
-
+            parentCategoryId: "",
             // Pricing
             originalPrice: "0", // Default numeric value
             discountedPrice: "0", // Default numeric value
@@ -400,7 +404,17 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
     }, []);
 
     const handleCategorySelect = (categoryName) => {
-        setFormData({ ...formData, category: categoryName, categoryId: categories.find((category) => category.name === categoryName).id });
+        const selectedCategory = categories.find((category) => category.name === categoryName);
+
+        if (selectedCategory) {
+            setFormData({
+                ...formData,
+                category: categoryName,
+                categoryId: selectedCategory.id,
+                parentCategoryId: selectedCategory.parentCategoryId, // Set parentCategoryId
+            });
+        }
+
         setIsOpen(false); // Close dropdown after selecting a category
     };
 

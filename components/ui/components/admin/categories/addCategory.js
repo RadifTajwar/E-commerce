@@ -166,8 +166,8 @@ export default function AddCategory({ toggleAddProductVisible, doneAddProduct })
                     <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 min-h-0">
                         <div className="flex md:flex-row flex-col justify-between mr-20">
                             <div>
-                                <h4 className="text-xl font-medium dark:text-gray-300">Create Category</h4>
-                                <p className="mb-0 text-sm font-normal dark:text-gray-300">Create your Category necessary information from here</p>
+                                <h4 className="text-xl font-medium dark:text-gray-300">Create Parent Category</h4>
+                                <p className="mb-0 text-sm font-normal dark:text-gray-300">Create your Parent Category necessary information from here</p>
                             </div>
                         </div>
                     </div>

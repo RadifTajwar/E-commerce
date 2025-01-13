@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import OrderRow from "./orderRow";
 
 import { useDispatch, useSelector } from "react-redux";
-export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrderFetched, isOrderFetched }) {
+export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrderFetched, isOrderFetched, startDate, endDate, email, stat }) {
     const [isMeta, setIsMeta] = useState({
         page: 1,
         limit: 3,
@@ -42,20 +42,43 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
 
     // Dispatch fetchAllOrders action on component mount
     useEffect(() => {
-        console.log(isOrderFetched);
         if (!isOrderFetched) {
             setTimeout(() => {
                 const page = parseInt(searchParams.get("page"), 10) || 1;
-                console.log("isOrderFetched is ", isOrderFetched);
-                console.log("dhukbe once");
-                console.log("Page is ", page);
-                dispatch(fetchAllOrders({ page: page, limit: 4 }));
-                setIsOrderFetched(true);
-                setIsMeta((prev) => ({ ...prev, page: page }));
-            }, 500);
 
+                // Prepare the request parameters with the page
+                const params = { page };
+
+                // Add startDate, endDate, status, and email to params if they are not empty strings
+                if (startDate && startDate !== "") {
+                    params.startDate = startDate;
+                }
+                if (endDate && endDate !== "") {
+                    params.endDate = endDate;
+                }
+                if (stat && stat !== "Status") {
+                    params.status = stat;
+                }
+                if (email && email !== "") {
+                    params.email = email;
+                }
+
+                // Log the parameters to see what is being sent
+                console.log("Sending params: ", params);
+
+                // Dispatch the fetch request with the prepared parameters
+                dispatch(fetchAllOrders(params));
+
+                // Set the fetched state to true
+                setIsOrderFetched(true);
+
+                // Update meta state (if needed)
+                setIsMeta((prev) => ({ ...prev, page: page }));
+
+            }, 500);
         }
-    }, [searchParams, dispatch, isOrderFetched]);
+    }, [searchParams, dispatch, isOrderFetched, startDate, endDate, email, status, setIsOrderFetched]);
+
 
 
 
