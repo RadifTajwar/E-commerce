@@ -1,12 +1,16 @@
 'use client';
 import { fetchAllProducts } from '@/redux/product/allProductsSlice';
+import localStorageUtil from '@/utils/localStorageUtil';
+import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Card from './card';
-
 export default function InfiniteScroll({ products: initialProducts }) {
+    const params = useParams();
     const dispatch = useDispatch();
     const { products: fetchedProducts, isLoading, error, meta } = useSelector((state) => state.allProducts);
+    const slug = params.slug;
+    
     const [allProducts, setAllProducts] = useState(initialProducts || []);
     const [pageNumber, setPageNumber] = useState(1);
     const observerRef = useRef(null);
@@ -30,9 +34,29 @@ export default function InfiniteScroll({ products: initialProducts }) {
     useEffect(() => {
         if (pageNumber > 1 && pageNumber <= maxPages && !isFetchingRef.current) {
             isFetchingRef.current = true;
-            dispatch(fetchAllProducts({ page: pageNumber })).finally(() => {
-                isFetchingRef.current = false; // Reset after fetch
-            });
+            console.log("slud length",slug.length);
+            if (slug && slug.length === 2) {
+              
+               const categoryId= localStorageUtil.getItem('categoryId');
+                // Dispatch with categoryId if slug has 2 elements
+                dispatch(fetchAllProducts({ page: pageNumber,categoryId:categoryId })).finally(() => {
+                    isFetchingRef.current = false; 
+                });
+            } else if (slug && slug.length === 1) {
+                // Dispatch with parentCategoryId if slug has 1 element
+               
+               const parentId=localStorageUtil.getItem('parentCategoryId');
+                dispatch(fetchAllProducts({ page: pageNumber,parentCategoryId:parentId  })).finally(() => {
+                    isFetchingRef.current = false; 
+                });
+            } else {
+                // Fallback if slug is not an array or empty
+                console.log("third dhukse");
+                dispatch(fetchAllProducts({ page: pageNumber })).finally(() => {
+                    isFetchingRef.current = false; 
+                });
+            }
+           
         }
     }, [dispatch, pageNumber, maxPages]);
 
@@ -83,7 +107,7 @@ export default function InfiniteScroll({ products: initialProducts }) {
                         </div>
                     ))
                 ) : (
-                    <div>Loading products...</div>
+                    <div>No Products</div>
                 )}
             </div>
 

@@ -1,27 +1,28 @@
 'use client';
 
 // import ColorBar from "@/components/ui/components/shop/colorBar";
-import ColorBar from "@/components/ui/components/shop/colorBar";
+// import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
 import TopRatedProducts from "@/components/ui/components/shop/topRatedProducts";
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import { fetchAllProducts } from "@/redux/product/allProductsSlice";
+import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
+import localStorageUtil from "@/utils/localStorageUtil";
 import MenuIcon from '@mui/icons-material/Menu';
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
-
 // import RangeBar from "@/components/ui/components/shop/rangeBar";
 
 export default function Page() {
     const params = useParams();
 
     const router = useRouter();
-    const slug  = params.slug;
-    console.log("slug", slug);
+    const slug = params.slug;
+
+
     const dispatch = useDispatch();
 
     // Access the parent categories from the store
@@ -31,7 +32,7 @@ export default function Page() {
 
     const searchParams = useSearchParams();
     const { parentCategory, childCategory } = searchParams;
-    
+
     const { categories, isLoading: categoryLoading, error: categoryError } = useSelector(
         (state) => state.categories
     );
@@ -52,11 +53,25 @@ export default function Page() {
 
     // Fetch products on component mount
     useEffect(() => {
-        if (!productsFetched) {
-            dispatch(fetchAllProducts());
-            setProductsFetched(true); // Mark products as fetched
-        }
-    }, [productsFetched, dispatch]);
+        const fetchProducts = async () => {
+            if (!productsFetched) {
+                if (slug && slug.length === 2) {
+                    console.log("first dhukse", slug[1]);
+                    const categoryId = await localStorageUtil.getItem('categoryId');
+                    dispatch(fetchAllProducts({ categoryId }));
+                } else if (slug && slug.length === 1) {
+                    console.log("second dhukse in slug", slug[0]);
+                    const parentId = await localStorageUtil.getItem('parentCategoryId');
+                    console.log("parentId", parentId);
+                    dispatch(fetchAllProducts({ parentCategoryId: parentId }));
+                }
+
+                setProductsFetched(true); // Mark products as fetched
+            }
+        };
+
+        fetchProducts(); // Call the async function
+    }, [productsFetched, dispatch, slug]);
 
     const toggleSortBar = () => {
         setSortBarVisible(!isSortBarVisible)
@@ -68,22 +83,9 @@ export default function Page() {
         setIsVisible(!isVisible);
     };
 
-    
+
 
     // Function to handle category click and update the query parameter
-    const handleParentCategoryClick = (categoryName) => {
-        const params = new URLSearchParams(window.location.search);
-        const existingParentCategory = params.get("parentCategory");
-
-        if (existingParentCategory != categoryName) {
-            // If the same parent category is clicked, clear it
-            // Set the new parent category
-            params.set("parentCategory", categoryName);
-            // Clear the child category as it may no longer be relevant
-            params.delete("childCategory");
-            router.push(`${window.location.pathname}?${params.toString()}`);
-        }
-    };
 
     const handleChildCategoryClick = (categoryName, parentCategoryName) => {
         const params = new URLSearchParams(window.location.search);
@@ -96,6 +98,26 @@ export default function Page() {
             router.push(`${window.location.pathname}?${params.toString()}`);
         }
     };
+
+    const handleParentCategoryClicked = (parentCategoryId, parentCategoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+
+        // Store parentCategoryId in localStorage
+        localStorageUtil.setItem("parentCategoryId ", parentCategoryId);
+        dispatch(clearState());
+        // Navigate to the formatted URL
+        router.push(`/shop/productCategory/${formattedCategoryName}`);
+    };
+    const handleCategoryClicked = (parentCategoryName, categoryId, categoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = categoryName.toLowerCase().replace(/\s+/g, '-');
+        const formattedParentCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+        localStorageUtil.setItem("categoryId", categoryId);
+        dispatch(clearState());
+        router.push(`/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`);
+
+    }
 
     return (
 
@@ -130,10 +152,13 @@ export default function Page() {
                                                 <li className="group relative" key={parentCategory.id}>
                                                     <a
                                                         href="#"
-                                                        onClick={() => handleParentCategoryClick(parentCategory.name)}
+
                                                         title=""
                                                         className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500"
                                                         style={{ fontSize: '.9rem' }}
+                                                        onClick={() => {
+                                                            handleParentCategoryClicked(parentCategory.id, parentCategory.name)
+                                                        }}
                                                     >
                                                         {parentCategory.name}
                                                     </a>
@@ -151,6 +176,9 @@ export default function Page() {
                                                                         <li
                                                                             className="group/nested relative w-full mb-4"
                                                                             key={category.id}
+                                                                            onClick={() => {
+                                                                                handleCategoryClicked(parentCategory.name, category.id, category.name)
+                                                                            }}
                                                                         >
                                                                             <a
                                                                                 href="#"
@@ -219,42 +247,43 @@ export default function Page() {
                     {error && <p>Error: {error}</p>}
                     {!isLoading && (
                         <>
-                        
-                        
-                        
-                        {
-                            parentCategories.length > 0 && (
-                                <div className="inner p-3 w-full">
-                                <div className="dropdown_inner px-2 bg-white w-full">
-                                    <ul className="w-full lg:hidden items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 ">
-
-                                    {parentCategories.map((parentCategory) => (
-                                        <li key={parentCategory.id} className="group relative w-full py-3 cursor-pointer">
-                                            <a
-                                                href="#"
-                                                onClick={() => handleCategoryClick('WALLETS', false)}
-                                                className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
-                                                style={{ fontSize: '.9rem' }}
-                                            >
-                                               {parentCategory.name}
-                                                <p className="text-gray-400 text-start text-sm group-hover:text-gray-400">
-                                                    8 Products
-                                                </p>
-                                                <span
-                                                    className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
-                                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                                                ></span>
-                                            </a>
-                                        </li>
-                                         ))}
-                                    </ul>
-                                </div>
-                            </div>
 
 
-                            )
-                        }
-                       
+
+                            {
+                                parentCategories.length > 0 && (
+                                    <div className="inner p-3 w-full">
+                                        <div className="dropdown_inner px-2 bg-white w-full">
+                                            <ul className="w-full lg:hidden items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 ">
+
+                                                {parentCategories.map((parentCategory) => (
+                                                    <li key={parentCategory.id} className="group relative w-full py-3 cursor-pointer">
+                                                        <a
+                                                            href="#"
+
+                                                            className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
+                                                            style={{ fontSize: '.9rem' }}
+                                                            onClick={() => {
+                                                                handleParentCategoryClicked(parentCategory.id, parentCategory.name)
+                                                            }}
+                                                        >
+                                                            {parentCategory.name}
+
+                                                            <span
+                                                                className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
+                                                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
+                                                            ></span>
+                                                        </a>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+
+
+                                )
+                            }
+
                         </>
                     )}
                 </div>
@@ -276,17 +305,17 @@ export default function Page() {
                 <div className="text_section  max-w-7xl mx-auto  my-6 lg:px-3">
                     {isLoading && <p>Loading Initial Products...</p>}
                     {error && <p>Error: {error}</p>}
-                    { productsFetched && products &&  (
+                    {productsFetched && products && (
                         <>
 
                             <div className="flex py-3 justify-between  lg:px-3 gap-x-6">
 
                                 <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
-                                    
+
                                     {/* <RangeBar />    */}
                                     <div className="line w-full h-px bg-gray-300 my-6">
                                     </div>
-                                    <ColorBar products={products} />
+                                    {/* <ColorBar products={products} /> */}
                                     <div className="line w-full h-px bg-gray-300 my-6">
                                     </div>
                                     <StockStatus />
@@ -303,7 +332,7 @@ export default function Page() {
                                         {/* <RangeBar /> */}
                                         <div className="line w-full h-px bg-gray-300 my-6">
                                         </div>
-                                        <ColorBar products={products} />
+                                        {/* <ColorBar products={products} /> */}
                                         <div className="line w-full h-px bg-gray-300 my-6">
                                         </div>
                                         <StockStatus />
@@ -332,7 +361,7 @@ export default function Page() {
                                     </div>
 
                                     <div className="infiniteScroll ">
-                                        <InfiniteScroll  products={products}/>
+                                        <InfiniteScroll products={products} />
                                     </div>
                                 </div>
                             </div>

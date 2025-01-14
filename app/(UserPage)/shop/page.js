@@ -8,12 +8,12 @@ import StockStatus from "@/components/ui/components/shop/stockStatus";
 import TopRatedProducts from "@/components/ui/components/shop/topRatedProducts";
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
 // import RangeBar from "@/components/ui/components/shop/rangeBar";
+import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 export default function Page() {
     const dispatch = useDispatch();
 
@@ -90,6 +90,24 @@ export default function Page() {
             router.push(`${window.location.pathname}?${params.toString()}`);
         }
     };
+    const handleParentCategoryClicked = (parentCategoryId, parentCategoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+    
+        // Store parentCategoryId in localStorage
+        localStorageUtil.setItem("parentCategoryId", parentCategoryId);
+    
+        // Navigate to the formatted URL
+        router.push(`/shop/productCategory/${formattedCategoryName}`);
+    };
+    const handleCategoryClicked = (parentCategoryName,categoryId, categoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = categoryName.toLowerCase().replace(/\s+/g, '-');
+        const formattedParentCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+        localStorageUtil.setItem("categoryId", categoryId);
+        router.push(`/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`);
+        
+    }
 
     return (
 
@@ -124,10 +142,13 @@ export default function Page() {
                                                 <li className="group relative" key={parentCategory.id}>
                                                     <a
                                                         href="#"
-                                                        onClick={() => handleParentCategoryClick(parentCategory.name)}
+                                                        
                                                         title=""
                                                         className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500"
                                                         style={{ fontSize: '.9rem' }}
+                                                        onClick={()=>{
+                                                            handleParentCategoryClicked(parentCategory.id, parentCategory.name)
+                                                        }}
                                                     >
                                                         {parentCategory.name}
                                                     </a>
@@ -145,6 +166,9 @@ export default function Page() {
                                                                         <li
                                                                             className="group/nested relative w-full mb-4"
                                                                             key={category.id}
+                                                                            onClick={()=>{
+                                                                                handleCategoryClicked(parentCategory.name,category.id, category.name)
+                                                                            }}
                                                                         >
                                                                             <a
                                                                                 href="#"
@@ -226,14 +250,14 @@ export default function Page() {
                                         <li key={parentCategory.id} className="group relative w-full py-3 cursor-pointer">
                                             <a
                                                 href="#"
-                                                onClick={() => handleCategoryClick('WALLETS', false)}
+                                                onClick={()=>{
+                                                    handleParentCategoryClicked(parentCategory.id, parentCategory.name)
+                                                }}
                                                 className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
                                                 style={{ fontSize: '.9rem' }}
                                             >
                                                {parentCategory.name}
-                                                <p className="text-gray-400 text-start text-sm group-hover:text-gray-400">
-                                                    8 Products
-                                                </p>
+                                                
                                                 <span
                                                     className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
                                                     style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}

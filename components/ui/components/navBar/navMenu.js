@@ -1,12 +1,14 @@
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
+import { clearState } from "@/redux/product/allProductsSlice";
+import localStorageUtil from "@/utils/localStorageUtil";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 export default function NavMenu() {
     const dispatch = useDispatch();
-
+    const router = useRouter();
     // Access the parent categories from the store
     const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.allParentCategories
@@ -29,6 +31,28 @@ export default function NavMenu() {
     if (parentError || error) {
         return <div>Error! {parentError || error}</div>;
     }
+    const handleParentCategoryClicked = (parentCategoryId, parentCategoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+    
+        // Store parentCategoryId in localStorage
+        localStorageUtil.setItem("parentCategoryId", parentCategoryId);
+        dispatch(clearState());
+        // Navigate to the formatted URL
+        router.push(`/shop/productCategory/${formattedCategoryName}`);
+    };
+    const handleCategoryClicked = (parentCategoryName,categoryId, categoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = categoryName.toLowerCase().replace(/\s+/g, '-');
+        const formattedParentCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+        localStorageUtil.setItem("categoryId", categoryId);
+        dispatch(clearState());
+        // Navigate to the formatted URL
+
+        router.push(`/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`);
+        
+    }
+
 
     return (
         <>
@@ -46,6 +70,9 @@ export default function NavMenu() {
                                 title=""
                                 className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500"
                                 style={{ fontSize: ".9rem" }}
+                                onClick={()=>{
+                                    handleParentCategoryClicked(parentCategory.id, parentCategory.name)
+                                }}
                             >
                                 {parentCategory.name}
                                 <svg
@@ -64,11 +91,15 @@ export default function NavMenu() {
                             ></span>
 
                             {/* Render dropdown only if childCategories exist */}
-                            {childCategories.length > 0 && (
+                            {
+                            childCategories.length > 0 && (
                                 <div className="absolute top-full left-0 min-w-[220px] bg-white border border-slate-200 p-2  shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
                                     <ul>
-                                        {childCategories.map((category) => (
-                                            <li key={category.id}>
+                                        {
+                                        childCategories.map((category) => (
+                                            <li key={category.id} onClick={()=>{
+                                                handleCategoryClicked(parentCategory.name,category.id, category.name)
+                                            }}>
                                                 <a
                                                     className="text-gray-500 flex items-center p-2 hover:text-gray-900"
                                                     href="#"
