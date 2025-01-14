@@ -1,14 +1,26 @@
 'use client'
 import SideBar from '@/components/ui/components/admin/dashboard/sideBar';
 import TopBar from '@/components/ui/components/admin/dashboard/topBar';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import localStorageUtil from '@/utils/localStorageUtil';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Layout({ children }) {
+  const router = useRouter();
+  const pathname = usePathname(); // Get current route
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to manage sidebar visibility
-  const pathname = usePathname();
-
+  
   const isAdminRoot = pathname === '/admin';
+  useEffect(() => {
+      // Retrieve userEmail from localStorage whenever pathname changes
+      const storedEmail = localStorageUtil.getItem('userEmail');
+      console.log("storedEmail:", storedEmail);
+
+      if (!storedEmail) {
+          // Redirect to 'admin' if userEmail is missing
+          router.push('/admin');
+      }
+  }, [pathname]); 
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 relative">

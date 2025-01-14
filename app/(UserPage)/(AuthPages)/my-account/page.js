@@ -1,11 +1,22 @@
 'use client'
 import Footer from "@/components/ui/components/footer";
+
+import { createUser } from "@/redux/user/createUserSlice";
 import { loginUser } from "@/redux/user/userLoginSlice";
+import localStorageUtil from "@/utils/localStorageUtil";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import emailjs from 'emailjs-com';
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 export default function page() {
+    const [userEmail, setUserEmail] = useState('');
+    const { status } = useSelector((state) => state.createUser);
+    const {status:loginStatus} = useSelector((state) => state.loginUser);
+    const [errorLogin, setErrorLogin] = useState(null);
+    const [errorSignUp, seterrorSignUp] = useState(null);
+
     const router = useRouter();
     const dispatch = useDispatch();
     const [isChecked, setIsChecked] = useState(false)
@@ -13,9 +24,11 @@ export default function page() {
     const [logMail, setLogMail] = useState("");
     const [logPass, setLogPass] = useState("");
     const onLogMailChange = (e) => {
+        setErrorLogin(null);
         setLogMail(e.target.value);
     };
     const onLogPassChange = (e) => {
+        setErrorLogin(null);
         setLogPass(e.target.value);
     };
 
@@ -28,29 +41,61 @@ export default function page() {
     }
 
     const handleChange = (e) => {
+        seterrorSignUp(null);
         setEmail(e.target.value);
     };
+    useEffect(() => {
+        // Retrieve userEmail and accessToken from localStorage
+        const storedEmail = localStorageUtil.getItem('userEmail');
 
-    const handleSubmit = (e) => {
+
+        if (storedEmail) {
+            // Redirect to 'my-account' page if either is missing
+            router.push('/myAccount');
+        }
+
+    }, [router]);
+
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        try {
+            const dynamicPassword = Math.random().toString(36).slice(-8);
 
-        const dynamicPassword = Math.random().toString(36).slice(-8);
+            const templateParams = {
+                to_email: email,
+                dynamic_password: dynamicPassword,
+            };
+            console.log(dynamicPassword);
 
-        const templateParams = {
-            to_email: email,
-            dynamic_password: dynamicPassword,
-        };
-        console.log(dynamicPassword);
+            const name = email.split('@')[0]; // Get the part before '@'
+            const userData = {
+                name,
+                email,
+                password: dynamicPassword,
+            };
 
-        emailjs
-            .send('service_p5i09vd', 'template_65b3mvb', templateParams, 'bTYfvC_lPLdd40JEu')
-            .then((response) => {
-                console.log('Email sent successfully:', response.status, response.text);
-            })
-            .catch((error) => {
-                console.error('Failed to send email:', error);
-            });
+            // Dispatch the createUser thunk and wait for its result
+            const result = await dispatch(createUser(userData)).unwrap();
+            localStorageUtil.setItem('userEmail', email);
+           
+            router.push('/myAccount');
+            // Send email after user is successfully created
+            emailjs
+                .send('service_p5i09vd', 'template_65b3mvb', templateParams, 'bTYfvC_lPLdd40JEu')
+                .then((response) => {
+                    console.log('Email sent successfully:', response.status, response.text);
+                })
+                .catch((error) => {
+                    console.error('Failed to send email:', error);
+                });
+        } catch (error) {
+            // Handle errors (e.g., invalid credentials or user already exists)
+            console.error('Login failed:', error.message);
+            seterrorSignUp("User already exists.");
+        }
     };
+
 
     const handleLogSubmit = async (e) => {
         e.preventDefault(); // Prevent default form submission behavior
@@ -60,8 +105,9 @@ export default function page() {
             const result = await dispatch(loginUser({ email: logMail, password: logPass })).unwrap();
 
             // Store email and accessToken in localStorage
-            localStorage.setItem('userEmail', logMail);
-            localStorage.setItem('accessToken', result.accessToken);
+        
+            localStorageUtil.setItem('userEmail', logMail);
+            localStorageUtil.setItem('accessToken', result.accessToken);
 
             // Handle successful login if needed
             console.log('Login successful:', result);
@@ -70,7 +116,7 @@ export default function page() {
             // Handle errors (e.g., invalid credentials)
             console.error('Login failed:', error.message);
             // Optionally, set an error state to display an error message in the UI
-            setError(error.message);
+            setErrorLogin("Invalid credentials or user does not exist.");
         }
     };
 
@@ -95,6 +141,25 @@ export default function page() {
                             registerToLoginToggleState ? (
                                 <>
                                     <div className="lower_left md:w-1/2 flex flex-col items-center justify-center px-5  mx-auto overflow-y-auto lg:py-0 bg-gray-50 dark:bg-gray-900">
+                                        {
+                                            errorLogin &&
+                                            (
+                                                <div className="coupon_section px-4 w-auto">
+                                                    <div className="flex items-center justify-start bg-red-500 p-2 rounded">
+                                                        <div className="icon mr-2">
+                                                            <ErrorOutlineIcon className="text-white" />
+                                                        </div>
+                                                        <div className="texts">
+
+                                                            <div className="text-white text-sm">{errorLogin}</div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )
+
+                                        }
+
                                         <div className=" w-full dark:border md:mt-0 md:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                                             <div className=" space-y-4 md:space-y-6 ">
                                                 <h1 className="text-xl  leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
@@ -113,7 +178,10 @@ export default function page() {
                                                             type="email"
                                                             name="logMail"
 
-                                                            className="bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
+                                                            className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600
+                                                            ${errorLogin ? 'border-red-500' : 'border-gray-200'
+                                                                }`}
+
                                                             placeholder="Enter your email"
                                                             required
                                                             onChange={onLogMailChange}
@@ -131,7 +199,9 @@ export default function page() {
                                                             name="logPass"
                                                             id="password"
                                                             placeholder=""
-                                                            className="bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
+                                                            className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 
+                                                            ${errorLogin ? 'border-red-500' : 'border-gray-200'
+                                                                }`}
                                                             required
                                                             onChange={onLogPassChange}
                                                         />
@@ -173,7 +243,10 @@ export default function page() {
                                                         type="submit"
                                                         className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                                     >
-                                                        SIGN IN
+                                                        {
+                                                            loginStatus === 'loading' ? "LOADING...":"SIGN IN"
+                                                        }
+                                                       
                                                     </button>
 
                                                 </form>
@@ -186,10 +259,28 @@ export default function page() {
                             ) : (
                                 <>
                                     <div className="lower_left md:w-1/2 flex flex-col items-center justify-center px-5  mx-auto overflow-y-auto lg:py-0 bg-gray-50 dark:bg-gray-900">
+                                        {
+                                            errorSignUp &&
+                                            (
+                                                <div className="coupon_section px-4 w-auto">
+                                                    <div className="flex items-center justify-start bg-red-500 p-2 rounded">
+                                                        <div className="icon mr-2">
+                                                            <ErrorOutlineIcon className="text-white" />
+                                                        </div>
+                                                        <div className="texts">
+
+                                                            <div className="text-white text-sm">{errorSignUp}</div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )
+
+                                        }
                                         <div className=" w-full dark:border md:mt-0 md:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                                             <div className=" space-y-4 md:space-y-6 ">
                                                 <h1 className="text-xl  leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                                                REGISTER
+                                                    REGISTER
                                                 </h1>
                                                 <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                                                     <div>
@@ -203,7 +294,9 @@ export default function page() {
                                                             type="email"
                                                             name="email"
                                                             id="email"
-                                                            className="bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600"
+                                                            className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600
+                                                            ${errorSignUp ? 'border-red-500' : 'border-gray-200'
+                                                                }`}
                                                             placeholder="Enter your email"
                                                             value={email}
                                                             onChange={handleChange}
@@ -218,7 +311,9 @@ export default function page() {
                                                         type="submit"
                                                         className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                                     >
-                                                        REGISTER
+                                                        {
+                                                            status === 'loading' ? "LOADING...":"REGISTER"
+                                                        }
                                                     </button>
 
                                                 </form>

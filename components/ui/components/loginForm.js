@@ -1,5 +1,55 @@
+import { loginUser } from "@/redux/user/userLoginSlice";
+import localStorageUtil from "@/utils/localStorageUtil";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+
+import { useSelector } from "react-redux";
 export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
+    const dispatch = useDispatch();
+    const router = useRouter();
+     const [logMail, setLogMail] = useState("");
+        const [logPass, setLogPass] = useState("");
+        const [errorLogin, setErrorLogin] = useState(null);
+        const {status} = useSelector((state) => state.loginUser);
+        const onLogMailChange = (e) => {
+            setErrorLogin(null);
+            setLogMail(e.target.value);
+        };
+        const onLogPassChange = (e) => {
+            setErrorLogin(null);
+            setLogPass(e.target.value);
+        };
+     
+    
+    const handleLogSubmit = async (e) => {
+        e.preventDefault(); // Prevent default form submission behavior
+
+        try {
+            // Dispatch the loginUser thunk and wait for its result
+            const result = await dispatch(loginUser({ email: logMail, password: logPass })).unwrap();
+
+            // Store email and accessToken in localStorage
+        
+            localStorageUtil.setItem('userEmail', logMail);
+            localStorageUtil.setItem('accessToken', result.accessToken);
+
+            // Handle successful login if needed
+            console.log('Login successful:', result);
+            toggleLogInForm();
+            setTimeout(() => {
+                router.push('/myAccount');
+               
+            }, 500);
+            
+        } catch (error) {
+            // Handle errors (e.g., invalid credentials)
+            console.error('Login failed:', error.message);
+            // Optionally, set an error state to display an error message in the UI
+            setErrorLogin("Invalid credentials or user does not exist.");
+        }
+    };
     return (
         <>
 
@@ -26,19 +76,23 @@ export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
                                 </button>
                             </div>
 
-                            <form className="space-y-4 md:space-y-6" action="#">
+                            <form className="space-y-4 md:space-y-6" onSubmit={handleLogSubmit}>
                                 <div>
                                     <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                         Your email <span className="text-red-700">*</span>
                                     </label>
                                     <input
-                                        type="email"
-                                        name="email"
-                                        id="email"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 focus:ring-primary-600 focus:border-primary-600 block w-full px-6 py-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder=""
-                                        required
-                                    />
+                                                            type="email"
+                                                            name="logMail"
+
+                                                            className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600
+                                                            ${errorLogin ? 'border-red-500' : 'border-gray-200'
+                                                                }`}
+
+                                                            placeholder="Enter your email"
+                                                            required
+                                                            onChange={onLogMailChange}
+                                                        />
 
                                 </div>
                                 <div>
@@ -46,14 +100,20 @@ export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
                                         Password <span className="text-red-700">*</span>
                                     </label>
                                     <input
-                                        type="password"
-                                        name="password"
-                                        id="password"
-                                        placeholder=""
-                                        className="bg-gray-50 border border-gray-300 text-gray-900  focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        required
-                                    />
+                                                            type="password"
+                                                            name="logPass"
+                                                            id="password"
+                                                            placeholder=""
+                                                            className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 
+                                                            ${errorLogin ? 'border-red-500' : 'border-gray-200'
+                                                                }`}
+                                                            required
+                                                            onChange={onLogPassChange}
+                                                        />
                                 </div>
+                                {
+                                    errorLogin && <p className="text-red-500 text-sm text-center">{errorLogin}</p>
+                                }
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-start">
                                         <div className="flex items-center h-5">
@@ -62,7 +122,7 @@ export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
                                                 aria-describedby="remember"
                                                 type="checkbox"
                                                 className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                                                required
+                                                
                                             />
                                         </div>
                                         <div className="ml-3 text-sm">
@@ -79,7 +139,10 @@ export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
                                     type="submit"
                                     className="bg-black  text-white w-full  focus:ring-none focus:outline-none focus:ring-none font-medium  text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                 >
-                                    Sign in
+                                    {
+                                        status === 'loading' ? 'Loading...' : 'Sign in'
+                                    }
+                                   
                                 </button>
 
                                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">

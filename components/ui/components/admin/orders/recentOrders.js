@@ -64,7 +64,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                 }
 
                 // Log the parameters to see what is being sent
-                console.log("Sending params: ", params);
+                
 
                 // Dispatch the fetch request with the prepared parameters
                 dispatch(fetchAllOrders(params));
@@ -85,7 +85,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
 
 
     const handleOrderClick = (id) => {
-        console.log(id);
+     
         localStorage.setItem("orderID", id);
         Router.push(`orderNo/${id}`);
     }
@@ -95,7 +95,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
     useEffect(() => {
         if (orders) {
             // console.log("Orders updated:", orders);
-            console.log(meta.page, "is it is");
+            
             setIsMeta({
                 page: meta.page || 1,
                 limit: meta.limit || 10,
@@ -124,8 +124,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
         const currentPage = isMeta.page;
 
         const pageNumbers = [];
-        console.log(currentPage);
-        console.log(totalPages);
+       
         if (totalPages <= 6) {
             // If total pages are less than or equal to 6, show all pages
             for (let i = 1; i <= totalPages; i++) {
@@ -175,7 +174,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
             toggleDeleteVisible(orderId);
         }
         else {
-            console.log(`Order ID: ${orderId}, Selected Status: ${selectedStatus}`);
+            
             doneUpdate();
             dispatch(updateOrderStatus({ id: orderId, status: selectedStatus }))
             setTimeout(() => {
@@ -311,7 +310,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                             <PaginationNext
 
                                 onClick={() => handlePageChange(isMeta.page + 1)}
-                                disabled="true"
+                                disabled={isMeta.page === totalPages }
                                 className={` ${isMeta.page === totalPages ? "cursor-not-allowed" : "cursor-pointer"}`}
                             >
 

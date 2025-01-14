@@ -1,15 +1,27 @@
 'use client'
 import { fetchOrderByUser } from "@/redux/order/getOrderByUserSlice"
+import localStorageUtil from "@/utils/localStorageUtil"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
+
 export default function page() {
     const router = useRouter()
     const dispatch = useDispatch()
-
+    useEffect(() => {
+        // Retrieve userEmail and accessToken from localStorage
+        const storedEmail = localStorageUtil.getItem('userEmail');
+       
+    
+        if (!storedEmail) {
+          // Redirect to 'my-account' page if either is missing
+          router.push('/my-account');
+        }
+      }, [router]);
     const { order, isLoading, error } = useSelector(state => state.getOrderByUser)
     useEffect(() => {
-        dispatch(fetchOrderByUser(localStorage.getItem('userEmail')))
+       const email= localStorageUtil.getItem('userEmail');
+        dispatch(fetchOrderByUser(email))
     }, [dispatch])
 
     console.log(order);

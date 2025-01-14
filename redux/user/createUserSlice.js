@@ -28,13 +28,16 @@ export const createUser = createAsyncThunk(
   }
 );
 
-// Create the slice
 const userCreateSlice = createSlice({
   name: 'userCreate',
   initialState,
   reducers: {
     clearError(state) {
-      state.error = null; // Reset error state
+      state.error = null;
+    },
+    resetState(state) {
+      state.status = 'idle';
+      state.user = null;
     },
   },
   extraReducers: (builder) => {
@@ -44,18 +47,18 @@ const userCreateSlice = createSlice({
       })
       .addCase(createUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload; // Assuming the payload is the user data
-        state.error = null; // Clear any previous errors
+        state.user = action.payload;
+        state.error = null;
       })
       .addCase(createUser.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message ?? 'User creation failed.Mail already exist';
+        state.error = action.error.message ?? 'User creation failed. Mail already exists.';
       });
   },
 });
 
-// Export the actions
-export const { clearError } = userCreateSlice.actions;
+// Export the new action
+export const { clearError, resetState } = userCreateSlice.actions;
 
 // Export the reducer
 export default userCreateSlice.reducer;

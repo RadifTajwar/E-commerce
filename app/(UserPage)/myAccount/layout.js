@@ -1,4 +1,5 @@
 'use client'
+import localStorageUtil from '@/utils/localStorageUtil';
 import { useRouter } from 'next/navigation';
 export default function  Layout({ children }) {
     const router = useRouter();
@@ -9,10 +10,11 @@ export default function  Layout({ children }) {
         router.push(`/myAccount/${route}`);
     
     }
+    
 
     const handleLogOut = () => {
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('accessToken');
+        localStorageUtil.removeItem('userEmail');
+       
         router.push('/my-account');
     }
     return (

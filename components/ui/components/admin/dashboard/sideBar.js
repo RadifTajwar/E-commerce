@@ -1,4 +1,5 @@
 'use client'
+import localStorageUtil from "@/utils/localStorageUtil";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 export default function SideBar({ isOpen, setIsOpen }) {
@@ -17,6 +18,12 @@ export default function SideBar({ isOpen, setIsOpen }) {
 
     }
 
+    const handleLogOut = () => {
+        console.log('Log Out');
+        localStorageUtil.removeItem('userEmail');
+        
+        router.push('/admin');
+    }
     return (
         <>
             {/* Sidebar Component */}
@@ -34,7 +41,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                     </button>
                     <div className=" text-gray-900 dark:text-gray-200" onClick={() => { sideBarComponentClicked('dashboard') }}>
                         <div className="ml-5 flex font-bold">
-                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="text-2xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                            <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="text-2xl" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                 <line x1="22" y1="2" x2="11" y2="13">
 
                                 </line>
@@ -47,7 +54,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                     <ul className="mt-6">
                         <li className="relative">
                             <div aria-current="page" className={`cursor-pointer px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 dark:hover:text-gray-200 hover:text-blue-600 ${pathName == '/admin/dashboard' ? 'bg-blue-500 text-white' : 'text'} dark:text-gray-100`} target="_self" onClick={() => { sideBarComponentClicked('dashboard') }}>
-                                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <rect x="3" y="3" width="7" height="7">
                                     </rect>
                                     <rect x="14" y="3" width="7" height="7">
@@ -468,7 +475,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                             <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors  ${pathName == '/admin/customers' ? 'bg-blue-500 text-white' : ''} hover:text-blue-600 cursor-pointer duration-150 dark:hover:text-gray-200`}
                                 target="_self" onClick={() => { sideBarComponentClicked('customers') }}
                             >
-                                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2">
 
                                     </path>
@@ -488,7 +495,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                         <li className="relative">
                             <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600 cursor-pointer ${pathName == '/admin/orders' ? 'bg-blue-500 text-white' : ''} duration-150 dark:hover:text-gray-200`} target="_self" onClick={() => { sideBarComponentClicked('orders') }}
                             >
-                                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="12" r="10">
 
                                     </circle>
@@ -505,7 +512,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                         <li className="relative px-6 py-3">
                             <button className="inline-flex items-center justify-between focus:outline-none w-full text-sm font-semibold transition-colors duration-150 hover:text-blue-600 dark:hover:text-gray-200" aria-haspopup="true">
                                 <span className="inline-flex items-center">
-                                    <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z">
                                         </path>
                                         <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z">
@@ -530,10 +537,10 @@ export default function SideBar({ isOpen, setIsOpen }) {
                         </li>
                     </ul>
                     <span className="lg:fixed bottom-0 px-6 py-6 w-64 mx-auto relative mt-3 block">
-                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-3 rounded-lg text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full bg-blue-500 hover:bg-blue-700" type="button">
+                        <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-3 rounded-lg text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full bg-blue-500 hover:bg-blue-700" type="button" onClick={handleLogOut}>
                             <span className="flex items-center">
-                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" className="mr-3 text-lg" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M304 336v40a40 40 0 01-40 40H104a40 40 0 01-40-40V136a40 40 0 0140-40h152c22.09 0 48 17.91 48 40v40m64 160l80-80-80-80m-192 80h256">
+                                <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="mr-3 text-lg" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="32" d="M304 336v40a40 40 0 01-40 40H104a40 40 0 01-40-40V136a40 40 0 0140-40h152c22.09 0 48 17.91 48 40v40m64 160l80-80-80-80m-192 80h256">
                                     </path>
                                 </svg>
                                 <span className="text-sm">Log Out</span>
