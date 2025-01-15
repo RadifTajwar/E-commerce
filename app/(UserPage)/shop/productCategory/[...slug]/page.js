@@ -54,7 +54,10 @@ export default function Page() {
     // Fetch products on component mount
     useEffect(() => {
         const fetchProducts = async () => {
+            // If products have not been fetched yet
             if (!productsFetched) {
+                console.log("dhukteseasfdasd fsadf asdfasdf ", slug,productsFetched);
+                dispatch(clearState()); // Clear the previous products
                 if (slug && slug.length === 2) {
                     console.log("first dhukse", slug[1]);
                     const categoryId = await localStorageUtil.getItem('categoryId');
@@ -71,7 +74,7 @@ export default function Page() {
         };
 
         fetchProducts(); // Call the async function
-    }, [productsFetched, dispatch, slug]);
+    }, [productsFetched, dispatch, slug,params]);
 
     const toggleSortBar = () => {
         setSortBarVisible(!isSortBarVisible)

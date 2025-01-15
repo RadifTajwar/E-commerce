@@ -6,15 +6,16 @@ import NavMenu from '@/components/ui/components/navBar/navMenu';
 import ShoppingCart from '@/components/ui/components/productCart/shoppingCart';
 import SideBar from '@/components/ui/components/sideBar';
 import store from "@/redux/store";
+import localStorageUtil from '@/utils/localStorageUtil';
 import { Inter } from "next/font/google";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Provider } from "react-redux";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 export default function Rootlayout({ children }) {
-
+  const router = useRouter();
  
   
   const pathname = usePathname()
@@ -42,9 +43,14 @@ export default function Rootlayout({ children }) {
 
 
   const toggleLogInForm = () => {
-    console.log("clicked on account")
+    
+    const email= localStorageUtil.getItem('userEmail');
+
+    
     setIsVisibleLogInForm(!isVisibleLogInForm);
+    
   };
+
   const toggleSideBar = () => {
     console.log("clicked on account")
     setIsVisibleSideBar(!isVisibleSideBar);
@@ -52,7 +58,6 @@ export default function Rootlayout({ children }) {
   const toggleShoppingCart = () => {
     console.log("clicked on shopping cart")
     setIsVisibleShoppingCart(!isVisibleShoppingCart);
-
   };
 
   return (
