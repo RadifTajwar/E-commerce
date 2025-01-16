@@ -1,22 +1,42 @@
 'use client'
 import localStorageUtil from '@/utils/localStorageUtil';
-import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 export default function  Layout({ children }) {
+    const pathname = usePathname();
     const router = useRouter();
     const sideBarComponentClicked = (route) => {
         console.log('SideBar Component Clicked');
         if(route === 'myAccount') router.push(`/${route}`);
         else 
         router.push(`/myAccount/${route}`);
-    
+
     }
-    
+    useEffect(() => {
+        // Retrieve userEmail from localStorage
+        const token = localStorageUtil.getItem('accessToken');
+        if(token){
+            const decoded = jwtDecode(token);
+            const storedEmail = decoded.email;
+            if(!storedEmail){
+                // Redirect to 'my-account' page if userEmail is missing
+                router.push('/my-account');
+            }
+        }
+        else{
+            router.push('/my-account');
+        }
+       
+    }
+    ,[pathname]);
 
     const handleLogOut = () => {
-        localStorageUtil.removeItem('userEmail');
+        localStorageUtil.removeItem('accessToken');
        
         router.push('/my-account');
     }
+
     return (
         <div className="max-w-7xl my-10 mx-auto">
             <div className="myAccount_text   text-center my-10 ">

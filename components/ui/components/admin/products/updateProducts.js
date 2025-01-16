@@ -146,7 +146,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 additionalDetails: productData.additionalDetails || [],
 
                 // Stock and availability
-                inStock: productData.inStock || true,
+                inStock: false,
                 onSale: productData.onSale || false,
 
                 // Rating (if applicable)
@@ -168,11 +168,12 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
 
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const { name, type, checked, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
-            [name]: value,
+            [name]: type === "checkbox" ? checked : value, // Handle checkboxes differently
         }));
+        console.log("formData", formData);
     };
 
     const handleImageInputDefault = (e) => {
@@ -564,7 +565,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                     className="absolute focus:outline-none z-10 text-red-500 hover:bg-red-100 hover:text-gray-700 transition-colors duration-150 bg-white shadow-md mr-6 mt-6 right-0 left-auto w-10 h-10 rounded-full block text-center"
                     onClick={() => { cancelButtonPressed() }}
                 >
-                    <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                    <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                         <line x1="18" y1="6" x2="6" y2="18">
                         </line>
                         <line x1="6" y1="6" x2="18" y2="18">
@@ -601,18 +602,18 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                         </div>
                                     </div>
                                     {/* product Barcode  */}
-                                    <div class="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                                         {/* <!-- Label for Product Barcode --> */}
                                         <label
-                                            for="barcode"
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2"
+                                            htmlFor="barcode"
+                                            className="block text-sm font-medium text-gray-700 dark:text-gray-400 col-span-6 sm:col-span-2"
                                         >
                                             Product Barcode
                                         </label>
 
 
                                         {/* <!-- Input Field --> */}
-                                        <div class="col-span-6 sm:col-span-4">
+                                        <div className="col-span-6 sm:col-span-4">
                                             <input
                                                 className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500"
                                                 type="text"
@@ -718,7 +719,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                             className="col-span-1 text-red-600 hover:text-red-800 bg-white shadow-md rounded-full w-10 h-10 "
                                                             onClick={() => handleRemoveColor(index)}
                                                         >
-                                                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                            <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="mx-auto" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                                         </button>
 
                                                     </div>
@@ -1182,7 +1183,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                     {/* product sell price  */}
                                     <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                                         <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium">
-                                            Sell Price
+                                        Sell Price <br /> <span className="text-red-500">(Must be less than Original Price)</span> 
                                         </label>
                                         <div className="col-span-8 sm:col-span-4">
                                             <div className="flex flex-row">
@@ -1197,6 +1198,25 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                     value={formData.discountedPrice}
                                                     onChange={handleInputChange}
                                                 />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                                        <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium">
+                                           On Sale
+                                        </label>
+                                        <div className="col-span-8 sm:col-span-4">
+                                            <div className="flex flex-row">
+                                               
+                                            <input
+                                            type="checkbox"
+                                            name="onSale"
+                                            className="h-6 w-6"
+                                            value={formData.onSale}
+                                            onChange={handleInputChange}
+                                        />
+
                                             </div>
                                         </div>
                                     </div>

@@ -1,6 +1,6 @@
 // components/DashboardStats.js
 
-const StatCard = ({ icon, title, amount, breakdown }) => {
+const StatCard = ({ icon, title, amount }) => {
     return (
         <div className="min-w-0 rounded-lg  ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 flex justify-center h-full shadow-lg">
             <div className="p-4 border border-gray-200 dark:border-gray-800 w-full p-6 rounded-lg text-black dark:text-white dark:bg-dark-800">
@@ -12,15 +12,7 @@ const StatCard = ({ icon, title, amount, breakdown }) => {
                         <p className="mb-3 text-base font-medium">{title}</p>
                         <p className="text-2xl font-bold leading-none">{amount}</p>
                     </div>
-                    {breakdown && (
-                        <div className="flex text-center text-xs font-normal justify-center mt-3">
-                            {breakdown.map((item, index) => (
-                                <div key={index} className="px-1 mt-3">
-                                    {item.label} : {item.value}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    
                 </div>
             </div>
         </div>
@@ -47,11 +39,7 @@ const DashboardStats = () => {
                 }
                 title="Today Orders"
                 amount="₹0.00"
-                breakdown={[
-                    { label: 'Cash', value: '₹0.00' },
-                    { label: 'Card', value: '₹0.00' },
-                    { label: 'Credit', value: '₹0.00' }
-                ]}
+              
             />
             <StatCard
                 icon={
@@ -70,11 +58,7 @@ const DashboardStats = () => {
                 }
                 title="Yesterday Orders"
                 amount="₹0.00"
-                breakdown={[
-                    { label: 'Cash', value: '₹0.00' },
-                    { label: 'Card', value: '₹0.00' },
-                    { label: 'Credit', value: '₹0.00' }
-                ]}
+               
             />
             <StatCard
                 icon={

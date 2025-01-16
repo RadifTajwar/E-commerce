@@ -271,7 +271,7 @@ export default function allProducts({ toggleVisibility, toggleDeleteVisible,cate
                                         <PaginationNext
 
                                             onClick={() => handlePageChange(isMeta.page + 1)}
-                                            disabled="true"
+                                            disabled={isMeta.page === totalPages}
                                             className={` ${isMeta.page === totalPages ? "cursor-not-allowed" : "cursor-pointer"}`}
                                         >
 

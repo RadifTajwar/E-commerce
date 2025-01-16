@@ -1,28 +1,26 @@
 'use client'
 import { fetchOrderByUser } from "@/redux/order/getOrderByUserSlice"
 import localStorageUtil from "@/utils/localStorageUtil"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { jwtDecode } from "jwt-decode"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 export default function page() {
-    const router = useRouter()
-    const dispatch = useDispatch()
-    useEffect(() => {
-        // Retrieve userEmail and accessToken from localStorage
-        const storedEmail = localStorageUtil.getItem('userEmail');
-       
-    
-        if (!storedEmail) {
-          // Redirect to 'my-account' page if either is missing
-          router.push('/my-account');
-        }
-      }, [router]);
+    const router = useRouter();
+    const pathName = usePathname();
+    const dispatch = useDispatch();
+    const [orderFetched, setOrderFetched] = useState(false);
     const { order, isLoading, error } = useSelector(state => state.getOrderByUser)
     useEffect(() => {
-       const email= localStorageUtil.getItem('userEmail');
-        dispatch(fetchOrderByUser(email))
-    }, [dispatch])
+       const token= localStorageUtil.getItem('accessToken');
+       const decoded= jwtDecode(token);
+       if(!orderFetched){
+        dispatch(fetchOrderByUser(decoded.email))
+        setOrderFetched(true);   
+       }
+       
+    }, [dispatch,pathName])
 
     console.log(order);
 
@@ -35,7 +33,7 @@ export default function page() {
 
             {isLoading && <p>Loading...</p>}
             {error && <p>{error}</p>}
-            {!isLoading && order && (
+            {!isLoading && order && order.length>0 && (
                 <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
 
                     <div className="table_container_lg_screen hidden lg:block">
@@ -67,33 +65,34 @@ export default function page() {
                             </thead>
 
                             {/* Table Body */}
+
                             <tbody>
                                 {
-                                    order.map((orders) => (
-                                        <tr key={orders._id} className="table_header border-b border-gray-300">
-                                            {/* Order & Date */}
+                                   order &&  order?.map((orders) => (
+                                        <tr key={orders?._id} className="table_header border-b border-gray-300">
+                                           
                                             <td className="px-2.5 py-4 text-left text-gray-900 text-sm cursor-pointer">
-                                                #{orders._id}
+                                                #{orders?._id}
                                             </td>
                                             <td className="px-2.5 py-4 text-left text-sm text-gray-500">
-                                                {new Date(orders.dateOrdered).toLocaleDateString('en-US', {
+                                                {new Date(orders?.dateOrdered).toLocaleDateString('en-US', {
                                                     year: 'numeric',
                                                     month: 'long',
                                                     day: 'numeric',
                                                 })}
                                             </td>
 
-                                            {/* Status & Total */}
+                                     
                                             <td className="px-2.5 py-4 text-left text-sm text-gray-500">
                                                 {orders.status}
                                             </td>
                                             <td className="px-2.5 py-4 text-left text-sm text-gray-500">
-                                                <span className="text-black">৳ {orders.totalPrice}</span>
+                                                <span className="text-black">৳ {orders?.totalPrice}</span>
                                             </td>
 
-                                            {/* Actions */}
+                                     
                                             <td className="px-2.5 py-4 text-right text-sm">
-                                                <button className="w-full bg-black text-white px-4 py-2" onClick={()=>{handleView(orders._id)}}>VIEW</button>
+                                                <button className="w-full bg-black text-white px-4 py-2" onClick={()=>{handleView(orders?._id)}}>VIEW</button>
                                             </td>
                                         </tr>
                                     ))
@@ -102,6 +101,8 @@ export default function page() {
 
 
                             </tbody>
+
+   
                         </table>
                     </div>
 
@@ -156,6 +157,7 @@ export default function page() {
 
                     </div>
                 </div>
+               
             )
             }
         </>

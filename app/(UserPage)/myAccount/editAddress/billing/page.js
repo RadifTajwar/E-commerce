@@ -1,21 +1,9 @@
 'use client'
-import localStorageUtil from '@/utils/localStorageUtil';
 import SearchIcon from '@mui/icons-material/Search';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useDispatch } from 'react-redux';
 export default function page() {
-  const router = useRouter();
-  useEffect(() => {
-    // Retrieve userEmail and accessToken from localStorage
-    const storedEmail = localStorageUtil.getItem('userEmail');
-   
 
-    if (!storedEmail) {
-      // Redirect to 'my-account' page if either is missing
-      router.push('/my-account');
-    }
-  }, [router]);
     
 
     const dispatch = useDispatch();

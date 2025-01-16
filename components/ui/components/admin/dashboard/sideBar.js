@@ -20,8 +20,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
 
     const handleLogOut = () => {
         console.log('Log Out');
-        localStorageUtil.removeItem('userEmail');
-        
+        localStorageUtil.removeItem('accessToken');
         router.push('/admin');
     }
     return (

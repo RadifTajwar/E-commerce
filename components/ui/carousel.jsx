@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useEmblaCarousel from "embla-carousel-react";
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    ChevronUp,
 } from "lucide-react";
 import * as React from "react";
 
@@ -231,10 +231,10 @@ const CarouselNext = React.forwardRef(
 CarouselNext.displayName = "CarouselNext";
 
 export {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious
 };
 

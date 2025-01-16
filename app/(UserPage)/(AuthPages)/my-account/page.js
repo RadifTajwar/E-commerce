@@ -1,11 +1,11 @@
 'use client'
 import Footer from "@/components/ui/components/footer";
-
 import { createUser } from "@/redux/user/createUserSlice";
 import { loginUser } from "@/redux/user/userLoginSlice";
 import localStorageUtil from "@/utils/localStorageUtil";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import emailjs from 'emailjs-com';
+import { jwtDecode } from 'jwt-decode';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 export default function page() {
     const [userEmail, setUserEmail] = useState('');
     const { status } = useSelector((state) => state.createUser);
-    const {status:loginStatus} = useSelector((state) => state.loginUser);
+    const { status: loginStatus } = useSelector((state) => state.loginUser);
     const [errorLogin, setErrorLogin] = useState(null);
     const [errorSignUp, seterrorSignUp] = useState(null);
 
@@ -46,14 +46,15 @@ export default function page() {
     };
     useEffect(() => {
         // Retrieve userEmail and accessToken from localStorage
-        const storedEmail = localStorageUtil.getItem('userEmail');
-
-
-        if (storedEmail) {
+        const token = localStorageUtil.getItem('accessToken');
+        if (token) {
+            const decoded = jwtDecode(token);
+            const storedEmail = decoded.email;
+        if (storedEmail ) {
             // Redirect to 'my-account' page if either is missing
             router.push('/myAccount');
         }
-
+    }
     }, [router]);
 
 
@@ -76,10 +77,21 @@ export default function page() {
             };
 
             // Dispatch the createUser thunk and wait for its result
-            const result = await dispatch(createUser(userData)).unwrap();
-            localStorageUtil.setItem('userEmail', email);
-           
+            const result1 = await dispatch(createUser(userData)).unwrap();
+            
+            const result2 = await dispatch(loginUser({ email: email, password: dynamicPassword })).unwrap();
+
+            // Store email and accessToken in localStorage
+
+            
+            localStorageUtil.setItem('accessToken', result2.accessToken);
+
+            const decoded = jwtDecode(result2.accessToken);
+            console.log("decoded", decoded);
+            // Handle successful login if needed
+            console.log('Login & signup successful:', result2.accessToken);
             router.push('/myAccount');
+
             // Send email after user is successfully created
             emailjs
                 .send('service_p5i09vd', 'template_65b3mvb', templateParams, 'bTYfvC_lPLdd40JEu')
@@ -105,12 +117,13 @@ export default function page() {
             const result = await dispatch(loginUser({ email: logMail, password: logPass })).unwrap();
 
             // Store email and accessToken in localStorage
-        
-            localStorageUtil.setItem('userEmail', logMail);
-            localStorageUtil.setItem('accessToken', result.accessToken);
 
+            
+            localStorageUtil.setItem('accessToken', result.accessToken);
+            const decoded = jwtDecode(result.accessToken);
+            console.log("decoded", decoded);
             // Handle successful login if needed
-            console.log('Login successful:', result);
+            console.log('Login successful:', result.accessToken);
             router.push('/myAccount');
         } catch (error) {
             // Handle errors (e.g., invalid credentials)
@@ -244,9 +257,9 @@ export default function page() {
                                                         className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                                     >
                                                         {
-                                                            loginStatus === 'loading' ? "LOADING...":"SIGN IN"
+                                                            loginStatus === 'loading' ? "LOADING..." : "SIGN IN"
                                                         }
-                                                       
+
                                                     </button>
 
                                                 </form>
@@ -312,7 +325,7 @@ export default function page() {
                                                         className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                                                     >
                                                         {
-                                                            status === 'loading' ? "LOADING...":"REGISTER"
+                                                            status === 'loading' ? "LOADING..." : "REGISTER"
                                                         }
                                                     </button>
 

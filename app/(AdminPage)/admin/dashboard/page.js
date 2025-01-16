@@ -4,59 +4,17 @@ import HighestSellingProducts from '@/components/ui/components/admin/dashboard/h
 import OrderStats from "@/components/ui/components/admin/dashboard/orderStats";
 // import WeeklySales from "@/components/ui/components/admin/dashboard/weeklySales";
 
-import RecentOrders from "@/components/ui/components/admin/orders/recentOrders";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 export default function page() {
-
-    const [isOrderFetched, setIsOrderFetched] = useState(false);
-  const dispatch = useDispatch();
-  const idRef = useRef(null);
-
-  const [deleteVisible, setDeleteVisible] = useState(false)
-  const resetId = () => {
-    idRef.current = null; // Reset the ID
-
-    setDeleteVisible(false);
-  };
-
-  const doneUpdate = () => {
-    toast.success("Order Updated Successfully!", {
-      position: "top-right",
-      autoClose: 3000, // Auto-close after 3 seconds
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
-
-  const toggleDeleteVisible = (id) => {
-    setDeleteVisible(!deleteVisible);
-    if (id && typeof id !== "object") {
-      idRef.current = id; // Update idRef only if id is a valid value
-    }
-  };
-
+   
     const pathName = usePathname();
     return (
 
         <>
-        {
-        deleteVisible && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-30"
-            onClick={toggleDeleteVisible} />
-        )
-      }
-
-                    
+ 
                         <div className="max-w-4xl lg:max-w-7xl grid px-6 mx-auto">
-                        <ToastContainer />
+                        
                             {
                                 pathName == '/admin/dashboard'?(
                                     <>
@@ -83,11 +41,8 @@ export default function page() {
 
                                 </div>
 
-                                <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Recent Order</h1>
-
-                                
                             </div>
-                               <RecentOrders doneUpdate={doneUpdate} toggleDeleteVisible={toggleDeleteVisible} isOrderFetched={isOrderFetched} setIsOrderFetched={setIsOrderFetched} />
+                              
                                     </>
                                 ):(
                                     <>

@@ -1,13 +1,19 @@
 
 export default function orderDetails({ order }) {
+    
+    const subtotal = order?.orderItems?.reduce((total, item) => {
+        return total + item?.quantity * item?.product?.discountedPrice;
+    }, 0);
+
     return (
+
         <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
             <div className="upper_text">
-                <p className="text-gray-500 text-sm">Order <span className="text-black px-2 py-1.5 bg-gray-100 font-medium">#{order._id}</span>  was placed on <span className="text-black px-2 py-1.5 bg-gray-100 font-medium"> {new Date(order.dateOrdered).toLocaleDateString('en-US', {
+                <p className="text-gray-500 text-sm">Order <span className="text-black px-2 py-1.5 bg-gray-100 font-medium">#{order?._id}</span>  was placed on <span className="text-black px-2 py-1.5 bg-gray-100 font-medium"> {new Date(order?.dateOrdered).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
-                })}</span> and is currently <span className="text-black px-2 py-1.5 bg-gray-100 font-medium">{order.status}</span> .</p>
+                })}</span> and is currently <span className="text-black px-2 py-1.5 bg-gray-100 font-medium">{order?.status}</span> .</p>
             </div>
             <div className="orderDetails mt-10">
                 <div className="text mb-5">
@@ -25,24 +31,30 @@ export default function orderDetails({ order }) {
                             <p className="px-2.5 py-4 font-regular ">TOTAL</p>
                         </div>
                     </div>
+{
+    order?.orderItems?.map((item)=>(
+        <div key={item?._id} className="flex justify-between border-b border-gray-300">
+        <div className="items px-3 py-4 font-regular text-sm ">
+            <p className="hover:text-gray-400 duration-300 cursor-pointer">{item?.product?.name} × {item?.quantity}</p>
+            <p className="mt-2.5 text-gray-500 text-xs"><span className="text-black text-sm">Color:</span>{item?.color}</p>
 
-                    <div className="flex justify-between border-b border-gray-300">
-                        <div className="items px-3 py-4 font-regular text-sm ">
-                            <p className="hover:text-gray-400 duration-300 cursor-pointer">File Organizer Series 1 - Black × 1</p>
-                            <p className="mt-2.5 text-gray-500 text-xs"><span className="text-black text-sm">Color:</span>Black</p>
+        </div>
+        <div className="total flex items-center">
+            <p className="px-3 py-4 font-regular text-sm text-gray-700"> ৳ {item?.product?.discountedPrice*item?.quantity}</p>
+        </div>
+    </div>
 
-                        </div>
-                        <div className="total flex items-center">
-                            <p className="px-3 py-4 font-regular text-sm text-gray-700"> ৳ 3,900.00</p>
-                        </div>
-                    </div>
+    )
+)
+}
+                    
                     <div className="flex justify-between border-b border-gray-300">
                         <div className="items">
                             <p className="px-3 py-4 font-regular text-sm">Subtotal:</p>
 
                         </div>
                         <div className="total flex items-center">
-                            <p className="px-3 py-4 font-regular text-sm text-gray-700"> ৳ 3,900.00</p>
+                            <p className="px-3 py-4 font-regular text-sm text-gray-700"> ৳ {subtotal}</p>
                         </div>
                     </div>
                     <div className="flex justify-between border-b border-gray-300">
@@ -70,7 +82,7 @@ export default function orderDetails({ order }) {
 
                         </div>
                         <div className="total flex items-center">
-                            <p className="px-3 py-4 font-regular text-2xl"> ৳ 4,000.00</p>
+                            <p className="px-3 py-4 font-regular text-2xl"> ৳ {order?.totalPrice}</p>
                         </div>
                     </div>
 
@@ -81,11 +93,11 @@ export default function orderDetails({ order }) {
 
                 </div>
                 <div className="details mb-5 text-sm space-y-2">
-                    <p className="text-gray-700">Radif</p>
-                    <p className="text-gray-700">40, Rasulpur, Dania, Dhaka-1236</p>
-                    <p className="text-gray-700">Chattogram </p>
-                    <p className="text-gray-700">+8801521750111</p>
-                    <p className="text-gray-700">radiftajwarmahi420@gmail.com</p>
+                    <p className="text-gray-700">{order?.name}</p>
+                    <p className="text-gray-700">{order?.shippingAddress}</p>
+                    <p className="text-gray-700">{order?.city} </p>
+                    <p className="text-gray-700">{order?.phone}</p>
+                    <p className="text-gray-700">{order?.email}</p>
 
                 </div>
             </div>

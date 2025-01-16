@@ -63,7 +63,7 @@ export default function page() {
                   <div className="flex">
                     <div className="lg:flex-1 md:flex-1 mr-3 sm:flex-none">
                       <div className="border flex justify-center items-center border-gray-300 hover:border-blue-400 hover:text-blue-400  dark:text-gray-300 cursor-pointer h-10 w-20 rounded-md focus:outline-none" onClick={() => { setExportButtonForm(!exportButtonForm) }}>
-                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="mr-2" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="mr-2" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4">
 
                           </path>
@@ -83,7 +83,7 @@ export default function page() {
                               <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
                                 <button type="button" className="focus:outline-none">
                                   <span className="flex items-center text-sm">
-                                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" className="w-4 h-4 mr-3" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 16 16" className="w-4 h-4 mr-3" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                       <path d="M7.5 5.5a.5.5 0 0 0-1 0v.634l-.549-.317a.5.5 0 1 0-.5.866L6 7l-.549.317a.5.5 0 1 0 .5.866l.549-.317V8.5a.5.5 0 1 0 1 0v-.634l.549.317a.5.5 0 1 0 .5-.866L8 7l.549-.317a.5.5 0 1 0-.5-.866l-.549.317V5.5zm-2 4.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z">
 
                                       </path>
@@ -98,7 +98,7 @@ export default function page() {
                               <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
                                 <button type="button" className="focus:outline-none">
                                   <span className="flex items-center text-sm">
-                                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" className="w-4 h-4 mr-3" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 16 16" className="w-4 h-4 mr-3" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                       <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z">
 
                                       </path>
@@ -118,7 +118,7 @@ export default function page() {
                     </div>
                     <div className="lg:flex-1 md:flex-1 mr-3  sm:flex-none">
                       <div className="border flex justify-center items-center h-10 w-20 hover:text-yellow-400  border-gray-300 dark:text-gray-300 cursor-pointer  py-2 hover:border-yellow-400 rounded-md focus:outline-none" onClick={() => { setImportButtonForm(!importButtonForm) }}>
-                        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" className="mr-2" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="mr-2" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4">
 
                           </path>
@@ -203,7 +203,7 @@ export default function page() {
                           <div className="flex">
                             <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full rounded-md h-10 ml-2  text-xs px-2" type="button">
                               <span className="">
-                                <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                   <line x1="12" y1="5" x2="12" y2="19">
 
                                   </line>
@@ -240,14 +240,14 @@ export default function page() {
         </div>
 
         <AllCustomers toggleVisibility={toggleVisibility} toggleDeleteVisible={toggleDeleteVisible} />
-        <div class="text-center align-middle mx-auto p-5 my-5">
+        <div className="text-center align-middle mx-auto p-5 my-5">
           <div className="image w-full flex justify-center">
-            <Image class="my-4" src="/no-result.svg" alt="no-result" width={400} height={400} />
+            <Image className="my-4" src="/no-result.svg" alt="no-result" width={400} height={400} />
           </div>
 
 
 
-          <h2 class="text-lg md:text-xl lg:text-2xl xl:text-2xl text-center mt-2 font-medium font-serif text-gray-600">Sorry, we can not find this Sorry, There are no customers right now.<span role="img" aria-labelledby="img">😞</span>
+          <h2 className="text-lg md:text-xl lg:text-2xl xl:text-2xl text-center mt-2 font-medium font-serif text-gray-600">Sorry, we can not find this Sorry, There are no customers right now.<span role="img" aria-labelledby="img">😞</span>
           </h2>
         </div>
 

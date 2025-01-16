@@ -89,7 +89,7 @@ export default function page() {
                                             <span className="pl-2 font-medium text-xs capitalize">
                                                 <span className="font-serif">
                                                     <span className="inline-flex px-2 text-xs font-medium leading-5 rounded-full text-blue-500 bg-blue-100 dark:bg-blue-800 dark:text-blue-100">
-                                                        {order.status}
+                                                        {order?.status}
                                                     </span>
                                                 </span>
                                             </span>
@@ -105,22 +105,22 @@ export default function page() {
                                 <div className="flex lg:flex-row md:flex-row flex-col justify-between pt-4">
                                     <div className="mb-3 md:mb-0 lg:mb-0 flex flex-col">
                                         <span className="font-bold font-serif text-sm uppercase text-gray-600 dark:text-gray-500 block">DATE</span>
-                                        <span className="text-sm text-gray-500 dark:text-gray-400 block">{order.dateOrdered}</span>
+                                        <span className="text-sm text-gray-500 dark:text-gray-400 block">{order?.dateOrdered}</span>
                                     </div>
                                     <div className="mb-3 md:mb-0 lg:mb-0 flex flex-col">
                                         <span className="font-bold font-serif text-sm uppercase text-gray-600 dark:text-gray-500 block">INVOICE NO</span>
-                                        <span className="text-sm text-gray-500 dark:text-gray-400 block">#{order._id}</span>
+                                        <span className="text-sm text-gray-500 dark:text-gray-400 block">#{order?._id}</span>
                                     </div>
                                     <div className="flex flex-col lg:text-right text-left">
                                         <span className="font-bold font-serif text-sm uppercase text-gray-600 dark:text-gray-500 block">INVOICE TO</span>
                                         <span className="text-sm text-gray-500 dark:text-gray-400 block">
-                                            {order.user.name}
+                                            {order?.name}
                                             <br />
-                                            {order.user.email}
+                                            {order?.email}
                                             <br />
-                                            {order.city}
+                                            {order?.city}
                                             <br />
-                                            {order.city}, {order.country}, {order.zip}
+                                            {order?.city}, {order?.country}, {order?.zip}
                                         </span>
                                     </div>
                                 </div>
@@ -146,12 +146,12 @@ export default function page() {
                                                             <tr className="dark:border-gray-700 dark:text-gray-400">
                                                                 <td className="px-4 py-3 px-6 py-1 whitespace-nowrap font-normal text-gray-500 text-left">{index + 1}</td>
                                                                 <td className="px-4 py-3 px-6 py-1 whitespace-nowrap font-normal text-gray-500">{
-                                                                    item.product.name}</td>
+                                                                    item?.product?.name}</td>
                                                                 <td className="px-4 py-3 px-6 py-1 whitespace-nowrap font-bold text-center">{
-                                                                    item.quantity}</td>
+                                                                    item?.quantity}</td>
                                                                 <td className="px-4 py-3 px-6 py-1 whitespace-nowrap font-bold text-center">${
-                                                                    item.product.discountedPrice}</td>
-                                                                <td className="px-4 py-3 px-6 py-1 whitespace-nowrap text-right font-bold text-red-500 dark:text-blue-500">${item.product.discountedPrice * item.quantity}</td>
+                                                                    item?.product?.discountedPrice}</td>
+                                                                <td className="px-4 py-3 px-6 py-1 whitespace-nowrap text-right font-bold text-red-500 dark:text-blue-500">${item?.product?.discountedPrice * item?.quantity}</td>
                                                             </tr>
                                                         </>
                                                     )
@@ -179,7 +179,7 @@ export default function page() {
                                     </div>
                                     <div className="flex flex-col sm:flex-wrap">
                                         <span className="mb-1 font-bold font-serif text-sm uppercase text-gray-600 dark:text-gray-500 block">TOTAL AMOUNT</span>
-                                        <span className="text-xl font-serif font-bold text-red-500 dark:text-blue-500 block">${order.totalPrice}</span>
+                                        <span className="text-xl font-serif font-bold text-red-500 dark:text-blue-500 block">${order?.totalPrice}</span>
                                     </div>
                                 </div>
                             </div>
@@ -202,7 +202,7 @@ export default function page() {
                             </button>
                         </a>
                         <button className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600  w-auto">Print Invoice<span className="ml-2">
-                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                            <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                 <polyline points="6 9 6 2 18 2 18 9">
 
                                 </polyline>

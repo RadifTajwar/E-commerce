@@ -1,5 +1,6 @@
 'use client'
 import localStorageUtil from '@/utils/localStorageUtil';
+import { jwtDecode } from 'jwt-decode';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
@@ -10,20 +11,22 @@ export default function Page() {
  
   useEffect(() => {
     // Retrieve userEmail and accessToken from localStorage
-    const storedEmail = localStorageUtil.getItem('userEmail');
+    const token = localStorageUtil.getItem('accessToken');
+    if(token){
+      setAccessToken(token);
+      const decoded= jwtDecode(token);
    
-
-    if (!storedEmail) {
-      // Redirect to 'my-account' page if either is missing
-      router.push('/my-account');
-    } else {
-      setUserEmail(storedEmail);
-  
-    }
-  }, [router]);
+       if (decoded.email) {
+         // Redirect to 'my-account' page if either is missing
+         setUserEmail(decoded.email);
+   
+       } 
+    }  
+    
+  }, [userEmail, accessToken]);
 
   // Render nothing if either userEmail or accessToken is missing
-  if (!userEmail ) {
+  if (!accessToken ) {
     return null;
   }
   const handleLogOut = () => {
@@ -67,9 +70,9 @@ export default function Page() {
             <Link href="/myAccount/editAddress">
               <div className="inner_box  border border-gray-300 text-center rounded-md xl:px-28 xl:py-5 lg:px-16 lg:py-4 md:px-12 md:py-3 px-8 py-4 hover:bg-gray-100 cursor-pointer">
                 <div className="icon_and_text  w-full flex justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-14">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-14">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                   </svg>
                 </div>
 
@@ -82,8 +85,8 @@ export default function Page() {
             <Link href="/myAccount/editAccount">
               <div className="inner_box  border border-gray-300 text-center rounded-md xl:px-28 xl:py-5 lg:px-16 lg:py-4 md:px-12 md:py-3 px-8 py-4 hover:bg-gray-100 cursor-pointer">
                 <div className="icon_and_text  w-full flex justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-14">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-14">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                   </svg>
                 </div>
                 <p className='text-gray-700 text-sm flex justify-center'>Account Details</p>
@@ -95,8 +98,8 @@ export default function Page() {
             <Link href="/myAccount">
               <div className="inner_box  border border-gray-300 text-center rounded-md xl:px-28 xl:py-5 lg:px-16 lg:py-4 md:px-12 md:py-3 px-8 py-4 hover:bg-gray-100 cursor-pointer">
                 <div className="icon_and_text  w-full flex justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" className=" flex justify-center" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-14">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" className=" flex justify-center" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-14">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                   </svg>
                 </div>
                 <p className='text-gray-700 text-sm flex  justify-center'>Wishlist</p>
@@ -110,8 +113,8 @@ export default function Page() {
             
               <div className="inner_box  border border-gray-300 text-center rounded-md xl:px-28 xl:py-5 lg:px-16 lg:py-4 md:px-12 md:py-3 px-8 py-4 hover:bg-gray-100 cursor-pointer" onClick={handleLogOut}>
                 <div className="icon_and_text  w-full flex justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-14">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-14">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                   </svg>
                 </div>
 

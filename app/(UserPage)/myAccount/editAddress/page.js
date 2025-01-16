@@ -1,21 +1,7 @@
-'use client'
-import localStorageUtil from "@/utils/localStorageUtil";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
+import Link from "next/link";
 export default function page() {
-    const router = useRouter();
-    useEffect(() => {
-        // Retrieve userEmail and accessToken from localStorage
-        const storedEmail = localStorageUtil.getItem('userEmail');
-       
-    
-        if (!storedEmail) {
-          // Redirect to 'my-account' page if either is missing
-          router.push('/my-account');
-        } 
-      }, [router]);
+   
     return (
         <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
             <div className="upper_text">

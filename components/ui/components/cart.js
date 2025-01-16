@@ -1,10 +1,10 @@
 'use client';
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
 } from "@/components/ui/carousel";
 import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 import CryptoJS from "crypto-js";

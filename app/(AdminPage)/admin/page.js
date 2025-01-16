@@ -1,18 +1,18 @@
 'use client';
 import { loginUser } from "@/redux/user/userLoginSlice";
 import localStorageUtil from "@/utils/localStorageUtil";
+import { jwtDecode } from "jwt-decode";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 export default function page() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [logMail, setLogMail] = useState("");
   const [logPass, setLogPass] = useState("");
   const [errorLogin, setErrorLogin] = useState(null);
-  const {status} = useSelector((state) => state.loginUser);
+  const { status } = useSelector((state) => state.loginUser);
 
   const onLogMailChange = (e) => {
     setErrorLogin(null);
@@ -28,18 +28,24 @@ export default function page() {
 
     try {
       // Dispatch the loginUser thunk and wait for its result
-      const result = await dispatch(loginUser({ email: logMail, password: logPass ,role:"admin"})).unwrap();
+      const result = await dispatch(loginUser({ email: logMail, password: logPass })).unwrap();
 
       // Store email and accessToken in localStorage
 
-      localStorageUtil.setItem('userEmail', logMail);
-      localStorageUtil.setItem('accessToken', result.accessToken);
+     
 
       // Handle successful login if needed
-      console.log('Login successful:', result);  
-      router.push('/admin/dashboard');
+      console.log('Login successful:', result);
+      const decoded = jwtDecode(result.accessToken);
+      if (decoded.role === 'admin' && decoded.email) {
+        localStorageUtil.setItem('accessToken', result.accessToken);
+        router.push('/admin/dashboard');
+      }else{
+        setErrorLogin("Only Admins are allowed to login.");
+      }
 
-      
+
+
 
     } catch (error) {
       // Handle errors (e.g., invalid credentials)
@@ -48,17 +54,21 @@ export default function page() {
       setErrorLogin("Invalid credentials or user does not exist.");
     }
   };
+
   useEffect(() => {
     // Retrieve userEmail and accessToken from localStorage
-    const storedEmail = localStorageUtil.getItem('userEmail');
-
-
-    if (storedEmail) {
+    const token = localStorageUtil.getItem('accessToken');
+    if (token) {
+      const decoded = jwtDecode(token);
+      const storedEmail = decoded.email;
+      if (storedEmail && decoded.role === 'admin') {
         // Redirect to 'my-account' page if either is missing
         router.push('/admin/dashboard');
+      }
     }
 
-}, [router]);
+
+  }, [router]);
 
 
 
@@ -116,11 +126,11 @@ export default function page() {
                   {
                     status === 'loading' ? 'Loading...' : 'Login'
                   }
-                 
+
                 </button>
 
                 <hr className="my-10" />
-              
+
               </form>
             </div>
           </div>
