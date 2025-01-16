@@ -16,13 +16,14 @@ export default function card({ product }) {
     const [productsData, setProductsData] = useState([null]);
     const [showCartClicked, setShowCartClicked] = useState(false);
     const [selectedColor, setSelectedColor] = useState(null);
+    const [unavailableColors, setUnavailableColors] = useState(false);
     const [colorId, setColorId] = useState(null);
     const [isLoadingCart, setIsLoadingCart] = useState(false);
     const { productData, isLoading, error } = useSelector(
         (state) => state.productById
     );
     const handleAddToCart = () => {
-        if (!selectedColor) {
+        if (!selectedColor || unavailableColors) {
             alert("Please select a color before adding to cart!"); // Alert if no color is selected
             console.log("Please select a color before adding to cart!");
         } else {
@@ -39,10 +40,19 @@ export default function card({ product }) {
         }
     };
 
-    const handleColorClick = (colorName, colorId) => {
-        console.log(colorName, colorId);
-        setSelectedColor(colorName); // Update the selected color state
-        setColorId(colorId); // Update the selected color ID state
+    const handleColorClick = (colorName, colorId, colorQuantity) => {
+        console.log(colorName, colorId, colorQuantity);
+        if (colorQuantity == 0) {
+            setUnavailableColors(true); // Set the unavailable colors state
+            setSelectedColor(colorName); // Update the selected color state
+            setColorId(colorId); // Reset the selected color ID state
+        }
+        else {
+            setUnavailableColors(false); // Reset the unavailable colors state
+            setSelectedColor(colorName); // Update the selected color state
+            setColorId(colorId);
+        }
+        // Update the selected color ID state
     };
 
 
@@ -222,70 +232,67 @@ export default function card({ product }) {
                                                 } transition-all duration-500 hover:text-black lg:block w-full h-full bg-white bg-opacity-90 flex flex-col justify-end`}
                                         >
                                             {/* Close Button */}
-
                                             <button
-                                                className="absolute top-2 right-2 px-2 flex group/inner items-center justify-center transition duration-200 flex hover:text-gray-500"
+                                                className="absolute top-2 right-2 px-2 flex group/inner items-center justify-center transition duration-200 hover:text-gray-500"
                                                 onClick={handleCardCloseClicked}
                                             >
                                                 ✕ <span className="ms-1 text-black group-hover/inner:text-gray-500 font-semibold text-sm transition duration-200">Close</span>
                                             </button>
-                                            {
-                                                localProductData && showCartClicked && (
-                                                    <div className="w-full h-full flex flex-col justify-between">
-                                                        <div className="flex-grow flex items-center justify-center">
-                                                            {/* Color Bar in the Middle */}
-                                                            <div className="Inner w-11/12">
-                                                                <div className="color_text text-sm font-semibold text-gray-900 text-center">
-                                                                    Color:
-                                                                </div>
-                                                                <div className="color_map justify-center flex flex-wrap gap-2 my-2">
-                                                                    {localProductData.color?.map((color, index) => (
-                                                                        <div
-                                                                            key={index}
-                                                                            className="relative group cursor-pointer flex items-center justify-center flex-shrink-0"
-                                                                        >
-                                                                            <div
-                                                                                className={`color_palette rounded-3xl transition-colors flex items-center justify-center mb-1 w-[62px] h-[62px]`}
-                                                                                style={{ backgroundColor: color.hex }}
-                                                                                onClick={() => handleColorClick(color.colorName, color.id)}
-                                                                            >
-                                                                                {/* Color square */}
-                                                                            </div>
 
-                                                                            {/* Bottom line that will appear on hover */}
-                                                                            <div
-                                                                                className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100`}`}
-                                                                            />
+                                            {localProductData && showCartClicked && (
+                                                <div className="w-full h-full flex flex-col justify-between">
+                                                    <div className="flex-grow flex items-center justify-center">
+                                                        {/* Color Bar in the Middle */}
+                                                        <div className="Inner w-11/12">
+                                                            <div className="color_text text-sm font-semibold text-gray-900 text-center">
+                                                                Color:
+                                                            </div>
+                                                            <div className="color_map justify-center flex flex-wrap gap-2 my-2">
+                                                                {localProductData.color?.map((color, index) => (
+                                                                    <div
+                                                                        key={index}
+                                                                        className="relative group cursor-pointer flex items-center justify-center flex-shrink-0"
+                                                                    >
+                                                                        <div
+                                                                            className={`color_palette rounded-3xl transition-colors flex items-center justify-center mb-1 w-[62px] h-[62px]`}
+                                                                            style={{ backgroundColor: color.hex }}
+                                                                            onClick={() => handleColorClick(color.colorName, color.id, color.availableQuantity)}
+                                                                        >
+                                                                            {/* Color square */}
                                                                         </div>
-                                                                    ))}
-                                                                </div>
-                                                                <div
-                                                                    className={`clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition-all duration-500 text-center block ${selectedColor ? 'opacity-100 visible' : 'opacity-0 invisible'} `}
-                                                                    onClick={handleClearClicked}
-                                                                >
-                                                                    ✕ Clear
-                                                                </div>
+
+                                                                        {/* Bottom line that will appear on hover */}
+                                                                        <div
+                                                                            className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${selectedColor === color.colorName && `opacity-100`}`}
+                                                                        />
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            <div
+                                                                className={`clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition-all duration-500 text-center block ${selectedColor ? 'opacity-100 visible' : 'opacity-0 invisible'} `}
+                                                                onClick={handleClearClicked}
+                                                            >
+                                                                ✕ Clear
                                                             </div>
                                                         </div>
-
-                                                        {/* Add To Cart Button at the Bottom */}
-                                                        <button
-                                                            className="w-full text-white py-2 hover:bg-opacity-100 transition duration-100 bg-black"
-                                                            onClick={handleAddToCart}
-                                                        >
-                                                            Add To Cart
-                                                        </button>
                                                     </div>
-                                                )
-                                            }
+                                                    {unavailableColors && (
+                                                        <div className="text-center text-red-500 text-sm font-semibold mt-2 mb-4">
+                                                            Out of stock
+                                                        </div>
+                                                    )}
+                                                    {/* Add To Cart Button */}
+                                                    <button
+                                                        className="w-full text-white py-2 hover:bg-opacity-100 transition duration-100 bg-black"
+                                                        onClick={handleAddToCart}
+                                                    >
+                                                        Add To Cart
+                                                    </button>
 
+                                                    {/* Out of stock message at the bottom */}
 
-
-
-
-
-
-
+                                                </div>
+                                            )}
                                         </div>
 
 
