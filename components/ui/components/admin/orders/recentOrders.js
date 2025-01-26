@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/pagination";
 import { fetchAllOrders } from "@/redux/order/getAllOrderSlice";
 import { updateOrderStatus } from "@/redux/order/updateOrderSlice";
+import { Skeleton } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import OrderRow from "./orderRow";
-
 import { useDispatch, useSelector } from "react-redux";
+import OrderRow from "./orderRow";
 export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrderFetched, isOrderFetched, startDate, endDate, email, stat }) {
     const [isMeta, setIsMeta] = useState({
         page: 1,
@@ -64,7 +64,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                 }
 
                 // Log the parameters to see what is being sent
-                
+
 
                 // Dispatch the fetch request with the prepared parameters
                 dispatch(fetchAllOrders(params));
@@ -85,7 +85,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
 
 
     const handleOrderClick = (id) => {
-     
+
         localStorage.setItem("orderID", id);
         Router.push(`orderNo/${id}`);
     }
@@ -95,7 +95,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
     useEffect(() => {
         if (orders) {
             // console.log("Orders updated:", orders);
-            
+
             setIsMeta({
                 page: meta.page || 1,
                 limit: meta.limit || 10,
@@ -109,9 +109,10 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
     const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             // Update the query parameters in the URL
+
             const params = new URLSearchParams(searchParams.toString());
             params.set("page", pageNumber);
-            router.push(`?${params.toString()}`);
+            router.push(`?${params.toString()}`, { shallow: true, scroll: false });
             // Update the local state
             setIsMeta((prev) => ({ ...prev, page: pageNumber }));
             setIsOrderFetched(false);
@@ -124,7 +125,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
         const currentPage = isMeta.page;
 
         const pageNumbers = [];
-       
+
         if (totalPages <= 6) {
             // If total pages are less than or equal to 6, show all pages
             for (let i = 1; i <= totalPages; i++) {
@@ -174,7 +175,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
             toggleDeleteVisible(orderId);
         }
         else {
-            
+
             doneUpdate();
             dispatch(updateOrderStatus({ id: orderId, status: selectedStatus }))
             setTimeout(() => {
@@ -205,12 +206,68 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
     return (
         <>
             {isLoading && (
-                <div className="flex justify-center">
-                    <div className="w-1/2">
-                        <h1 className="text-center text-2xl font-semibold text-gray-800 dark:text-gray-100">
-                            Loading...
-                        </h1>
-                    </div>
+                <div className="w-full overflow-x-auto">
+                    <table className="w-full whitespace-no-wrap">
+                        <thead className="text-xs font-medium tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">
+                            <tr>
+                                <td className="px-4 py-3">
+                                    <Skeleton variant="text" width="120px" height="20px" />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <Skeleton variant="text" width="100px" height="20px" />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <Skeleton variant="text" width="180px" height="20px" />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <Skeleton variant="text" width="140px" height="20px" />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <Skeleton variant="text" width="100px" height="20px" />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <Skeleton variant="text" width="100px" height="20px" />
+                                </td>
+                                <td className="px-4 py-3">
+                                    <Skeleton variant="text" width="80px" height="20px" />
+                                </td>
+                                <td className="px-4 py-3 flex justify-end">
+                                    <Skeleton variant="text" width="80px" height="20px" />
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400 dark:bg-gray-900">
+                            {[...Array(10)].map((_, index) => (
+                                <tr key={index}>
+                                    <td className="px-4 py-3">
+                                        <Skeleton variant="text" width="120px" height="20px" />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <Skeleton variant="text" width="100px" height="20px" />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <Skeleton variant="text" width="180px" height="20px" />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <Skeleton variant="text" width="140px" height="20px" />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <Skeleton variant="text" width="100px" height="20px" />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <Skeleton variant="text" width="100px" height="20px" />
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <Skeleton variant="text" width="80px" height="20px" />
+                                    </td>
+                                    <td className="px-4 py-3 text-end flex justify-end items-center space-x-2">
+                                        <Skeleton variant="text" width="40px" height="20px" />
+                                        <Skeleton variant="text" width="40px" height="20px" />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
             {error && (
@@ -269,6 +326,9 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                     )
                 }
 
+            </div>
+
+            <div className="mb-4">
                 <Pagination>
                     <PaginationContent>
                         {/* Previous Button */}
@@ -279,7 +339,7 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                                 disabled={isMeta.page === 1}
                                 className={` ${isMeta.page === 1 ? "cursor-not-allowed" : "cursor-pointer"}`}
                             >
-
+                                Previous
                             </PaginationPrevious>
                         </PaginationItem>
 
@@ -310,15 +370,17 @@ export default function RecentOrders({ doneUpdate, toggleDeleteVisible, setIsOrd
                             <PaginationNext
 
                                 onClick={() => handlePageChange(isMeta.page + 1)}
-                                disabled={isMeta.page === totalPages }
+                                disabled={isMeta.page === totalPages}
                                 className={` ${isMeta.page === totalPages ? "cursor-not-allowed" : "cursor-pointer"}`}
                             >
 
+                                Next
 
                             </PaginationNext>
                         </PaginationItem>
                     </PaginationContent>
                 </Pagination>
+
             </div>
 
         </>

@@ -1,5 +1,6 @@
 
 import { fetchAllOrders } from "@/redux/order/getAllOrderSlice";
+import Skeleton from '@mui/material/Skeleton';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function orderStats() {
@@ -13,14 +14,14 @@ export default function orderStats() {
         const fetchOrderData = async () => {
             try {
                 const today = new Date();
-               
+
                 const yyyy = today.getFullYear();
                 const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
                 const dd = String(today.getDate()).padStart(2, '0');
 
                 const todaysDate = `${yyyy}-${mm}-${dd}`;
-           
-        
+
+
                 const todayResult = await dispatch(fetchAllOrders({ startDate: todaysDate, endDate: todaysDate })).unwrap();
                 const pendingResult = await dispatch(fetchAllOrders({ status: "Pending" })).unwrap();
                 const processingResult = await dispatch(fetchAllOrders({ status: "Processing" })).unwrap();
@@ -38,7 +39,61 @@ export default function orderStats() {
     }, [dispatch]);
     return (
         <>
-            {isLoading && <div>Loading...</div>}
+            {isLoading && (
+                <div className="grid gap-4 mb-8 md:grid-cols-2 xl:grid-cols-4">
+                    {/* Card 1 - Today Orders */}
+                    <div className="min-w-0 rounded-lg  ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 flex h-full shadow-lg">
+                        <div className="p-4 flex items-center border border-gray-200 dark:border-gray-800 w-full rounded-lg">
+                            <div className="flex items-center justify-center rounded-full text-center mr-4  dark:bg-orange-500">
+                                <Skeleton variant="circular" width={48} height={48} />
+                            </div>
+                            <div>
+                                <Skeleton variant="text" width={90} height={20} />
+                                <Skeleton variant="text" width={30} height={20} style={{ marginTop: 4 }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Card 2 - Orders Pending */}
+                    <div className="min-w-0 rounded-lg  ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 flex h-full shadow-lg">
+                        <div className="p-4 flex items-center border border-gray-200 dark:border-gray-800 w-full rounded-lg">
+                            <div className="flex items-center justify-center rounded-full text-center mr-4  dark:bg-orange-500">
+                                <Skeleton variant="circular" width={48} height={48} />
+                            </div>
+                            <div>
+                                <Skeleton variant="text" width={90} height={20} />
+                                <Skeleton variant="text" width={30} height={20} style={{ marginTop: 4 }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Card 3 - Orders Processing */}
+                    <div className="min-w-0 rounded-lg ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 flex h-full shadow-lg">
+                        <div className="p-4 flex items-center border border-gray-200 dark:border-gray-800 w-full rounded-lg">
+                            <div className="flex items-center justify-center rounded-full text-center mr-4  dark:bg-orange-500">
+                                <Skeleton variant="circular" width={48} height={48} />
+                            </div>
+                            <div>
+                                <Skeleton variant="text" width={90} height={20} />
+                                <Skeleton variant="text" width={30} height={20} style={{ marginTop: 4 }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Card 4 - Orders Delivered */}
+                    <div className="min-w-0 rounded-lg ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 flex h-full shadow-lg">
+                        <div className="p-4 flex items-center border border-gray-200 dark:border-gray-800 w-full rounded-lg">
+                            <div className="flex items-center justify-center rounded-full text-center mr-4  dark:bg-orange-500">
+                                <Skeleton variant="circular" width={48} height={48} />
+                            </div>
+                            <div>
+                                <Skeleton variant="text" width={90} height={20} />
+                                <Skeleton variant="text" width={30} height={20} style={{ marginTop: 4 }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {error && <div>{error}</div>}
             {meta && !isLoading && (
                 <div className="grid gap-4 mb-8 md:grid-cols-2 xl:grid-cols-4">

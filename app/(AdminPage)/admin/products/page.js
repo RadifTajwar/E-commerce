@@ -13,7 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 export default function page() {
 
   const dispatch = useDispatch();
-  const [categoryId,setCategoryId ] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [isInput, setIsInput] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
@@ -22,6 +22,7 @@ export default function page() {
   const [fileName, setFileName] = useState(null);
   const inputRef = useRef(null);
   const [deleteVisible, setDeleteVisible] = useState(false)
+  const [selectedPrice, setSelectedPrice] = useState(""); // State to track the selected option
 
   const idRef = useRef(null);
   const resetId = () => {
@@ -145,15 +146,19 @@ export default function page() {
     setIsInput(value);
     console.log(isInput);
     setCategoryId("");
-    dispatch(fetchAllProducts({searchTerm: value}));
+    dispatch(fetchAllProducts({ searchTerm: value }));
   };
 
-  const handleCategorySelect = ( id) => {
+  const handleCategorySelect = (id) => {
     setCategoryId(id);
     setIsInput("");
-    dispatch(fetchAllProducts({searchTerm: categoryId}));
-    
+    dispatch(fetchAllProducts({ searchTerm: categoryId }));
+
   };
+
+  const handlePriceChange = (price) => {
+      setSelectedPrice(price); // Update the state with the selected value
+  }
   const [productsFetched, setProductsFetched] = useState(false);
 
   return (
@@ -251,9 +256,9 @@ export default function page() {
                         )
                       }
                     </div>
-                   
+
                   </div>
-                  
+
                 </div>
               </div>
               <div className="lg:flex md:flex xl:justify-end xl:w-1/2 md:w-full md:justify-start flex-grow-0">
@@ -288,11 +293,11 @@ export default function page() {
         </div>
 
         <div className="seaarchForm">
-          <SearchForm handleCatSelect={handleCategorySelect} handleInputChange={handleInputChange} isInput={isInput} categoryId={categoryId} setCategoryId={setCategoryId}/>
+          <SearchForm handleCatSelect={handleCategorySelect} handleInputChange={handleInputChange} isInput={isInput} categoryId={categoryId} setCategoryId={setCategoryId} handlePrcChange={handlePriceChange} selectedPrice={selectedPrice} />
         </div>
 
 
-        <AllProducts toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} categoryId={categoryId} productsFetched={productsFetched} setProductsFetched={setProductsFetched} isInput={isInput}/>
+        <AllProducts toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} categoryId={categoryId} productsFetched={productsFetched} setProductsFetched={setProductsFetched} isInput={isInput} />
 
       </div>
 
@@ -301,8 +306,8 @@ export default function page() {
         className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
-        <UpdateProducts toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId} 
-        doneUpdate={doneUpdate}/>
+        <UpdateProducts toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId}
+          doneUpdate={doneUpdate} />
       </div>
 
       <div
@@ -316,7 +321,7 @@ export default function page() {
         className={`fixed w-[576px] h-[306px] top-1/2 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-200 ease-in-out
     ${deleteVisible ? '-translate-y-1/2 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
       >
-        <DeleteVisible toggleDeleteVisible={toggleDeleteVisible} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate}/>
+        <DeleteVisible toggleDeleteVisible={toggleDeleteVisible} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate} />
       </div>
 
 

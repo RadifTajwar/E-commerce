@@ -1,5 +1,5 @@
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import Switch from '@mui/material/Switch';
+import { Skeleton } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -30,7 +30,58 @@ export default function AllProducts({ toggleVisibility, toggleDeleteVisible }) {
 
     return (
         <>
-            {isLoading && <p>Loading categories...</p>}
+            {isLoading && (
+                <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
+                <div className="w-full overflow-x-auto">
+                  <table className="w-full whitespace-no-wrap">
+                    <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
+                      <tr>
+                        
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="50px" height="20px" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="50px" height="20px"  />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="100px" height="20px" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="150px" height="20px" />
+                        </td>
+                        
+                        <td className="px-4 py-3 text-right">
+                          <Skeleton variant="rectangular" width="60px" height="20px" />
+                        </td>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400">
+                      {[...Array(10)].map((_, index) => (
+                        <tr key={index}>
+                         
+                          <td className="px-4 py-3">
+                            <Skeleton variant="text" width="50px" height="20px" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <Skeleton variant="rectangular" width={32} height={32} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <Skeleton variant="text" width="100px" height="20px" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <Skeleton variant="text" width="150px" height="20px" />
+                          </td>
+                        
+                          <td className="px-4 py-3 text-right">
+                            <Skeleton variant="rectangular" width="60px" height="20px" />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
             {error && <p>Error: {error}</p>}
             {!isLoading && (
                 <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
@@ -38,23 +89,19 @@ export default function AllProducts({ toggleVisibility, toggleDeleteVisible }) {
                         <table className='w-full whitespace-no-wrap'>
                             <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
                                 <tr>
-                                    <td className="px-4 py-3">
-                                        <input id="selectAll" name="selectAll" type="checkbox" />
-                                    </td>
+                                   
                                     <td className="px-4 py-3">ID</td>
                                     <td className="px-4 py-3">ICON</td>
                                     <td className="px-4 py-3">NAME</td>
                                     <td className="px-4 py-3">DESCRIPTION</td>
-                                    <td className="px-4 py-3 text-center">PUBLISHED</td>
+                                  
                                     <td className="px-4 py-3 text-right">ACTIONS</td>
                                 </tr>
                             </thead>
                             <tbody className='bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400'>
                                 {categories.map((category) => (
                                     <tr key={category.id} id={category.id}>
-                                        <td className="px-4 py-3">
-                                            <input id={category.id} name={category.name} type="checkbox" />
-                                        </td>
+                                      
                                         <td className="px-4 py-3">
                                             <span className="text-sm">{category.id}</span>
                                         </td>
@@ -74,13 +121,7 @@ export default function AllProducts({ toggleVisibility, toggleDeleteVisible }) {
                                         <td className="px-4 py-3">
                                             <span className="text-sm">{category.description}</span>
                                         </td>
-                                        <td className="px-4 py-3 text-center">
-                                            <Switch
-                                                checked={checked}
-                                                onChange={handleChange}
-                                                inputProps={{ 'aria-label': 'controlled' }}
-                                            />
-                                        </td>
+                                       
                                         <td className="px-4 py-3">
                                             <div className="flex justify-end gap-x-2">
                                                 <FiEdit

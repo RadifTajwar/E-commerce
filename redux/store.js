@@ -24,6 +24,8 @@ import deleteProductReducer from "./product/deleteProductByIdSlice";
 import productByIdReducer from "./product/productByIdSlice";
 import productBySlugReducer from "./product/productBySlugSlice";
 import updateProductReducer from "./product/updateProductDataSlice";
+import createRatingReducer from "./rating/createRatingSlice";
+import getRatingByProductIdReducer from "./rating/ratingByProductIdSlice";
 import createUserReducer from "./user/createUserSlice";
 import loginUserReducer from "./user/userLoginSlice";
 import allVideoBannerReducer from "./video/allVideoBannerSlice";
@@ -91,6 +93,8 @@ const store = configureStore({
         createUser: createUserReducer,
         loginUser: loginUserReducer,
         getOrderByUser: getOrderByUserReducer,
+        createRating: createRatingReducer,
+        getRatingByProductId: getRatingByProductIdReducer
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser

@@ -1,7 +1,9 @@
 import { fetchAllHeroBanners } from "@/redux/heroBanner/allHeroBannerSlice";
+import { Skeleton } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { FiEdit } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
+
 export default function allHeroBanners({ toggleVisibility, toggleDeleteVisible }) {
     const dispatch = useDispatch();
 
@@ -33,7 +35,56 @@ export default function allHeroBanners({ toggleVisibility, toggleDeleteVisible }
 
     return (
         <>
-            {isLoading && <p>Loading categories...</p>}
+            {isLoading && (
+                <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
+                <div className="w-full overflow-x-auto">
+                  <table className="w-full whitespace-no-wrap">
+                    <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
+                      <tr>
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="50px" height="20px" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="80px" height="20px" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="80px" height="20px" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <Skeleton variant="text" width="100px" height="20px" />
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Skeleton variant="text" width="60px" height="20px" />
+                        </td>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400">
+                      {[...Array(10)].map((_, index) => (
+                        <tr key={index}>
+                          <td className="px-4 py-3">
+                            <Skeleton variant="text" width="50px" height="20px" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <Skeleton variant="rectangular" width={40} height={40} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <Skeleton variant="rectangular" width={40} height={40} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <Skeleton variant="text" width="100px" height="20px" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex justify-end gap-x-2">
+                              <Skeleton variant="text" width="30px" height="20px" />
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
             {error && <p>Error: {error}</p>}
             {!isLoading && heroBanners && (
                 <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
@@ -41,9 +92,7 @@ export default function allHeroBanners({ toggleVisibility, toggleDeleteVisible }
                         <table className='w-full whitespace-no-wrap'>
                             <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
                                 <tr>
-                                    <td className="px-4 py-3">
-                                        <input id="selectAll" name="selectAll" type="checkbox" />
-                                    </td>
+                                  
                                     <td className="px-4 py-3">ID</td>
                                     <td className="px-4 py-3">Banner 1</td>
                                     <td className="px-4 py-3">Banner 2</td>
@@ -56,9 +105,7 @@ export default function allHeroBanners({ toggleVisibility, toggleDeleteVisible }
                                     heroBanners && heroBanners.map(heroBanners => (
 
                                         <tr key={heroBanners._id} id={heroBanners._id}>
-                                            <td className="px-4 py-3">
-                                                <input id={heroBanners._id} name={heroBanners.name} type="checkbox" />
-                                            </td>
+                                          
                                             <td className="px-4 py-3">
                                                 <span className="text-sm">{heroBanners._id}</span>
                                             </td>

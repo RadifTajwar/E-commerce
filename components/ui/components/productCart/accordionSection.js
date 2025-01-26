@@ -1,11 +1,37 @@
 import Rating from '@mui/material/Rating';
 import 'flowbite';
 import Image from 'next/image';
-
+import { useState } from 'react';
+import { useDispatch,useSelector } from 'react-redux';
 export default function AccordionSection() {
+    const dispatch = useDispatch();
+    
+    const [active, setActive] = useState(false);
+    const [rating, setRating] = useState(0); // State to store the selected rating
+
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        review: '',
+    });
+    const handleRatingChange = (event, newValue) => {
+        setRating(newValue); // Update state with the new rating value
+      
+      };
+    const handleFormClicked = (e) => {
+        e.preventDefault();
+        if (!formData.name || !formData.email || rating === 0) {
+            alert('Please fill out all fields and provide a rating.');
+            return;
+          }
+        
+    };
+
+
+
     return (
         <>
-            <div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white dark:bg-gray-900 text-gray-900 dark:text-white" data-inactive-classes="text-gray-900 dark:text-gray-400" className='border border-gray-200 mt-16 mb-4 px-4'>
+            <div className='border border-gray-200 mt-16 mb-4 px-4'>
                 {/* First Accordion Section */}
                 <h2 id="accordion-flush-heading-1">
                     <button type="button" className="flex items-center  w-full py-5 font-medium rtl:text-right text-gray-900 dark:border-gray-700 dark:text-gray-400 gap-3" data-accordion-target="#accordion-flush-body-1" aria-expanded="true" aria-controls="accordion-flush-body-1">
@@ -15,7 +41,7 @@ export default function AccordionSection() {
                         <span>Description</span>
                     </button>
                 </h2>
-                <div id="accordion-flush-body-1" className="hidden transition-all duration-500 ease-in-out" aria-labelledby="accordion-flush-heading-1">
+                <div className="hidden transition-all duration-500 ease-in-out" >
                     <div className="py-5 dark:border-gray-700">
                         <ul className="text-sm text-gray-600 font-normal space-y-2 block" style={{ listStyleType: "disc" }}>
                             <li>100% Genuine Leather</li>
@@ -37,15 +63,39 @@ export default function AccordionSection() {
                 </div>
 
                 {/* Second Accordion Section */}
-                <h2 id="accordion-flush-heading-2">
-                    <button type="button" className="flex items-center w-full py-5 font-medium rtl:text-right text-gray-900 dark:border-gray-700 dark:text-gray-400 gap-3" data-accordion-target="#accordion-flush-body-2" aria-expanded="true" aria-controls="accordion-flush-body-2">
-                        <svg data-accordion-icon className="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5 5 1 1 5" />
-                        </svg>
-                        <span>Reviews (0)</span>
-                    </button>
-                </h2>
-                <div id="accordion-flush-body-2" className="hidden transition-all duration-500 ease-in-out lg:max-h-[350px] lg:overflow-scroll" aria-labelledby="accordion-flush-heading-2">
+
+                <button
+                    type="button"
+                    className="flex items-center w-full py-5 font-medium rtl:text-right text-gray-900 dark:border-gray-700 dark:text-gray-400 gap-3"
+                    onClick={() => setActive(!active)}
+                >
+                    <svg
+                        data-accordion-icon
+                        className={`w-3 h-3 transform transition-transform duration-500 ease-in-out ${active ? 'rotate-0' : 'rotate-180'
+                            }`}
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 10 6"
+                    >
+                        <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 5 5 1 1 5"
+                        />
+                    </svg>
+                    <span>Reviews (0)</span>
+                </button>
+
+                <div
+                    className={`transition-all duration-500 ease-in-out overflow-scroll`}
+                    style={{
+                        maxHeight: active ? '350px' : '0',
+                        opacity: active ? 1 : 0,
+                    }}
+                >
                     <div className="py-5 dark:border-gray-700">
                         <p className="text-sm font-normal pb-4">REVIEWS</p>
                     </div>
@@ -82,7 +132,7 @@ export default function AccordionSection() {
                                 <p className="text-sm font-normal">Your rating:</p>
                             </div>
                             <div className="stars">
-                                <Rating />
+                            <Rating value={rating} onChange={handleRatingChange} />
                             </div>
                         </div>
 
@@ -95,49 +145,47 @@ export default function AccordionSection() {
                                 className="max-w-full min-w-full px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize min-h-44"
                                 placeholder="Write your review here..."
                                 rows="5"
+                                value={formData.review}
+                                onChange={(e) => setFormData({ ...formData, review: e.target.value })}
                             />
                         </div>
 
                         <div className="w-full">
-                            <form className="w-full">
+                            <form className="w-full" onSubmit={handleFormClicked}>
                                 <div className="input_fields w-full flex jusfity-between space-x-4">
                                     {/* Name Input */}
                                     <div className="mb-4 w-1/2">
                                         <label className="block text-sm font-normal mb-2" htmlFor="name">
-                                            Name
+                                            Name <span className='text-red-500'>*</span>
                                         </label>
                                         <input
                                             type="text"
                                             id="name"
                                             className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value="Radif Tajwar"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                         />
                                     </div>
 
                                     {/* Email Input */}
                                     <div className="mb-4 w-1/2">
                                         <label className="block text-sm font-normal mb-2" htmlFor="email">
-                                            Email
+                                        Email <span className='text-red-500'>*</span>
                                         </label>
                                         <input
                                             type="email"
                                             id="email"
                                             className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value="Raditajwarmahi420@gmail.com"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         />
                                     </div>
                                 </div>
 
-                                {/* Checkbox */}
-                                <div className="mb-4">
-                                    <label className="inline-flex items-center">
-                                        <input type="checkbox" className="form-checkbox text-blue-500 text-sm" />
-                                        <span className="ml-2 text-gray-700">Save my name, email, and website in this browser for the next time I comment.</span>
-                                    </label>
-                                </div>
+                              
 
                                 {/* Submit Button */}
-                                <div className="buttons_ADD_TO_CART bg-black text-white text-center">
+                                <div className="buttons_ADD_TO_CART bg-black text-white text-center mb-10">
                                     <button type="submit" className="text-center w-full py-3 text-sm font-medium">Submit</button>
                                 </div>
                             </form>
