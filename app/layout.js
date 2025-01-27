@@ -60,6 +60,8 @@ export default function Rootlayout({ children }) {
     setIsVisibleShoppingCart(!isVisibleShoppingCart);
   };
 
+ 
+
   return (
     <Provider store={store}>
       <html lang="en">

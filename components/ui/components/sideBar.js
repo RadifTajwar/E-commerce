@@ -2,13 +2,17 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { fetchAllCategories } from '@/redux/category/allCategoriesSlice';
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
+import { clearState } from "@/redux/product/allProductsSlice";
+import localStorageUtil from '@/utils/localStorageUtil';
 import { User } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from "../icon/searchIcon";
 export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInForm }) {
 
+    const router = useRouter();
     const dispatch = useDispatch();
 
     // Access the parent categories from the store
@@ -38,12 +42,36 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     const handleToggleSideBar = () => {
         setTimeout(() => {
             toggleSideBar();
-        }, 500);
+        }, 300);
     }
 
     const handleLoginClicked = () => {
         toggleSideBar();
         toggleLogInForm();
+
+    }
+
+    const handleParentCategoryClicked = (parentCategoryId, parentCategoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+
+        // Store parentCategoryId in localStorage
+        localStorageUtil.setItem("parentCategoryId", parentCategoryId);
+        dispatch(clearState());
+        // Navigate to the formatted URL
+        router.push(`/shop/productCategory/${formattedCategoryName}`);
+        handleToggleSideBar();
+    };
+    const handleCategoryClicked = (parentCategoryName, categoryId, categoryName) => {
+        // Convert to lowercase and replace spaces with hyphens
+        const formattedCategoryName = categoryName.toLowerCase().replace(/\s+/g, '-');
+        const formattedParentCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
+        localStorageUtil.setItem("categoryId", categoryId);
+        dispatch(clearState());
+        // Navigate to the formatted URL
+
+        router.push(`/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`);
+        handleToggleSideBar();
 
     }
 
@@ -92,76 +120,87 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                         </div>
                         <div>
                             {/* Main Category Item */}
+                            {
+                                isSelected ? (
+                                    parentCategories?.map((parentCategory) => {
+                                        const childCategories = categories?.filter(
+                                            (category) => category.parentCategoryId === parentCategory.id
+                                        );
 
-                            {parentCategories?.map((parentCategory) => {
-                                const childCategories = categories?.filter(
-                                    (category) => category.parentCategoryId === parentCategory.id
-                                );
+                                        const isExpanded = expandedStates[parentCategory.id] || false;
 
-                                const isExpanded = expandedStates[parentCategory.id] || false;
-
-                                return (
-                                  <div className=""  key={parentCategory.id}>
-
-                                  
-                                        <div
-                                           
-                                            className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
-                                        >
-                                            <div
-                                                className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? 'bg-[#F7F7F7]' : ''}`}
-                                            >
-                                                {parentCategory.name}
-                                            </div>
-                                            <div
-                                                className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
-                                                onClick={() => toggleExpand(parentCategory.id)}
-                                            >
-                                                <ChevronRightIcon
-                                                    fontSize="medium"
-                                                    className={`transition-transform duration-200 ${isExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
-                                                    style={{ strokeWidth: 1 }}
-                                                />
-                                            </div>
-                                        </div>
-                                        {childCategories?.length > 0 && (
-                                            <div
-                                                className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
-                                            >
-                                                {childCategories?.map((category) => (
+                                        return (
+                                            <>
+                                                <div key={parentCategory.id}>
                                                     <div
-                                                        key={category.id}
-                                                        className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                        className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
                                                     >
-                                                        {category.name}
+                                                        <div
+                                                            className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? 'bg-[#F7F7F7]' : ''}`}
+                                                            onClick={() => handleParentCategoryClicked(parentCategory.id, parentCategory.name)}
+                                                        >
+                                                            {parentCategory.name}
+                                                        </div>
+                                                        <div
+                                                            className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
+                                                            onClick={() => toggleExpand(parentCategory.id)}
+                                                        >
+                                                            <ChevronRightIcon
+                                                                fontSize="medium"
+                                                                className={`transition-transform duration-200 ${isExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
+                                                                style={{ strokeWidth: 1 }}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                                    {isExpanded && childCategories?.length > 0 && (
+                                                        <div
+                                                            className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
+                                                        >
+                                                            {childCategories.map((category) => (
+                                                                <div
+                                                                    key={category.id}
+                                                                    className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                                    onClick={() => handleCategoryClicked(parentCategory.name, category.id, category.name)}
+                                                                >
+                                                                    {category.name}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <Link href="/shop">
+                                                    <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={handleToggleSideBar} >
+                                                        SHOP
+                                                    </div >
+                                                </Link>
+
+                                                <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" >
+                                                    ABOUT US
+                                                </div>
+
+                                                <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold flex items-center space-x-2" onClick={handleLoginClicked}>
+                                                    <User className="w-5 h-5" />
+                                                    <span>LOGIN / REGISTER</span>
+                                                </div>
+                                            </>
+                                        );
+                                    })
+                                ) : (
+                                    // Only show parent category names when not selected
+                                    parentCategories?.map((parentCategory) => (
+                                        <div key={parentCategory.id} className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={() => handleParentCategoryClicked(parentCategory.id, parentCategory.name)}>
+                                            <div className="w-10/12 py-3 ps-5">{parentCategory.name}</div>
                                         </div>
-                                   
-                                );
-                            })}
+                                    ))
+                                )
+                            }
 
 
-                            {/* Collapsible Content */}
 
-                            {/* mapping end  */}
 
-                            <Link href="/shop">
-                                <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={handleToggleSideBar} >
-                                    SHOP
-                                </div >
-                            </Link>
 
-                            <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" >
-                                ABOUT US
-                            </div>
 
-                            <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold flex items-center space-x-2" onClick={handleLoginClicked}>
-                                <User className="w-5 h-5" />
-                                <span>LOGIN / REGISTER</span>
-                            </div>
+
                         </div>
 
 
