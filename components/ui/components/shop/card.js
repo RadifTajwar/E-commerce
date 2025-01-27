@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 import CartIcon from "../../icon/icon";
 import SearchIcon from "../../icon/searchIcon";
 export default function card({ product }) {
+
+    
     const Router = useRouter();
     const dispatch = useDispatch();
     const [productsData, setProductsData] = useState([null]);
@@ -76,8 +78,13 @@ export default function card({ product }) {
     }
     const [localProductData, setLocalProductData] = useState(null);
     const handleCartOpenClicked = () => {
-        setIsLoadingCart(true); // Show loader initially
-        dispatch(fetchProductById(product.id)); // Fetch product data
+        if(product?.inStock){
+            setIsLoadingCart(true); // Show loader initially
+            dispatch(fetchProductById(product.id)); // Fetch product data
+        }else{
+            handleProductClick();
+        }
+        
     };
 
     const handleClearClicked = () => {
@@ -124,19 +131,23 @@ export default function card({ product }) {
                                             />
                                         </div>
 
-                                        <div className="absolute top-1 left-1 ">
+                                        <div className="absolute top-2 left-2 ">
 
                                             <div className="flex items-center justify-center">
-                                                <div className="bg-gray-700 rounded-full py-2 px-4 flex flex-col items-center justify-center text-center   h-12 w-12">
-                                                    <p className="m-0 p-0 text-sm font-medium text-white leading-none ">-3%</p>
-
+                                                <div className="bg-gray-700 rounded-full py-2 px-4 flex flex-col items-center justify-center text-center h-12 w-12">
+                                                    {/* Calculate discount percentage */}
+                                                    <p className="m-0 p-0 text-sm font-medium text-white leading-none">
+                                                        {product?.originalPrice && product?.discountedPrice
+                                                            ? `${Math.round(((product?.originalPrice - product?.discountedPrice) / product?.originalPrice) * 100)}%`
+                                                            : '0%'}
+                                                    </p>
                                                 </div>
                                             </div>
                                             {
-                                                product.inStock && (
+                                               ! product?.inStock && (
                                                     <>
                                                         <div className="flex items-center justify-center mt-2">
-                                                            <div className="bg-white rounded-full py-2 px-4 flex flex-col items-center justify-center text-center   h-12 w-12">
+                                                            <div className="bg-white rounded-full py-2 px-4 flex flex-col items-center justify-center text-center border border-gray-50   h-12 w-12">
                                                                 <p className="m-0 p-0 text-sm font-medium text-black leading-none">Sold</p>
                                                                 <p className="m-0 p-0 text-sm font-medium text-black leading-none">Out</p>
                                                             </div>

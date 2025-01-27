@@ -23,12 +23,12 @@ export const fetchAllProducts = createAsyncThunk(
             ...(params.parentCategoryId && { parentCategoryId: params.parentCategoryId }),
           })}`
         : "";
-      console.log("query", queryParams);
+
 
       const response = await axios.get(
         `https://leather-for-luxury.vercel.app/api/v1/product${queryParams}`
       );
-      console.log("response after query", response);
+   
       return {
         products: response.data.data,
         meta: response.data.meta,

@@ -146,19 +146,23 @@ export default function page() {
     setIsInput(value);
     console.log(isInput);
     setCategoryId("");
+    setSelectedPrice("");
     dispatch(fetchAllProducts({ searchTerm: value }));
   };
 
   const handleCategorySelect = (id) => {
     setCategoryId(id);
     setIsInput("");
+    setSelectedPrice("");
     dispatch(fetchAllProducts({ searchTerm: categoryId }));
-
   };
 
   const handlePriceChange = (price) => {
-      setSelectedPrice(price); // Update the state with the selected value
-  }
+    setCategoryId("");
+    setIsInput("");
+    setSelectedPrice(price);
+    dispatch(fetchAllProducts({ sortOrder: selectedPrice })); 
+    };
   const [productsFetched, setProductsFetched] = useState(false);
 
   return (

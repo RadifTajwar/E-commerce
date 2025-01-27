@@ -5,8 +5,7 @@ export default function MyCartButton({ handleShoppingCartClicked }) {
     const totalCartQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
     return (
         <button
-            id="myCartDropdownButton1"
-            data-dropdown-toggle="myCartDropdown1"
+            
             type="button"
             className="relative inline-flex items-center rounded-lg justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium leading-none text-gray-900 dark:text-white"
             onClick={handleShoppingCartClicked} // Removed parentheses here
@@ -19,7 +18,7 @@ export default function MyCartButton({ handleShoppingCartClicked }) {
                 </svg>
 
                 <span className="absolute -top-1 -left-1 flex items-center justify-center h-4 w-4 text-xs font-bold text-white bg-red-500  rounded-full">
-                    {totalCartQuantity? totalCartQuantity : 0}
+                   0
                 </span>
             </div>
 

@@ -1,11 +1,14 @@
 'use client';
 import DeleteVisible from "@/components/ui/components/admin/orders/deleteVisible";
 import RecentOrders from "@/components/ui/components/admin/orders/recentOrders";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 export default function Page() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [isOrderFetched, setIsOrderFetched] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [isInput, setIsInput] = useState("");
@@ -18,8 +21,12 @@ export default function Page() {
     if (e.target.value === "Status") {
       return;
     }
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", 1);
+    router.push(`?${params.toString()}`, { shallow: true, scroll: false });
     setIsOrderFetched(false);
   };
+  
   const [deleteVisible, setDeleteVisible] = useState(false)
   const resetId = () => {
     idRef.current = null; // Reset the ID
@@ -49,7 +56,7 @@ export default function Page() {
   const handleInputChange = (event) => {
     const { value } = event.target;
     setIsInput(value);
-    
+
     setIsOrderFetched(false);
   };
   const [dates, setDates] = useState({

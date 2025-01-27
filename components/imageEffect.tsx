@@ -5,7 +5,7 @@ import { MouseEvent, useState } from 'react';
 const MAGNIFIER_SIZE = 150;
 const ZOOM_LEVEL = 2;
 
-const ImageEffect = ({ src }: { src: string }) => {
+const ImageEffect = ({ src }: { src: string;  }) => {
     // State variables
     const [zoomable, setZoomable] = useState(false);
     const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
@@ -42,38 +42,41 @@ const ImageEffect = ({ src }: { src: string }) => {
     };
 
     return (
-        <div className='flex justify-center items-center cursor-crosshair'>
-            <div
-                onMouseLeave={handleMouseLeave}
-                onMouseEnter={handleMouseEnter}
-                onMouseMove={handleMouseMove}
-                className=' relative overflow-hidden '
-            >
-                {/* Image passed through props */}
-                <Image className='object-cover border z-10' alt="" src={src} height={640} width={640}/>
+        <div className="flex justify-center items-center cursor-crosshair">
+        <div
+            onMouseLeave={handleMouseLeave}
+            onMouseEnter={handleMouseEnter}
+            onMouseMove={handleMouseMove}
+            className="relative overflow-hidden"
+        >
+            {/* Image container with relative positioning */}
+            <div className="relative">
+                <Image className="object-cover border z-10" alt="" src={src} height={640} width={640} />
 
-                {/* Black overlay on hover */}
-                {zoomable && (
-                    <div className='absolute inset-0 bg-black opacity-30 z-20'></div>
-                )}
-
-                {/* Zoom effect */}
-                <div
-                    style={{
-                        backgroundPosition: `${position.x}px ${position.y}px`,
-                        backgroundImage: `url(${src})`,
-                        backgroundSize: `${imageSize.width * ZOOM_LEVEL}px ${imageSize.height * ZOOM_LEVEL}px`,
-                        backgroundRepeat: 'no-repeat',
-                        display: zoomable ? 'block' : 'none',
-                        top: `${position.mouseY}px`,
-                        left: `${position.mouseX}px`,
-                        width: `${MAGNIFIER_SIZE}px`,
-                        height: `${MAGNIFIER_SIZE }px`,
-                    }}
-                    className={`z-50 pointer-events-none absolute `}
-                />
+                {/* Top-right badge */}
+               
             </div>
+
+            {/* Black overlay on hover */}
+            {zoomable && <div className="absolute inset-0 bg-black opacity-30 z-20"></div>}
+
+            {/* Zoom effect */}
+            <div
+                style={{
+                    backgroundPosition: `${position.x}px ${position.y}px`,
+                    backgroundImage: `url(${src})`,
+                    backgroundSize: `${imageSize.width * ZOOM_LEVEL}px ${imageSize.height * ZOOM_LEVEL}px`,
+                    backgroundRepeat: 'no-repeat',
+                    display: zoomable ? 'block' : 'none',
+                    top: `${position.mouseY}px`,
+                    left: `${position.mouseX}px`,
+                    width: `${MAGNIFIER_SIZE}px`,
+                    height: `${MAGNIFIER_SIZE}px`,
+                }}
+                className={`z-50 pointer-events-none absolute`}
+            />
         </div>
+    </div>
     );
 };
 

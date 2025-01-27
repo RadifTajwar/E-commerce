@@ -31,7 +31,7 @@ export default function orderRow({ order, handleTrackCode, handleUpdate, handleO
                 <span className="text-sm text-black">{order.email}</span>
             </td>
 
-            <td className="px-4 py-3">
+            <td className="px-4 py-3 ">
                 {order.trackCode ? (
                      <span className="text-sm font-semibold text-black">{order.trackCode}</span>
                 ) : (
@@ -39,14 +39,15 @@ export default function orderRow({ order, handleTrackCode, handleUpdate, handleO
                     
                         <input
                             type="text"
-                            className="text-sm font-semibold text-black border border-gray-300 rounded px-2 py-1 w-40"
-                        
+                            className={`text-sm font-semibold text-black border border-gray-300 rounded px-2 py-1 w-40 block ${order.status === "Delivered" || order.status=="Cancel" ? "opacity-30 cursor-not-allowed" : ""}`}
+
                             value={trackingNumber}  // Bind the input field to the state
-                            onChange={handleInputChange}  // Update the state on input change
+                            onChange={handleInputChange}
+                            disabled={order.status === "Delivered" || order.status === "Cancel"}   // Update the state on input change
                         />
                         <button
                             onClick={() => handleTrackCode(order._id, trackingNumber)} // Pass the order ID and tracking number
-                            className="mt-2 text-white bg-blue-500 text-xs px-2 py-1 rounded"
+                            className={`mt-2 text-white bg-blue-500 text-xs px-2 py-1 rounded ${order.status === "Delivered" || order.status=="Cancel" ? "opacity-30 cursor-not-allowed" : ""}`}
                         >
                             ENTER
                         </button>
@@ -75,10 +76,10 @@ export default function orderRow({ order, handleTrackCode, handleUpdate, handleO
             <td className="px-4 py-3 text-center">
                 <select
                     className={`block w-full px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:shadow-none focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 border border-gray-200 bg-gray-50 dark:border-gray-700 h-8 rounded-md text-xs focus:border-blue-500 focus:outline-none 
-            ${order.status === "Cancel" ? "opacity-30 cursor-not-allowed" : ""}`}
+            ${order.status === "Cancel" || order.status==="Delivered" ? "opacity-30 cursor-not-allowed" : ""}`}
                     value={order.status} // Set the initial value to the current status
                     onChange={(e) => handleUpdate(e, order._id)} // Pass both the event and order ID
-                    disabled={order.status === "Cancel"} // Disable if the status is "Cancel"
+                    disabled={order.status === "Cancel" || order.status==="Delivered"} // Disable if the status is "Cancel"
                 >
                     <option value="Pending">Pending</option>
                     <option value="Delivered">Delivered</option>

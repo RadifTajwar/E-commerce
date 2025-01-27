@@ -10,7 +10,7 @@ export default function InfiniteScroll({ products: initialProducts }) {
     const dispatch = useDispatch();
     const { products: fetchedProducts, isLoading, error, meta } = useSelector((state) => state.allProducts);
     const slug = params.slug;
-    
+
     const [allProducts, setAllProducts] = useState(initialProducts || []);
     const [pageNumber, setPageNumber] = useState(1);
     const observerRef = useRef(null);
@@ -34,29 +34,29 @@ export default function InfiniteScroll({ products: initialProducts }) {
     useEffect(() => {
         if (pageNumber > 1 && pageNumber <= maxPages && !isFetchingRef.current) {
             isFetchingRef.current = true;
-            console.log("slud length",slug.length);
+
             if (slug && slug.length === 2) {
-              
-               const categoryId= localStorageUtil.getItem('categoryId');
+
+                const categoryId = localStorageUtil.getItem('categoryId');
                 // Dispatch with categoryId if slug has 2 elements
-                dispatch(fetchAllProducts({ page: pageNumber,categoryId:categoryId })).finally(() => {
-                    isFetchingRef.current = false; 
+                dispatch(fetchAllProducts({ page: pageNumber, categoryId: categoryId })).finally(() => {
+                    isFetchingRef.current = false;
                 });
             } else if (slug && slug.length === 1) {
                 // Dispatch with parentCategoryId if slug has 1 element
-               
-               const parentId=localStorageUtil.getItem('parentCategoryId');
-                dispatch(fetchAllProducts({ page: pageNumber,parentCategoryId:parentId  })).finally(() => {
-                    isFetchingRef.current = false; 
+
+                const parentId = localStorageUtil.getItem('parentCategoryId');
+                dispatch(fetchAllProducts({ page: pageNumber, parentCategoryId: parentId })).finally(() => {
+                    isFetchingRef.current = false;
                 });
             } else {
                 // Fallback if slug is not an array or empty
                 console.log("third dhukse");
                 dispatch(fetchAllProducts({ page: pageNumber })).finally(() => {
-                    isFetchingRef.current = false; 
+                    isFetchingRef.current = false;
                 });
             }
-           
+
         }
     }, [dispatch, pageNumber, maxPages]);
 
@@ -96,8 +96,8 @@ export default function InfiniteScroll({ products: initialProducts }) {
 
     return (
         <>
-            <div className="flex grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
-                {allProducts.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
+                {allProducts.length > 0 && (
                     allProducts.map((product, index) => (
                         <div
                             key={product.id}
@@ -106,13 +106,22 @@ export default function InfiniteScroll({ products: initialProducts }) {
                             <Card product={product} />
                         </div>
                     ))
-                ) : (
-                    <div>No Products</div>
-                )}
+                ) }
             </div>
 
-            {isLoading && <div>Loading more products...</div>}
+            {isLoading && (
+                <div className="m-4 flex justify-center">
+                    <div className="border border-gray-700 py-2 px-4 text-black text-sm">
+                    <spa className="flex justify-center items-center h-full">
+                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin me-2"></div>
+                        Loading...
+                    </spa>
+                        </div>
+                   
+                </div>
+            )}
             {error && <div>Error loading products: {error}</div>}
+
         </>
     );
 }

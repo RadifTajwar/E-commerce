@@ -1,10 +1,10 @@
 'use client';
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 import CryptoJS from "crypto-js";
@@ -24,7 +24,7 @@ export default function cart({ productName }) {
   useEffect(() => {
     if (productName) {
       console.log("productName", productName);
-      dispatch(fetchAllProducts());
+      dispatch(fetchAllProducts({searchTerm: productName }));
     }
     else {
       dispatch(fetchAllProducts());

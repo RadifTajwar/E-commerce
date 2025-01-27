@@ -1,3 +1,4 @@
+import localStorageUtil from "@/utils/localStorageUtil";
 import { configureStore } from "@reduxjs/toolkit";
 import cartReducer from "./cart/cartSlicer";
 import allCategoriesSlice from "./category/allCategoriesSlice";
@@ -38,7 +39,7 @@ const isBrowser = typeof window !== "undefined";
 const loadCartState = () => {
     if (isBrowser) {
         try {
-            const serializedState = localStorage.getItem("cart");
+            const serializedState = localStorageUtil.getItem("cart");
             return serializedState ? JSON.parse(serializedState) : undefined;
         } catch (error) {
             console.error("Could not load cart state", error);
@@ -53,7 +54,7 @@ const saveCartState = (state) => {
     if (isBrowser) {
         try {
             const serializedState = JSON.stringify(state);
-            localStorage.setItem("cart", serializedState);
+            localStorageUtil.setItem("cart", serializedState);
         } catch (error) {
             console.error("Could not save cart state", error);
         }
