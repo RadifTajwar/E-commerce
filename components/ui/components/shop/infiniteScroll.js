@@ -112,10 +112,10 @@ export default function InfiniteScroll({ products: initialProducts }) {
             {isLoading && (
                 <div className="m-4 flex justify-center">
                     <div className="border border-gray-700 py-2 px-4 text-black text-sm">
-                    <spa className="flex justify-center items-center h-full">
+                    <span className="flex justify-center items-center h-full">
                         <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin me-2"></div>
                         Loading...
-                    </spa>
+                    </span>
                         </div>
                    
                 </div>

@@ -121,7 +121,7 @@ export default function card({ product }) {
                                 <div className="image_3 cursor-pointer">
                                     <div className={`inner_imag h-auto w-full relative ${showCartClicked ? `` : `group`}  overflow-hidden`}>
                                         {/* Default Image */}
-                                        <div className="image relative" onClick={handleProductClick}>
+                                        <div className="image relative lg:hidden" onClick={handleProductClick}>
                                             {/* First Image (opacity transitions in and out smoothly) */}
                                             <Image
                                                 alt={product.name}
@@ -145,6 +145,27 @@ export default function card({ product }) {
                                                  ease-in-out
                                                  ${isSecondImageVisible ? "scale-125 opacity-100" : "opacity-0 scale-100"}
                                                 `}
+                                            />
+                                        </div>
+
+                                        <div className="hidden lg:block image" onClick={handleProductClick}>
+                                            <Image
+                                                alt={product.name}
+                                                src={product.imageDefault}
+                                                height={500}
+                                                width={500}
+                                                objectFit="contain"
+                                                className=" group-hover:opacity-0 duration-500"
+                                            />
+
+                                            {/* Hover Image */}
+                                            <Image
+                                                alt={product.name}
+                                                src={product.imageHover}
+                                                height={500}
+                                                width={500}
+                                                objectFit="contain"
+                                                className="absolute top-0 left-0  h-auto opacity-0 group-hover:opacity-100 group-hover:duration-1000 group-hover:scale-110"
                                             />
                                         </div>
 

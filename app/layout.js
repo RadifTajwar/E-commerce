@@ -242,7 +242,6 @@ export default function Rootlayout({ children }) {
                             <NavMenu />
                             
                           
-
                         </div>
                         {/* Cart and account menu  */}
                         <div className="flex items-center lg:space-x-2">

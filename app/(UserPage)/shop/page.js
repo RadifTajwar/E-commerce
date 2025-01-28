@@ -123,9 +123,9 @@ export default function Page() {
 
             <div className="full_upper_container z-50">
                 <div className="upper_text max-w-8xl flex justify-center mt-8 ">
-                    {isLoading && <p>Loading categories...</p>}
+                  
                     {error && <p>Error: {error}</p>}
-                    {!isLoading && (
+                    {parentCategories && (
                         <>
                             <div className="text-center">
                                 <h1 className="text-4xl font-bold ">
@@ -233,9 +233,9 @@ export default function Page() {
                     className={`dropDown_category w-full text-white transition-all duration-500 ease-in-out overflow-hidden ${isVisible ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}`}
                     style={{ transitionProperty: 'max-height, opacity' }}
                 >
-                    {isLoading && <p>Loading categories...</p>}
+                 
                     {error && <p>Error: {error}</p>}
-                    {!isLoading && (
+                    {parentCategories && (
                         <>
                         
                         
@@ -292,7 +292,7 @@ export default function Page() {
 
             <div className="full_lower_container_small_screen my-14 lg:px-3 z-20">
                 <div className="text_section  max-w-7xl mx-auto  my-6 lg:px-3">
-                    {isLoading && <p>Loading Initial Products...</p>}
+                    
                     {error && <p>Error: {error}</p>}
                     { productsFetched && products &&  (
                         <>

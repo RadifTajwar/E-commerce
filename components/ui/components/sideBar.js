@@ -2,9 +2,10 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { fetchAllCategories } from '@/redux/category/allCategoriesSlice';
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import { clearState } from "@/redux/product/allProductsSlice";
+import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
 import localStorageUtil from '@/utils/localStorageUtil';
 import { User } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
@@ -21,7 +22,23 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     );
 
     const { categories, isLoading, error } = useSelector((state) => state.categories);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
 
+    const { products, isLoading: productLoading, error: productError } = useSelector((state) => state.allProducts);
+    const changeSearchBarText = async (e) => {
+        setSearchTerm(e.target.value);
+        if (e.target.value.length === 0) {
+            dispatch(clearState());
+            setSearchResults([]);
+        }
+        else {
+            const res = await dispatch(fetchAllProducts({ searchTerm: e.target.value })).unwrap();
+            setSearchResults(res.products);
+            console.log("res is ", res);
+        }
+
+    };
     // Fetch all parent categories and categories
     useEffect(() => {
         dispatch(fetchAllParentCategories());
@@ -36,9 +53,7 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
             [id]: !prev[id], // Toggle the expand state for the given parentCategory id
         }));
     };
-    const changeSearchBarText = (e) => {
-        setSearchBar(e.target.value);
-    }
+
     const handleToggleSideBar = () => {
         setTimeout(() => {
             toggleSideBar();
@@ -74,6 +89,19 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
         handleToggleSideBar();
 
     }
+    const handleProductClick = (slug, id) => {
+        // Hash the product ID
+
+
+        // Save the hashed ID to localStorage
+        localStorageUtil.setItem("obfuscatedKey", id);
+
+        // Redirect to the product page
+        router.push(`/products/${slug}`);
+        setSearchResults([]);
+        dispatch(clearState());
+        handleToggleSideBar();
+    };
 
     return (
         <>
@@ -84,18 +112,64 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
             >
                 <div className="flex flex-col items-center h-screen justify-center  mx-auto w-full sm:max-w-xs ">
                     <div className="w-full bg-white h-screen rounded-lg dark:border dark:bg-gray-800 dark:border-gray-700 overflow-y-auto">
-                        <div className="ps-5 pe-12 py-2 relative">
-                            <input
-                                type="text"
-                                value={searchBar}
-                                onChange={changeSearchBarText}
-                                placeholder="Search for products"
-                                className="border-none px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
-                            />
-                            <div className="absolute top-3 right-2 mt-1 mr-1">
-                                <SearchIcon />
+                        <div className="relative">
+                            <div className="ps-5 pe-12 py-2 relative">
+                                <input
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={changeSearchBarText}
+                                    placeholder="Search for products"
+                                    className="border-none px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
+                                />
+                                {
+                                    productLoading ? (
+                                        <div className="absolute top-3 right-2 mt-1 mr-1">
+                                            <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin "></div>
+                                        </div>
+                                    ) : (
+                                        <div className="absolute top-3 right-2 mt-1 mr-1">
+                                            <SearchIcon />
+                                        </div>
+                                    )
+                                }
+
                             </div>
+                            {
+                                searchResults?.length > 0 && (
+
+
+
+                                    <div className=" bg-white w-full border border-gray-200 max-h-64 overflow-scroll z-50 shadow-lg">
+                                        {
+                                            searchResults?.map((product) => (
+                                                <div className="whole " key={product?.id}>
+                                                    <div className="flex w-full p-2 group hover:bg-gray-100 transition-all duration-300 cursor-pointer" onClick={() => handleProductClick(product?.slug, product?.id)}>
+                                                        <div className=" me-4">
+                                                            <Image src={product?.imageDefault} alt={product?.name} width={50} height={50}></Image>
+                                                        </div>
+                                                        <div className=" " >
+                                                            <p className="text-gray-900 text-xs font-normal cursor-pointer group-hover:text-gray-600">{product?.name}</p>
+                                                            <p>
+                                                                <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-xs'>${product?.originalPrice}</span>
+                                                                <span className="text-xs text-gray-900 font-medium" style={{ marginLeft: '8px' }}>${product?.discountedPrice}</span>
+                                                            </p>
+                                                        </div>
+
+                                                    </div>
+                                                    <div className="line w-full h-px bg-gray-300 ">
+                                                    </div>
+                                                </div>
+
+
+                                            ))
+                                        }
+
+                                    </div>
+                                )
+                            }
                         </div>
+
+
 
                         <div className="menu flex text-sm font-medium text-gray-500 dark:text-gray-400 bg-[#F5F5F5] cursor-pointer border-b border-gray-300">
                             {/* MENU Tab */}
@@ -130,44 +204,43 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                                         const isExpanded = expandedStates[parentCategory.id] || false;
 
                                         return (
-                                            <>
-                                                <div key={parentCategory.id}>
+
+                                            <div key={parentCategory.id}>
+                                                <div
+                                                    className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
+                                                >
                                                     <div
-                                                        className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
+                                                        className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? 'bg-[#F7F7F7]' : ''}`}
+                                                        onClick={() => handleParentCategoryClicked(parentCategory.id, parentCategory.name)}
                                                     >
-                                                        <div
-                                                            className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? 'bg-[#F7F7F7]' : ''}`}
-                                                            onClick={() => handleParentCategoryClicked(parentCategory.id, parentCategory.name)}
-                                                        >
-                                                            {parentCategory.name}
-                                                        </div>
-                                                        <div
-                                                            className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
-                                                            onClick={() => toggleExpand(parentCategory.id)}
-                                                        >
-                                                            <ChevronRightIcon
-                                                                fontSize="medium"
-                                                                className={`transition-transform duration-200 ${isExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
-                                                                style={{ strokeWidth: 1 }}
-                                                            />
-                                                        </div>
+                                                        {parentCategory.name}
                                                     </div>
-                                                    {isExpanded && childCategories?.length > 0 && (
-                                                        <div
-                                                            className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
-                                                        >
-                                                            {childCategories.map((category) => (
-                                                                <div
-                                                                    key={category.id}
-                                                                    className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
-                                                                    onClick={() => handleCategoryClicked(parentCategory.name, category.id, category.name)}
-                                                                >
-                                                                    {category.name}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                                    <div
+                                                        className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
+                                                        onClick={() => toggleExpand(parentCategory.id)}
+                                                    >
+                                                        <ChevronRightIcon
+                                                            fontSize="medium"
+                                                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
+                                                            style={{ strokeWidth: 1 }}
+                                                        />
+                                                    </div>
                                                 </div>
+                                                {isExpanded && childCategories?.length > 0 && (
+                                                    <div
+                                                        className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
+                                                    >
+                                                        {childCategories.map((category) => (
+                                                            <div
+                                                                key={category.id}
+                                                                className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                                onClick={() => handleCategoryClicked(parentCategory.name, category.id, category.name)}
+                                                            >
+                                                                {category.name}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 <Link href="/shop">
                                                     <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={handleToggleSideBar} >
                                                         SHOP
@@ -182,7 +255,9 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                                                     <User className="w-5 h-5" />
                                                     <span>LOGIN / REGISTER</span>
                                                 </div>
-                                            </>
+                                            </div>
+
+
                                         );
                                     })
                                 ) : (
