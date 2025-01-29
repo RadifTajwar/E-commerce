@@ -22,25 +22,25 @@ export default function ShoppingCart({ toggleShoppingCart, isVisibleShoppingCart
     }
 
     return (
-        <section className="bg-white dark:bg-gray-900 min-h-screen max-h-screen flex items-center justify-center overflow-y-auto z-50 transition-transform duration-300 min-w-[300px] lg:min-w-[340px]">
+        <section className="bg-white dark:bg-gray-900 min-h-screen max-h-screen flex items-center justify-center overflow-y-auto z-50 transition-transform duration-300 min-w-[300px] lg:min-w-[340px] relative">
             <div className="flex flex-col items-center h-screen justify-center mx-auto w-full sm:max-w-md lg:py-0">
-                <div className="w-full bg-white h-screen rounded-lg dark:border dark:bg-gray-800 dark:border-gray-700 flex flex-col overflow-hidden">
+                <div className="w-full bg-white h-screen rounded-lg dark:border dark:bg-gray-800 dark:border-gray-700 flex flex-col overflow-hidden relative">
                     {/* Top Section */}
                     <div className="top_section flex justify-between py-5 px-4 border-b border-gray-200 sticky top-0 bg-white dark:bg-gray-800 z-10">
                         <h1 className="text-lg font-normal leading-tight tracking-tight text-gray-900 dark:text-white">
                             Shopping Cart
                         </h1>
                         <button
-                                    className="text-sm flex items-center leading-tight tracking-tight text-gray-900 md:text-sm dark:text-white cursor-pointer hover:text-gray-600 group"
-                                    onClick={toggleShoppingCart}
-                                >
-                                    <span className="mr-1">
-                                        <svg className="h-3 w-3 group-hover:fill-gray-600" viewBox="0 0 24 24">
-                                            <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"></path>
-                                        </svg>
-                                    </span>
-                                    Close
-                                </button>
+                            className="text-sm flex items-center leading-tight tracking-tight text-gray-900 md:text-sm dark:text-white cursor-pointer hover:text-gray-600 group"
+                            onClick={toggleShoppingCart}
+                        >
+                            <span className="mr-1">
+                                <svg className="h-3 w-3 group-hover:fill-gray-600" viewBox="0 0 24 24">
+                                    <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"></path>
+                                </svg>
+                            </span>
+                            Close
+                        </button>
                     </div>
 
                     {/* Middle Section - Cart Items */}
@@ -112,7 +112,7 @@ export default function ShoppingCart({ toggleShoppingCart, isVisibleShoppingCart
 
                     {/* Bottom Section */}
                     {cartItems.length !== 0 && (
-                        <div className="lower_section py-4 px-4 border-t border-gray-200 bg-white dark:bg-gray-800 z-10">
+                        <div className="lower_section py-4 px-4 border-t border-gray-200 bg-white dark:bg-gray-800  w-full z-20">
                             <div className="subtotal flex justify-between items-center pb-4">
                                 <h1 className="text-lg font-medium leading-tight tracking-tight text-gray-900 dark:text-white">
                                     Subtotal:

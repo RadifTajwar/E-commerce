@@ -24,21 +24,40 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     const { categories, isLoading, error } = useSelector((state) => state.categories);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
+    const [productLoadingResult, setProductLoadingResult] = useState(false);
 
-    const { products, isLoading: productLoading, error: productError } = useSelector((state) => state.allProducts);
-    const changeSearchBarText = async (e) => {
+
+
+
+
+    const changeSearchBarText = (e) => {
         setSearchTerm(e.target.value);
         if (e.target.value.length === 0) {
             dispatch(clearState());
             setSearchResults([]);
         }
-        else {
-            const res = await dispatch(fetchAllProducts({ searchTerm: e.target.value })).unwrap();
-            setSearchResults(res.products);
-            console.log("res is ", res);
-        }
-
     };
+
+    useEffect(() => {
+        if (!searchTerm) return; // Avoid unnecessary calls when searchTerm is empty
+
+        const delayDebounceFn = setTimeout(async () => {
+            setProductLoadingResult(true);
+            try {
+                const res = await dispatch(fetchAllProducts({ searchTerm })).unwrap();
+                setSearchResults(res.products);
+                console.log("res is ", res);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            } finally {
+                setProductLoadingResult(false);
+            }
+        }, 500); // Waits 500ms after user stops typing
+
+        return () => clearTimeout(delayDebounceFn); // Cleanup timeout on every keystroke
+    }, [searchTerm, dispatch]);
+
+
     // Fetch all parent categories and categories
     useEffect(() => {
         dispatch(fetchAllParentCategories());
@@ -122,7 +141,7 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                                     className="border-none px-4 py-2 placeholder:text-sm focus:outline-none mt-1 block w-full shadow-sm sm:text-sm"
                                 />
                                 {
-                                    productLoading ? (
+                                    productLoadingResult ? (
                                         <div className="absolute top-3 right-2 mt-1 mr-1">
                                             <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin "></div>
                                         </div>
