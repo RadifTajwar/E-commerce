@@ -29,7 +29,8 @@ export default function Page() {
     const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.allParentCategories
     );
-
+    const [parentRes, setParentRes] = useState([]);
+    const [categoryRes, setCategoryRes] = useState([]);
     const searchParams = useSearchParams();
     const { parentCategory, childCategory } = searchParams;
 
@@ -39,9 +40,26 @@ export default function Page() {
 
     // Fetch all parent categories and categories
     useEffect(() => {
-        dispatch(fetchAllParentCategories());
-        dispatch(fetchAllCategories());
+        const fetchData = async () => {
+            if (parentRes.length>0 && categoryRes.length>0) {
+               return;
+            }
+            try {
+
+                const res = await dispatch(fetchAllParentCategories()).unwrap();
+                setParentRes(res);
+                console.log(res);
+                const res2 = await dispatch(fetchAllCategories()).unwrap();
+                setCategoryRes(res2);
+                console.log(res2);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
+        fetchData();
     }, [dispatch]);
+
 
     const [isSortBarVisible, setSortBarVisible] = useState(false);
 
@@ -136,9 +154,9 @@ export default function Page() {
 
             <div className="full_upper_container z-50">
                 <div className="upper_text max-w-8xl flex justify-center mt-8 ">
-                    {isLoading && <p>Loading categories...</p>}
+                   
                     {error && <p>Error: {error}</p>}
-                    {!isLoading && (
+                    {parentRes && (
                         <>
                             <div className="text-center">
                                 <h1 className="text-4xl font-bold ">
@@ -146,13 +164,13 @@ export default function Page() {
                                 </h1>
                                 <div className="category_section large-screen ">
                                     <ul className="hidden lg:flex items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 sm:justify-center">
-                                        {parentCategories.map((parentCategory) => {
+                                        {parentRes?.map((parentCategory) => {
                                             // Filter the categories for this parent category
-                                            const childCategories = categories.filter(
-                                                (category) => category.parentCategoryId === parentCategory.id
+                                            const childCategories = categoryRes?.filter(
+                                                (category) => category?.parentCategoryId === parentCategory?.id
                                             );
                                             return (
-                                                <li className="group relative" key={parentCategory.id}>
+                                                <li className="group relative" key={parentCategory?.id}>
                                                     <a
                                                         href="#"
 
@@ -160,10 +178,10 @@ export default function Page() {
                                                         className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500"
                                                         style={{ fontSize: '.9rem' }}
                                                         onClick={() => {
-                                                            handleParentCategoryClicked(parentCategory.id, parentCategory.name)
+                                                            handleParentCategoryClicked(parentCategory?.id, parentCategory?.name)
                                                         }}
                                                     >
-                                                        {parentCategory.name}
+                                                        {parentCategory?.name}
                                                     </a>
                                                     <span
                                                         className="absolute bottom-2 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"
@@ -171,29 +189,29 @@ export default function Page() {
                                                     ></span>
 
                                                     {/* Render dropdown only if childCategories exist */}
-                                                    {childCategories.length > 0 && (
+                                                    {childCategories?.length > 0 && (
                                                         <div className="absolute flex top-full left-0 min-w-[250px] bg-white border border-slate-200 p-2 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-50">
                                                             <div className="items w-full">
                                                                 <ul className="w-full p-2">
-                                                                    {childCategories.map((category) => (
+                                                                    {childCategories?.map((category) => (
                                                                         <li
                                                                             className="group/nested relative w-full mb-4"
-                                                                            key={category.id}
+                                                                            key={category?.id}
                                                                             onClick={() => {
-                                                                                handleCategoryClicked(parentCategory.name, category.id, category.name)
+                                                                                handleCategoryClicked(parentCategory?.name, category?.id, category?.name)
                                                                             }}
                                                                         >
                                                                             <a
                                                                                 href="#"
-                                                                                onClick={() => handleChildCategoryClick(category.name, parentCategory.name)}
+                                                                                onClick={() => handleChildCategoryClick(category?.name, parentCategory?.name)}
                                                                                 className="group/nested w-full"
                                                                                 style={{ fontSize: '.9rem' }}
                                                                             >
                                                                                 <p className="text-gray-900 group-hover/nested:text-gray-600 text-start font-semibold text-md">
-                                                                                    {category.name}
+                                                                                    {category?.name}
                                                                                 </p>
                                                                                 <p className="text-gray-400 text-start text-sm">
-                                                                                    {parentCategories.length} Products
+                                                                                    {parentRes?.length} Products
                                                                                 </p>
                                                                             </a>
                                                                         </li>
@@ -246,31 +264,31 @@ export default function Page() {
                     className={`dropDown_category w-full text-white transition-all duration-500 ease-in-out overflow-hidden ${isVisible ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}`}
                     style={{ transitionProperty: 'max-height, opacity' }}
                 >
-                    {isLoading && <p>Loading categories...</p>}
+                   
                     {error && <p>Error: {error}</p>}
-                    {!isLoading && (
+                    {!parentRes && (
                         <>
 
 
 
                             {
-                                parentCategories.length > 0 && (
+                                parentRes.length > 0 && (
                                     <div className="inner p-3 w-full">
                                         <div className="dropdown_inner px-2 bg-white w-full">
                                             <ul className="w-full lg:hidden items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 ">
 
-                                                {parentCategories.map((parentCategory) => (
-                                                    <li key={parentCategory.id} className="group relative w-full py-3 cursor-pointer">
+                                                {parentRes?.map((parentCategory) => (
+                                                    <li key={parentCategory?.id} className="group relative w-full py-3 cursor-pointer">
                                                         <a
                                                             href="#"
 
                                                             className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
                                                             style={{ fontSize: '.9rem' }}
                                                             onClick={() => {
-                                                                handleParentCategoryClicked(parentCategory.id, parentCategory.name)
+                                                                handleParentCategoryClicked(parentCategory?.id, parentCategory?.name)
                                                             }}
                                                         >
-                                                            {parentCategory.name}
+                                                            {parentCategory?.name}
 
                                                             <span
                                                                 className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
@@ -306,7 +324,7 @@ export default function Page() {
 
             <div className="full_lower_container_small_screen my-14 lg:px-3 z-20">
                 <div className="text_section  max-w-7xl mx-auto  my-6 lg:px-3">
-                    {isLoading && <p>Loading Initial Products...</p>}
+                    
                     {error && <p>Error: {error}</p>}
                     {productsFetched && products && (
                         <>

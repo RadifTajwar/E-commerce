@@ -7,46 +7,74 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function NavMenu() {
-    
+    const dispatch = useDispatch();
+    const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-    
-    const { products, isLoading: productLoading, error: productError } = useSelector((state) => state.allProducts);
-    const handleInputChange = async (e) => {
+    const [parentRes, setParentRes] = useState([]);
+    const [categoryRes, setCategoryRes] = useState([]);
+    const { isLoading: productLoading } = useSelector((state) => state.allProducts);
+    const [productLoadingResult, setProductLoadingResult] = useState(false);
+    const handleInputChange = (e) => {
         setSearchTerm(e.target.value);
         if (e.target.value.length === 0) {
             dispatch(clearState());
             setSearchResults([]);
         }
-        else {
-            const res = await dispatch(fetchAllProducts({ searchTerm: e.target.value })).unwrap();
-            setSearchResults(res.products);
-            console.log("res is ", res);
-        }
-
     };
-    const dispatch = useDispatch();
-    const router = useRouter();
+
+    useEffect(() => {
+        if (!searchTerm) return; // Avoid unnecessary calls when searchTerm is empty
+
+        const delayDebounceFn = setTimeout(async () => {
+            setProductLoadingResult(true);
+            try {
+                const res = await dispatch(fetchAllProducts({ searchTerm })).unwrap();
+                setSearchResults(res.products);
+                console.log("res is ", res);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            } finally {
+                setProductLoadingResult(false);
+            }
+        }, 500); // Waits 500ms after user stops typing
+
+        return () => clearTimeout(delayDebounceFn); // Cleanup timeout on every keystroke
+    }, [searchTerm, dispatch]);
+
     // Access the parent categories from the store
     const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.allParentCategories
     );
 
-    const { categories, isLoading, error } = useSelector((state) => state.categories);
+    const { error } = useSelector((state) => state.categories);
 
     // Fetch all parent categories and categories
     useEffect(() => {
-        dispatch(fetchAllParentCategories());
-        dispatch(fetchAllCategories());
+        const fetchData = async () => {
+            if (parentRes.length > 0 && categoryRes.length > 0) {
+                return;
+            }
+            try {
+
+                const res = await dispatch(fetchAllParentCategories()).unwrap();
+                setParentRes(res);
+                console.log(res);
+                const res2 = await dispatch(fetchAllCategories()).unwrap();
+                setCategoryRes(res2);
+                console.log(res2);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
+        fetchData();
     }, [dispatch]);
 
-    // Show a loading indicator if the parent categories are still loading
-    if (parentLoading || isLoading) {
-        return <div>Loading...</div>;
-    }
+
 
     // Show an error message if the parent categories or categories failed to load
     if (parentError || error) {
@@ -73,27 +101,44 @@ export default function NavMenu() {
         router.push(`/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`);
 
     }
-    
-        const handleProductClick = (slug,id) => {
-            // Hash the product ID
-           
-    
-            // Save the hashed ID to localStorage
-            localStorageUtil.setItem("obfuscatedKey", id);
-    
-            // Redirect to the product page
-            router.push(`/products/${slug}`);
-            setSearchResults([]);
-            dispatch(clearState());
+
+    const handleProductClick = (slug, id) => {
+        // Hash the product ID
+
+
+        // Save the hashed ID to localStorage
+        localStorageUtil.setItem("obfuscatedKey", id);
+
+        // Redirect to the product page
+        router.push(`/products/${slug}`);
+        setSearchResults([]);
+        dispatch(clearState());
+
+
+    };
+
+    const searchRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setSearchResults([]); // Call function to clear search results
+            }
         };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
 
     return (
         <>
             <ul className="hidden lg:flex items-center justify-start gap-4 sm:gap-5 md:gap-6 py-3 sm:justify-center">
-                {parentCategories.map((parentCategory) => {
+                {parentRes?.map((parentCategory) => {
                     // Filter the categories for this parent category
-                    const childCategories = categories.filter(
+                    const childCategories = categoryRes?.filter(
                         (category) => category.parentCategoryId === parentCategory.id
                     );
 
@@ -188,61 +233,53 @@ export default function NavMenu() {
                 </li>
 
 
-                <li className="group relative">
+                <li className="group relative" ref={searchRef}>
                     <div className="flex items-center bg-white p-2 border border-gray-200">
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={handleInputChange}
-                            placeholder="Search products "
-                            className="flex-1 px-2 text-sm bg-white outline-none border-r border-black "
+                            placeholder="Search products"
+                            className="flex-1 px-2 text-sm bg-white outline-none border-r border-black"
                         />
-                        {
-                            productLoading ? (
-                                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin ms-2"></div>
-                            ) : (
-                                <Search className="text-black  w-5 h-5 ms-2" />
-                            )
-                        }
-
-
+                        {productLoadingResult ? (
+                            <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin ms-2"></div>
+                        ) : (
+                            <Search className="text-black w-5 h-5 ms-2" />
+                        )}
                     </div>
-                    {
-                        searchResults?.length > 0 && (
-                        
 
-
-                                <div className="absolute top-full left-0 bg-white w-full border border-gray-200 max-h-80 overflow-scroll">
-                                    {
-                                        searchResults?.map((product) => (
-                                            <div className="whole " key={product?.id}>
-                                                <div  className="flex w-full p-2 group hover:bg-gray-100 transition-all duration-300 cursor-pointer" onClick={() => handleProductClick(product?.slug,product?.id)}>
-                                                    <div className=" me-4">
-                                                        <Image src={product?.imageDefault} alt={product?.name} width={50} height={50}></Image>
-                                                    </div>
-                                                    <div className=" " >
-                                                        <p className="text-gray-900 text-xs font-normal cursor-pointer group-hover:text-gray-600">{product?.name}</p>
-                                                        <p>
-                                                            <span style={{ textDecoration: 'line-through', color: '#a9a9a9' }} className='text-xs'>${product?.originalPrice}</span>
-                                                            <span className="text-xs text-gray-900 font-medium" style={{ marginLeft: '8px' }}>${product?.discountedPrice}</span>
-                                                        </p>
-                                                    </div>
-
-                                                </div>
-                                                <div className="line w-full h-px bg-gray-300 ">
-                                                </div>
-                                            </div>
-
-
-                                        ))
-                                    }
-
-                                </div> 
-                        )
-                    }
-
+                    {searchResults?.length > 0 && (
+                        <div className="absolute top-full left-0 bg-white w-full border border-gray-200 max-h-80 overflow-scroll">
+                            {searchResults.map((product) => (
+                                <div className="whole" key={product?.id}>
+                                    <div
+                                        className="flex w-full p-2 group hover:bg-gray-100 transition-all duration-300 cursor-pointer"
+                                        onClick={() => handleProductClick(product?.slug, product?.id)}
+                                    >
+                                        <div className="me-4">
+                                            <Image src={product?.imageDefault} alt={product?.name} width={50} height={50} />
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-900 text-xs font-normal cursor-pointer group-hover:text-gray-600">
+                                                {product?.name}
+                                            </p>
+                                            <p>
+                                                <span style={{ textDecoration: "line-through", color: "#a9a9a9" }} className="text-xs">
+                                                    ${product?.originalPrice}
+                                                </span>
+                                                <span className="text-xs text-gray-900 font-medium" style={{ marginLeft: "8px" }}>
+                                                    ${product?.discountedPrice}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="line w-full h-px bg-gray-300"></div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </li>
-
             </ul>
         </>
     )
