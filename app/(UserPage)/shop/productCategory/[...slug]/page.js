@@ -3,6 +3,7 @@
 // import ColorBar from "@/components/ui/components/shop/colorBar";
 // import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
+import RangeBar from "@/components/ui/components/shop/rangeBar";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
 import TopRatedProducts from "@/components/ui/components/shop/topRatedProducts";
@@ -14,7 +15,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
-// import RangeBar from "@/components/ui/components/shop/rangeBar";
 
 export default function Page() {
     const params = useParams();
@@ -41,8 +41,8 @@ export default function Page() {
     // Fetch all parent categories and categories
     useEffect(() => {
         const fetchData = async () => {
-            if (parentRes.length>0 && categoryRes.length>0) {
-               return;
+            if (parentRes.length > 0 && categoryRes.length > 0) {
+                return;
             }
             try {
 
@@ -72,27 +72,41 @@ export default function Page() {
     // Fetch products on component mount
     useEffect(() => {
         const fetchProducts = async () => {
-            // If products have not been fetched yet
+            const minPrice = searchParams.get("min_price");
+            const maxPrice = searchParams.get("max_price");
+
             if (!productsFetched) {
-                console.log("dhukteseasfdasd fsadf asdfasdf ", slug,productsFetched);
+
+                console.log("Fetching products with slug:", slug, "Fetched:", productsFetched);
                 dispatch(clearState()); // Clear the previous products
+
+                let fetchParams = {};
+
                 if (slug && slug.length === 2) {
-                    console.log("first dhukse", slug[1]);
-                    const categoryId = await localStorageUtil.getItem('categoryId');
-                    dispatch(fetchAllProducts({ categoryId }));
+                    console.log("Fetching by sub-category:", slug[1]);
+                    const categoryId = await localStorageUtil.getItem("categoryId");
+                    fetchParams.categoryId = categoryId;
                 } else if (slug && slug.length === 1) {
-                    console.log("second dhukse in slug", slug[0]);
-                    const parentId = await localStorageUtil.getItem('parentCategoryId');
-                    console.log("parentId", parentId);
-                    dispatch(fetchAllProducts({ parentCategoryId: parentId }));
+                    console.log("Fetching by parent category:", slug[0]);
+                    const parentId = await localStorageUtil.getItem("parentCategoryId");
+                    fetchParams.parentCategoryId = parentId;
                 }
 
+                // If minPrice and maxPrice exist, add them to fetchParams
+                if (minPrice && maxPrice) {
+                    console.log("Applying price filters:", minPrice, maxPrice);
+                    fetchParams.startPrice = minPrice;
+                    fetchParams.endPrice = maxPrice;
+                }
+
+                dispatch(fetchAllProducts(fetchParams));
                 setProductsFetched(true); // Mark products as fetched
             }
         };
 
-        fetchProducts(); // Call the async function
-    }, [productsFetched, dispatch, slug,params]);
+        fetchProducts();
+    }, [productsFetched, dispatch, searchParams, slug]); // Dependencies ensure re-fetching when needed
+
 
     const toggleSortBar = () => {
         setSortBarVisible(!isSortBarVisible)
@@ -154,7 +168,7 @@ export default function Page() {
 
             <div className="full_upper_container z-50">
                 <div className="upper_text max-w-8xl flex justify-center mt-8 ">
-                   
+
                     {error && <p>Error: {error}</p>}
                     {parentRes && (
                         <>
@@ -264,7 +278,7 @@ export default function Page() {
                     className={`dropDown_category w-full text-white transition-all duration-500 ease-in-out overflow-hidden ${isVisible ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}`}
                     style={{ transitionProperty: 'max-height, opacity' }}
                 >
-                   
+
                     {error && <p>Error: {error}</p>}
                     {!parentRes && (
                         <>
@@ -324,16 +338,16 @@ export default function Page() {
 
             <div className="full_lower_container_small_screen my-14 lg:px-3 z-20">
                 <div className="text_section  max-w-7xl mx-auto  my-6 lg:px-3">
-                    
+
                     {error && <p>Error: {error}</p>}
-                    {productsFetched && products && (
-                        <>
+                    
+                        
 
                             <div className="flex py-3 justify-between  lg:px-3 gap-x-6">
 
                                 <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
 
-                                    {/* <RangeBar />    */}
+                                    <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
                                     <div className="line w-full h-px bg-gray-300 my-6">
                                     </div>
                                     {/* <ColorBar products={products} /> */}
@@ -350,7 +364,7 @@ export default function Page() {
                                 <div className={`left w-80 bg-white p-4 overflow-scroll fixed z-20  transition-all duration-300 lg:static  lg:hidden ${isSortBarVisible ? ' top-0 left-0 bottom-0 ' : ' top-0 -left-full'
                                     } `}>
                                     <div className={`${isSortBarVisible ? 'translate-x-0' : '-translate-x-full'}`}>
-                                        {/* <RangeBar /> */}
+                                        <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
                                         <div className="line w-full h-px bg-gray-300 my-6">
                                         </div>
                                         {/* <ColorBar products={products} /> */}
@@ -380,14 +394,15 @@ export default function Page() {
                                             <SortingSection />
                                         </div>
                                     </div>
-
+                                    {productsFetched && products && (
                                     <div className="infiniteScroll ">
                                         <InfiniteScroll products={products} />
                                     </div>
+                                )}
                                 </div>
                             </div>
-                        </>
-                    )}
+                        
+                
                 </div>
             </div>
 

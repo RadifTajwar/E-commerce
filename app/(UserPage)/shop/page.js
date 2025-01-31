@@ -3,38 +3,39 @@
 // import ColorBar from "@/components/ui/components/shop/colorBar";
 // import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
+import RangeBar from "@/components/ui/components/shop/rangeBar";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
 import TopRatedProducts from "@/components/ui/components/shop/topRatedProducts";
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
+import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from 'react'; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
-// import RangeBar from "@/components/ui/components/shop/rangeBar";
-import { fetchAllProducts } from "@/redux/product/allProductsSlice";
 export default function Page() {
     const dispatch = useDispatch();
+    const searchParams = useSearchParams();
     const [parentRes, setParentRes] = useState([]);
     const [categoryRes, setCategoryRes] = useState([]);
     // Access the parent categories from the store
     const { parentCategories, isLoading: parentLoading, error: parentError } = useSelector(
         (state) => state.allParentCategories
     );
-    
 
-    const searchParams = useSearchParams();
+
+
     const { parentCategory, childCategory } = searchParams;
-    
+
     const { categories, isLoading: categoryLoading, error: categoryError } = useSelector(
         (state) => state.categories
     );
 
     useEffect(() => {
         const fetchData = async () => {
-            if (parentRes.length>0 && categoryRes.length>0) {
-               return;
+            if (parentRes.length > 0 && categoryRes.length > 0) {
+                return;
             }
             try {
 
@@ -62,11 +63,24 @@ export default function Page() {
 
     // Fetch products on component mount
     useEffect(() => {
+        const minPrice = searchParams.get("min_price");
+        const maxPrice = searchParams.get("max_price");
+
         if (!productsFetched) {
-            dispatch(fetchAllProducts());
-            setProductsFetched(true); // Mark products as fetched
+            dispatch(clearState()); // Clear the state
+            if (minPrice && maxPrice) {
+                // Dispatch with price filters
+                console.log("minPrice", minPrice);
+                console.log("maxPrice", maxPrice);
+                dispatch(fetchAllProducts({ startPrice: minPrice, endPrice: maxPrice }));
+            } else {
+                // Dispatch without filters
+                dispatch(fetchAllProducts());
+            }
+            setProductsFetched(true); // Mark as fetched
         }
-    }, [productsFetched, dispatch]);
+    }, [productsFetched, dispatch, searchParams]); // Depend on searchParams to react to URL changes
+
 
     const toggleSortBar = () => {
         setSortBarVisible(!isSortBarVisible)
@@ -109,20 +123,20 @@ export default function Page() {
     const handleParentCategoryClicked = (parentCategoryId, parentCategoryName) => {
         // Convert to lowercase and replace spaces with hyphens
         const formattedCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
-    
+
         // Store parentCategoryId in localStorage
         localStorageUtil.setItem("parentCategoryId", parentCategoryId);
-    
+
         // Navigate to the formatted URL
         router.push(`/shop/productCategory/${formattedCategoryName}`);
     };
-    const handleCategoryClicked = (parentCategoryName,categoryId, categoryName) => {
+    const handleCategoryClicked = (parentCategoryName, categoryId, categoryName) => {
         // Convert to lowercase and replace spaces with hyphens
         const formattedCategoryName = categoryName.toLowerCase().replace(/\s+/g, '-');
         const formattedParentCategoryName = parentCategoryName.toLowerCase().replace(/\s+/g, '-');
         localStorageUtil.setItem("categoryId", categoryId);
         router.push(`/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`);
-        
+
     }
 
     return (
@@ -139,7 +153,7 @@ export default function Page() {
 
             <div className="full_upper_container z-50">
                 <div className="upper_text max-w-8xl flex justify-center mt-8 ">
-                  
+
                     {error && <p>Error: {error}</p>}
                     {parentRes && (
                         <>
@@ -158,11 +172,11 @@ export default function Page() {
                                                 <li className="group relative" key={parentCategory?.id}>
                                                     <a
                                                         href="#"
-                                                        
+
                                                         title=""
                                                         className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500"
                                                         style={{ fontSize: '.9rem' }}
-                                                        onClick={()=>{
+                                                        onClick={() => {
                                                             handleParentCategoryClicked(parentCategory?.id, parentCategory?.name)
                                                         }}
                                                     >
@@ -182,8 +196,8 @@ export default function Page() {
                                                                         <li
                                                                             className="group/nested relative w-full mb-4"
                                                                             key={category.id}
-                                                                            onClick={()=>{
-                                                                                handleCategoryClicked(parentCategory?.name,category?.id, category.name)
+                                                                            onClick={() => {
+                                                                                handleCategoryClicked(parentCategory?.name, category?.id, category.name)
                                                                             }}
                                                                         >
                                                                             <a
@@ -249,46 +263,46 @@ export default function Page() {
                     className={`dropDown_category w-full text-white transition-all duration-500 ease-in-out overflow-hidden ${isVisible ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'}`}
                     style={{ transitionProperty: 'max-height, opacity' }}
                 >
-                 
+
                     {error && <p>Error: {error}</p>}
                     {parentRes && (
                         <>
-                        
-                        
-                        
-                        {
-                            parentRes?.length > 0 && (
-                                <div className="inner p-3 w-full">
-                                <div className="dropdown_inner px-2 bg-white w-full">
-                                    <ul className="w-full lg:hidden items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 ">
-
-                                    {parentRes?.map((parentCategory) => (
-                                        <li key={parentCategory?.id} className="group relative w-full py-3 cursor-pointer">
-                                            <a
-                                                href="#"
-                                                onClick={()=>{
-                                                    handleParentCategoryClicked(parentCategory?.id, parentCategory?.name)
-                                                }}
-                                                className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
-                                                style={{ fontSize: '.9rem' }}
-                                            >
-                                               {parentCategory?.name}
-                                                
-                                                <span
-                                                    className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
-                                                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
-                                                ></span>
-                                            </a>
-                                        </li>
-                                         ))}
-                                    </ul>
-                                </div>
-                            </div>
 
 
-                            )
-                        }
-                       
+
+                            {
+                                parentRes?.length > 0 && (
+                                    <div className="inner p-3 w-full">
+                                        <div className="dropdown_inner px-2 bg-white w-full">
+                                            <ul className="w-full lg:hidden items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 ">
+
+                                                {parentRes?.map((parentCategory) => (
+                                                    <li key={parentCategory?.id} className="group relative w-full py-3 cursor-pointer">
+                                                        <a
+                                                            href="#"
+                                                            onClick={() => {
+                                                                handleParentCategoryClicked(parentCategory?.id, parentCategory?.name)
+                                                            }}
+                                                            className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
+                                                            style={{ fontSize: '.9rem' }}
+                                                        >
+                                                            {parentCategory?.name}
+
+                                                            <span
+                                                                className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
+                                                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.67)' }}
+                                                            ></span>
+                                                        </a>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+
+
+                                )
+                            }
+
                         </>
                     )}
                 </div>
@@ -308,70 +322,72 @@ export default function Page() {
 
             <div className="full_lower_container_small_screen my-14 lg:px-3 z-20">
                 <div className="text_section  max-w-7xl mx-auto  my-6 lg:px-3">
-                    
+
                     {error && <p>Error: {error}</p>}
-                    { productsFetched && products &&  (
-                        <>
-
-                            <div className="flex py-3 justify-between  lg:px-3 gap-x-6">
-
-                                <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
-                                    
-                                    {/* <RangeBar />    */}
-                                    <div className="line w-full h-px bg-gray-300 my-6">
-                                    </div>
-                                    {/* <ColorBar products={products} /> */}
-                                    <div className="line w-full h-px bg-gray-300 my-6">
-                                    </div>
-                                    <StockStatus />
-                                    <div className="line w-full h-px bg-gray-300 my-6">
-                                    </div>
-                                    <TopRatedProducts />
 
 
+
+                    <div className="flex py-3 justify-between  lg:px-3 gap-x-6">
+
+                        <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
+
+                            <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
+                            <div className="line w-full h-px bg-gray-300 my-6">
+                            </div>
+                            {/* <ColorBar products={products} /> */}
+                            <div className="line w-full h-px bg-gray-300 my-6">
+                            </div>
+                            <StockStatus />
+                            <div className="line w-full h-px bg-gray-300 my-6">
+                            </div>
+                            <TopRatedProducts />
+
+
+                        </div>
+
+                        <div className={`left w-80 bg-white p-4 overflow-scroll fixed z-20  transition-all duration-300 lg:static  lg:hidden ${isSortBarVisible ? ' top-0 left-0 bottom-0 ' : ' top-0 -left-full'
+                            } `}>
+                            <div className={`${isSortBarVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+                                <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
+                                <div className="line w-full h-px bg-gray-300 my-6">
                                 </div>
-
-                                <div className={`left w-80 bg-white p-4 overflow-scroll fixed z-20  transition-all duration-300 lg:static  lg:hidden ${isSortBarVisible ? ' top-0 left-0 bottom-0 ' : ' top-0 -left-full'
-                                    } `}>
-                                    <div className={`${isSortBarVisible ? 'translate-x-0' : '-translate-x-full'}`}>
-                                        {/* <RangeBar /> */}
-                                        <div className="line w-full h-px bg-gray-300 my-6">
-                                        </div>
-                                        {/* <ColorBar products={products} /> */}
-                                        <div className="line w-full h-px bg-gray-300 my-6">
-                                        </div>
-                                        <StockStatus />
-                                        <div className="line w-full h-px bg-gray-300 my-6">
-                                        </div>
-                                        <TopRatedProducts />
-                                    </div>
-
+                                {/* <ColorBar products={products} /> */}
+                                <div className="line w-full h-px bg-gray-300 my-6">
                                 </div>
-                                <div className="right  w-full lg:w-4/5 px-4 ">
-                                    <div className="flex justify-between items-center pb-5">
-                                        <div className="tex hidden lg:block">
-                                            <p className=" text-sm  decoration-gray-800 font-semibold  my-3">
-                                                <span className="hover:text-gray-900 transition-colors duration-300 text-gray-500 font-light cursor-pointer">Home </span>
-                                                / Shop
-                                            </p>
-                                        </div>
-                                        <div className="tex  lg:hidden cursor-pointer">
-                                            <button className=" text-sm  decoration-gray-800 font-semibold  my-3" onClick={toggleSortBar}>
-                                                <MenuIcon />
-                                            </button>
-                                        </div>
-                                        <div className="sorting_section ">
-                                            <SortingSection />
-                                        </div>
-                                    </div>
+                                <StockStatus />
+                                <div className="line w-full h-px bg-gray-300 my-6">
+                                </div>
+                                <TopRatedProducts />
+                            </div>
 
-                                    <div className="infiniteScroll ">
-                                        <InfiniteScroll  products={products}/>
-                                    </div>
+                        </div>
+                        <div className="right  w-full lg:w-4/5 px-4 ">
+                            <div className="flex justify-between items-center pb-5">
+                                <div className="tex hidden lg:block">
+                                    <p className=" text-sm  decoration-gray-800 font-semibold  my-3">
+                                        <span className="hover:text-gray-900 transition-colors duration-300 text-gray-500 font-light cursor-pointer">Home </span>
+                                        / Shop
+                                    </p>
+                                </div>
+                                <div className="tex  lg:hidden cursor-pointer">
+                                    <button className=" text-sm  decoration-gray-800 font-semibold  my-3" onClick={toggleSortBar}>
+                                        <MenuIcon />
+                                    </button>
+                                </div>
+                                <div className="sorting_section ">
+                                    <SortingSection />
                                 </div>
                             </div>
-                        </>
-                    )}
+
+                            {productsFetched && products && (
+                                <div className="infiniteScroll ">
+                                    <InfiniteScroll products={products} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
 

@@ -1,30 +1,68 @@
+import { sendRating } from '@/redux/rating/createRatingSlice';
+import { getRatingById } from '@/redux/rating/ratingByProductIdSlice';
+import { Skeleton } from '@mui/material';
 import Rating from '@mui/material/Rating';
 import 'flowbite';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useDispatch,useSelector } from 'react-redux';
-export default function AccordionSection() {
-    const dispatch = useDispatch();
-    
-    const [active, setActive] = useState(false);
-    const [rating, setRating] = useState(0); // State to store the selected rating
+import { useDispatch, useSelector } from 'react-redux';
+export default function AccordionSection({ productId }) {
 
+    const dispatch = useDispatch();
+    const [active, setActive] = useState(false); // State to toggle the accordion section
+    const [rating, setRating] = useState(0); // State to store the selected rating
+    const [ratingRes, setRatingRes] = useState([]);
+
+    const{isLoading} = useSelector((state) => state.getRatingByProductId);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         review: '',
+        rating: 0,
     });
+
+    const handleReviewOpen = () => {
+        setActive(!active);
+        dispatch(getRatingById(productId));
+    };
+
     const handleRatingChange = (event, newValue) => {
         setRating(newValue); // Update state with the new rating value
-      
-      };
-    const handleFormClicked = (e) => {
+        setFormData({ ...formData, rating: newValue });
+    };
+    const handleFormClicked = async (e) => {
         e.preventDefault();
-        if (!formData.name || !formData.email || rating === 0) {
+
+        if (!formData.name || !formData.email || formData.rating === 0) {
             alert('Please fill out all fields and provide a rating.');
             return;
-          }
-        
+        }
+        try {
+            const result = await dispatch(
+                sendRating({
+                    productId: productId,
+                    userName: formData.name,
+                    userEmail: formData.email,
+                    ratingStar: Number(formData.rating),
+                    reviewText: formData.review,
+                })
+            ).unwrap();
+        } catch (error) {
+            console.log("error is ", error);
+        }
+        // Dispatch the action to add the review
+
+
+
+        setFormData({
+            name: '',
+            email: '',
+            review: '',
+        });
+        setRating(0);
+        const rating = await dispatch(getRatingById(productId)).unwrap();
+        setRatingRes(rating);
+
     };
 
 
@@ -67,7 +105,7 @@ export default function AccordionSection() {
                 <button
                     type="button"
                     className="flex items-center w-full py-5 font-medium rtl:text-right text-gray-900 dark:border-gray-700 dark:text-gray-400 gap-3"
-                    onClick={() => setActive(!active)}
+                    onClick={handleReviewOpen}
                 >
                     <svg
                         data-accordion-icon
@@ -86,7 +124,7 @@ export default function AccordionSection() {
                             d="M9 5 5 1 1 5"
                         />
                     </svg>
-                    <span>Reviews (0)</span>
+                    <span>Reviews {ratingRes.length}</span>
                 </button>
 
                 <div
@@ -96,29 +134,69 @@ export default function AccordionSection() {
                         opacity: active ? 1 : 0,
                     }}
                 >
-                    <div className="py-5 dark:border-gray-700">
-                        <p className="text-sm font-normal pb-4">REVIEWS</p>
-                    </div>
+                    {
+                        isLoading && (
+                            <div className="py-5 dark:border-gray-700">
+                                <p className="text-sm font-normal pb-4">REVIEWS</p>
 
-                    {/* Reviews Section */}
-                    <div className="comments w-full">
-                        <div className="flex w-full justify-between items-center mb-10">
-                            <div className="left flex space-x-4 items-center">
-                                <div className="profile_icon ">
-                                    <Image src="/profile.jpg" width={60} height={60} className="rounded-full" />
-                                </div>
-                                <div className="review_text">
-                                    <p className="text-sm text-gray-600 font-normal space-y-2">Your review is awaiting approval</p>
-                                    <p className="text-sm text-gray-600 font-normal space-y-2">Joss</p>
+                                {/* Reviews Section Skeleton */}
+                                <div className="comments w-full">
+                                    {[...Array(1)].map((_, index) => (
+                                        <div key={index} className="flex w-full justify-between items-center mb-10">
+                                            <div className="left flex space-x-4 items-center">
+                                                <div className="profile_icon">
+                                                    <Skeleton variant="circular" width={60} height={60} />
+                                                </div>
+                                                <div className="review_text">
+                                                    <Skeleton variant="text" width={120} height={20} />
+                                                    <Skeleton variant="text" width={180} height={20} />
+                                                </div>
+                                            </div>
+                                            <div className="right">
+                                                <Skeleton variant="text" width={80} height={20} />
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                            <div className="right">
-                                <p className="text-sm text-gray-600 font-normal space-y-2">
-                                    <Rating />
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                        )
+                    }
+                    {
+                       !isLoading &&  ratingRes.length === 0 ? (<p className="text-sm text-gray-600 font-normal space-y-2">No reviews yet</p>) :
+                            (
+                                <>
+                                    <div className="py-5 dark:border-gray-700">
+                                        <p className="text-sm font-normal pb-4">REVIEWS</p>
+                                    </div>
+
+                                    {/* Reviews Section */}
+                                    <div className="comments w-full">
+                                        {
+                                            ratingRes?.map((item, index) => (
+                                                <div key={index} className="flex w-full justify-between items-center mb-10">
+                                                    <div className="left flex space-x-4 items-center">
+                                                        <div className="profile_icon ">
+                                                            <Image src="/profile.jpg" width={60} height={60} className="rounded-full" />
+                                                        </div>
+                                                        <div className="review_text">
+                                                            <p className="text-sm text-gray-600 font-normal space-y-2">{item?.userName}</p>
+                                                            <p className="text-sm text-gray-600 font-normal space-y-2">{item?.reviewText}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="right">
+                                                        <p className="text-sm text-gray-600 font-normal space-y-2">
+                                                            <Rating value={item?.ratingStar} />
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        }
+
+                                    </div>
+                                </>
+                            )
+                    }
+
 
                     {/* Write a Comment Section */}
                     <div className="write_a_comment">
@@ -132,7 +210,7 @@ export default function AccordionSection() {
                                 <p className="text-sm font-normal">Your rating:</p>
                             </div>
                             <div className="stars">
-                            <Rating value={rating} onChange={handleRatingChange} />
+                                <Rating value={rating} onChange={handleRatingChange} />
                             </div>
                         </div>
 
@@ -170,7 +248,7 @@ export default function AccordionSection() {
                                     {/* Email Input */}
                                     <div className="mb-4 w-1/2">
                                         <label className="block text-sm font-normal mb-2" htmlFor="email">
-                                        Email <span className='text-red-500'>*</span>
+                                            Email <span className='text-red-500'>*</span>
                                         </label>
                                         <input
                                             type="email"
@@ -182,7 +260,7 @@ export default function AccordionSection() {
                                     </div>
                                 </div>
 
-                              
+
 
                                 {/* Submit Button */}
                                 <div className="buttons_ADD_TO_CART bg-black text-white text-center mb-10">

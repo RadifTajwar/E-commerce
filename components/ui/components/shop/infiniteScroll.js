@@ -1,6 +1,7 @@
 'use client';
 import { fetchAllProducts } from '@/redux/product/allProductsSlice';
 import localStorageUtil from '@/utils/localStorageUtil';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -96,8 +97,8 @@ export default function InfiniteScroll({ products: initialProducts }) {
 
     return (
         <>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8">
-                {allProducts.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8 w-full">
+                {allProducts.length > 0 ? (
                     allProducts.map((product, index) => (
                         <div
                             key={product.id}
@@ -106,6 +107,9 @@ export default function InfiniteScroll({ products: initialProducts }) {
                             <Card product={product} />
                         </div>
                     ))
+                ):( isLoading? null :
+                    <div className='w-full bg-red-700 p-4 text-sm text-white font-medium'>
+                       <ErrorOutlineIcon/> No products were found matching your selection. </div>
                 ) }
             </div>
 

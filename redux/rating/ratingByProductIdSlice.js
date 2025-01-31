@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Async thunk to fetch ratings by productId
@@ -7,7 +7,7 @@ export const getRatingById = createAsyncThunk(
   async (productId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://leather-for-luxury.vercel.app/api/v1/product/rating/${productId}`
+        `http://leather-for-luxury.vercel.app/api/v1/product/product/${productId}`
       );
       return response.data.data;
     } catch (error) {

@@ -66,9 +66,9 @@ export default function productId() {
 
 
     // Access the update category data from the store
-    const { productData, isLoading, error } = useSelector(
-        (state) => state.productBySlug
-    );
+    const { productData, isLoading, error } = useSelector((state) => state.productBySlug);
+
+   
 
 
     const isSamllScreen = typeof window !== 'undefined' && window.innerWidth >= 768;
@@ -705,13 +705,17 @@ export default function productId() {
                     </div>
                 </div>
             </div>
+            {
+                productData && (
+                    <div className="description_&_review_sectionmy-2">
+                        <div className="upper_part max-w-7xl mx-auto px-4">
 
-            <div className="description_&_review_sectionmy-2">
-                <div className="upper_part max-w-7xl mx-auto px-4">
-
-                    <AccordionSection />
-                </div>
-            </div>
+                            <AccordionSection productId={productData?.id}/>
+                        </div>
+                    </div>
+                )
+            }                            
+           
 
 
 

@@ -21,6 +21,7 @@ export const fetchAllProducts = createAsyncThunk(
             ...(params.searchTerm && { searchTerm: params.searchTerm }),
             ...(params.categoryId && { categoryId: params.categoryId }),
             ...(params.parentCategoryId && { parentCategoryId: params.parentCategoryId }),
+            ...(params.startPrice && params.endPrice &&  { startPrice: Number(params.startPrice),endPrice: Number(params.endPrice) }),
           })}`
         : "";
 
