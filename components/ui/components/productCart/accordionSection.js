@@ -23,10 +23,14 @@ export default function AccordionSection({ productId }) {
 
     const handleReviewOpen = async ()  => {
         if(!active){
+            setActive(!active); 
             const rating = await dispatch(getRatingById(productId)).unwrap();
             setRatingRes(rating);
         }
-        setActive(!active); 
+        else{
+            setActive(!active);
+        }
+        
         
     };
 
@@ -130,7 +134,7 @@ export default function AccordionSection({ productId }) {
                             d="M9 5 5 1 1 5"
                         />
                     </svg>
-                    <span>Reviews {ratingRes.length}</span>
+                    <span>Reviews </span>
                 </button>
 
                 <div
@@ -191,7 +195,7 @@ export default function AccordionSection({ productId }) {
                                                     </div>
                                                     <div className="right">
                                                         <p className="text-sm text-gray-600 font-normal space-y-2">
-                                                            <Rating value={item?.ratingStar} />
+                                                            <Rating value={item?.ratingStar} readOnly />
                                                         </p>
                                                     </div>
                                                 </div>

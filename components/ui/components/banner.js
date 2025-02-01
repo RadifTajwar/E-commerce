@@ -57,7 +57,7 @@ export function Banner() {
                             variant="rectangular"
                             width="100%"
                             height="100%"
-                            className="rounded-lg"
+                            className=""
                           />
                         </div>
                       </CardContent>
@@ -84,7 +84,7 @@ export function Banner() {
                               alt={`carousel image ${index}`}
                               layout="fill"
                               objectFit="cover"
-                              className="rounded-lg"
+                              className=""
                             />
                           </div>
                         </CardContent>

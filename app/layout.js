@@ -7,10 +7,11 @@ import ShoppingCart from '@/components/ui/components/productCart/shoppingCart';
 import SideBar from '@/components/ui/components/sideBar';
 import store from "@/redux/store";
 import localStorageUtil from '@/utils/localStorageUtil';
+import { jwtDecode } from 'jwt-decode';
 import { Inter } from "next/font/google";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Provider } from "react-redux";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
@@ -24,23 +25,36 @@ export default function Rootlayout({ children }) {
   const [isVisibleLogInForm, setIsVisibleLogInForm] = useState(false);
   const [isVisibleSideBar, setIsVisibleSideBar] = useState(false);
   const [isVisibleShoppingCart, setIsVisibleShoppingCart] = useState(false);
-
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  useEffect(() => {
+    const accessToken = localStorageUtil.getItem("accessToken");
+    if(accessToken){
+        const email = jwtDecode(accessToken);
+        if (email?.email) {
+            setIsLoggedIn(true);
+        }
+      }
+  }, []);
   const handleShoppingCartClicked = () => {
     toggleShoppingCart();
   }
-
+ 
   const handleAccountClicked = () => {
     if (isMyAccountPage) {
       // Reload the page if on /my-account
       window.location.reload();
     } else {
-      // Otherwise, perform the toggleLogInForm function
+
+      if(isLoggedIn){
+        router.push('/my-account');
+      }else{
       toggleLogInForm();
+      }
     }
   };
 
-
+ 
 
   const toggleLogInForm = () => {
     
@@ -59,7 +73,7 @@ export default function Rootlayout({ children }) {
     console.log("clicked on shopping cart")
     setIsVisibleShoppingCart(!isVisibleShoppingCart);
   };
-
+  
  
 
   return (
@@ -98,14 +112,14 @@ export default function Rootlayout({ children }) {
                       <div
                         className={`loginForm fixed z-50 transition-all duration-300 ${isVisibleLogInForm ? 'top-0 right-0 ' : 'top-0 -right-full'
                           }`}>
-                        <LoginForm toggleLogInForm={toggleLogInForm} isVisibleLogInForm={isVisibleLogInForm} />
+                        <LoginForm toggleLogInForm={toggleLogInForm} isVisibleLogInForm={isVisibleLogInForm} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
                       </div>
 
 
                       <div
                         className={`sideBarForm fixed z-50 transition-all duration-300 ${isVisibleSideBar ? 'top-0 left-0 bottom-0' : 'top-0 -left-full'
                           }`}>
-                        <SideBar toggleSideBar={toggleSideBar} isVisibleSideBar={isVisibleSideBar} toggleLogInForm={toggleLogInForm}/>
+                        <SideBar toggleSideBar={toggleSideBar} isVisibleSideBar={isVisibleSideBar} toggleLogInForm={toggleLogInForm} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
                       </div>
 
                       {/* Shopping cart  */}

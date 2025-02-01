@@ -49,7 +49,7 @@ export default function  Layout({ children }) {
                         <p className="px-4  py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer" onClick={() => { sideBarComponentClicked('myAccount') }}>Dashboard</p>
                         <p className="px-4  py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer"onClick={() => { sideBarComponentClicked('orders') }}>Orders</p>
                         <p className="px-4  py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer"onClick={() => { sideBarComponentClicked('editAddress') }}>Addresses</p>
-                        <p className="px-4  py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer"onClick={() => { sideBarComponentClicked('editAccount') }}>Account Details</p>
+                        <p className="px-4  py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer"onClick={() => { sideBarComponentClicked('editAccount') }}>Account</p>
                         <p className="px-4  py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer">Wishlist</p>
                         <p className="px-4  py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer" onClick={handleLogOut}>Logout</p>
                     </div>

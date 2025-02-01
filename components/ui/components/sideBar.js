@@ -4,6 +4,7 @@ import { fetchAllCategories } from '@/redux/category/allCategoriesSlice';
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
 import localStorageUtil from '@/utils/localStorageUtil';
+import { jwtDecode } from 'jwt-decode';
 import { User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from "../icon/searchIcon";
-export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInForm }) {
+export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInForm ,isLoggedIn,setIsLoggedIn}) {
 
     const router = useRouter();
     const dispatch = useDispatch();
@@ -25,7 +26,7 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [productLoadingResult, setProductLoadingResult] = useState(false);
-
+    const [toggleAccountExpanded, setToggleAccountExpanded] = useState(false);
 
 
 
@@ -57,12 +58,20 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
         return () => clearTimeout(delayDebounceFn); // Cleanup timeout on every keystroke
     }, [searchTerm, dispatch]);
 
-
+   
     // Fetch all parent categories and categories
     useEffect(() => {
+        const accessToken = localStorageUtil.getItem("accessToken");
+        if (accessToken) {
+            const email = jwtDecode(accessToken);
+            if (email?.email) {
+                setIsLoggedIn(true);
+            }
+        }
+
         dispatch(fetchAllParentCategories());
         dispatch(fetchAllCategories());
-    }, [dispatch]);
+    }, [dispatch,isLoggedIn]);
     const [searchBar, setSearchBar] = useState("");
     const [isSelected, setIsSelected] = useState(true);
     const [expandedStates, setExpandedStates] = useState({});
@@ -80,9 +89,13 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     }
 
     const handleLoginClicked = () => {
-        toggleSideBar();
-        toggleLogInForm();
-
+        if (isLoggedIn) {
+            router.push("/myAccount");
+            toggleSideBar();
+        } else {
+            toggleSideBar();
+            toggleLogInForm();
+        }
     }
 
     const handleParentCategoryClicked = (parentCategoryId, parentCategoryName) => {
@@ -121,6 +134,23 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
         dispatch(clearState());
         handleToggleSideBar();
     };
+
+    const handleUserMenuClicked = (menu) => {
+      
+        handleToggleSideBar();
+        setToggleAccountExpanded(false);
+        router.push(menu);
+    }
+
+    const handleLogOut = () => {
+        localStorageUtil.removeItem('accessToken');
+        setIsLoggedIn(false);
+        
+        
+        handleToggleSideBar();
+        setToggleAccountExpanded(false);
+        router.push('/');
+    }
 
     return (
         <>
@@ -224,7 +254,7 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
 
                                         return (
 
-                                            <div key={parentCategory.id}>
+                                            <div key={parentCategory.id} className='overflow-scroll '>
                                                 <div
                                                     className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
                                                 >
@@ -269,11 +299,92 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                                                 <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" >
                                                     ABOUT US
                                                 </div>
+                                                {
+                                                    !isLoggedIn ? (
 
-                                                <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold flex items-center space-x-2" onClick={handleLoginClicked}>
-                                                    <User className="w-5 h-5" />
-                                                    <span>LOGIN / REGISTER</span>
-                                                </div>
+                                                        <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold flex items-center space-x-2" onClick={handleLoginClicked}>
+                                                            <User className="w-5 h-5" />
+                                                            <span>LOGIN / REGISTER</span>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <div
+                                                                className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
+                                                            >
+                                                                <div
+                                                                    className={` transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 flex items-center space-x-2 ${toggleAccountExpanded ? 'bg-[#F7F7F7]' : ''}`}
+
+                                                                >
+                                                                    <User className="w-5 h-5" />
+                                                                    MY ACCOUNT
+                                                                </div>
+                                                                <div
+                                                                    className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${toggleAccountExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
+                                                                    onClick={() => setToggleAccountExpanded(!toggleAccountExpanded)}
+                                                                >
+                                                                    <ChevronRightIcon
+                                                                        fontSize="medium"
+                                                                        className={`transition-transform duration-200 ${toggleAccountExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
+                                                                        style={{ strokeWidth: 1 }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            {
+                                                                toggleAccountExpanded && (
+                                                                    <div
+                                                                        className={`overflow-hidden transition-all duration-200 `}
+                                                                    >
+
+                                                                        <div
+
+                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                                            onClick={() => {handleUserMenuClicked("/myAccount")}}
+                                                                        >
+                                                                            Dashboard
+                                                                        </div>
+                                                                        <div
+
+                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                                            onClick={() =>  {handleUserMenuClicked("/myAccount/orders")}}
+                                                                        >
+                                                                            Orders
+                                                                        </div>
+                                                                        <div
+
+                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                                            onClick={() =>  {handleUserMenuClicked("/myAccount/editAddress")}}
+                                                                        >
+                                                                            Addresses
+                                                                        </div>
+                                                                        <div
+
+                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                                            onClick={() =>  {handleUserMenuClicked("/myAccount/editAccount")}}
+                                                                        >
+                                                                            Account
+                                                                        </div>
+                                                                        <div
+
+                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+
+                                                                        >
+                                                                            Wishlist
+                                                                        </div>
+                                                                        <div
+
+                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
+                                                                            onClick={handleLogOut}
+                                                                        >
+                                                                            Logout
+                                                                        </div>
+
+                                                                    </div>
+                                                                )}
+
+                                                        </>
+                                                    )
+                                                }
+
                                             </div>
 
 

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { useSelector } from "react-redux";
-export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
+export default function LoginForm({ toggleLogInForm, isVisibleLogInForm ,isLoggedIn,setIsLoggedIn}) {
     const dispatch = useDispatch();
     const router = useRouter();
      const [logMail, setLogMail] = useState("");
@@ -38,6 +38,7 @@ export default function LoginForm({ toggleLogInForm, isVisibleLogInForm }) {
             // Handle successful login if needed
             console.log('Login successful:', result);
             toggleLogInForm();
+            setIsLoggedIn(true);
             setTimeout(() => {
                 router.push('/myAccount');
                
