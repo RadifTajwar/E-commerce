@@ -21,15 +21,21 @@ export default function AccordionSection({ productId }) {
         rating: 0,
     });
 
-    const handleReviewOpen = () => {
-        setActive(!active);
-        dispatch(getRatingById(productId));
+    const handleReviewOpen = async ()  => {
+        if(!active){
+            const rating = await dispatch(getRatingById(productId)).unwrap();
+            setRatingRes(rating);
+        }
+        setActive(!active); 
+        
     };
 
     const handleRatingChange = (event, newValue) => {
         setRating(newValue); // Update state with the new rating value
         setFormData({ ...formData, rating: newValue });
     };
+
+
     const handleFormClicked = async (e) => {
         e.preventDefault();
 
