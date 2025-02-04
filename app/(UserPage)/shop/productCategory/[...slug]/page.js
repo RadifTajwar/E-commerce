@@ -1,12 +1,11 @@
 'use client';
 
 // import ColorBar from "@/components/ui/components/shop/colorBar";
-// import ColorBar from "@/components/ui/components/shop/colorBar";
+import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
 import RangeBar from "@/components/ui/components/shop/rangeBar";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
-import TopRatedProducts from "@/components/ui/components/shop/topRatedProducts";
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
@@ -37,7 +36,7 @@ export default function Page() {
     const { categories, isLoading: categoryLoading, error: categoryError } = useSelector(
         (state) => state.categories
     );
-
+    const [filterSearch, setFilterSearch] = useState({});
     // Fetch all parent categories and categories
     useEffect(() => {
         const fetchData = async () => {
@@ -74,13 +73,35 @@ export default function Page() {
         const fetchProducts = async () => {
             const minPrice = searchParams.get("min_price");
             const maxPrice = searchParams.get("max_price");
-
+            const filterColor = searchParams.get("filter_color");
+            const sortOrder = searchParams.get("orderby");
             if (!productsFetched) {
 
                 console.log("Fetching products with slug:", slug, "Fetched:", productsFetched);
                 dispatch(clearState()); // Clear the previous products
 
                 let fetchParams = {};
+                const filters = {};
+
+                if (minPrice && maxPrice) {
+                    filters.startPrice = minPrice;
+                    filters.endPrice = maxPrice;
+                    fetchParams.startPrice = minPrice;
+                    fetchParams.endPrice = maxPrice;
+                }
+
+                if (filterColor) {
+                    filters.colorName = filterColor;
+                    fetchParams.colorName = filterColor;
+                }
+
+                if(sortOrder){
+                    filters.sortBy="discountedPrice";
+                    filters.sortOrder = sortOrder;
+                    fetchParams.sortOrder = sortOrder;
+                    fetchParams.sortBy = "discountedPrice";
+                }
+                setFilterSearch(filters);
 
                 if (slug && slug.length === 2) {
                     console.log("Fetching by sub-category:", slug[1]);
@@ -93,12 +114,9 @@ export default function Page() {
                 }
 
                 // If minPrice and maxPrice exist, add them to fetchParams
-                if (minPrice && maxPrice) {
-                    console.log("Applying price filters:", minPrice, maxPrice);
-                    fetchParams.startPrice = minPrice;
-                    fetchParams.endPrice = maxPrice;
-                }
 
+                console.log("Fetch Params:", fetchParams);
+                console.log("Filters:", filters);
                 dispatch(fetchAllProducts(fetchParams));
                 setProductsFetched(true); // Mark products as fetched
             }
@@ -340,69 +358,69 @@ export default function Page() {
                 <div className="text_section  max-w-7xl mx-auto  my-6 lg:px-3">
 
                     {error && <p>Error: {error}</p>}
-                    
-                        
-
-                            <div className="flex py-3 justify-between  lg:px-3 gap-x-6">
-
-                                <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
-
-                                    <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
-                                    <div className="line w-full h-px bg-gray-300 my-6">
-                                    </div>
-                                    {/* <ColorBar products={products} /> */}
-                                    <div className="line w-full h-px bg-gray-300 my-6">
-                                    </div>
-                                    <StockStatus />
-                                    <div className="line w-full h-px bg-gray-300 my-6">
-                                    </div>
-                                    <TopRatedProducts />
 
 
+
+                    <div className="flex py-3 justify-between  lg:px-3 gap-x-6">
+
+                        <div className="left w-1/5   transition-all duration-300 lg:static hidden lg:block">
+
+                            <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
+                            <div className="line w-full h-px bg-gray-300 my-6">
+                            </div>
+                            <ColorBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
+                            <div className="line w-full h-px bg-gray-300 my-6">
+                            </div>
+                            <StockStatus productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
+                            <div className="line w-full h-px bg-gray-300 my-6">
+                            </div>
+
+
+
+                        </div>
+
+                        <div className={`left w-80 bg-white p-4 overflow-scroll fixed z-20  transition-all duration-300 lg:static  lg:hidden ${isSortBarVisible ? ' top-0 left-0 bottom-0 ' : ' top-0 -left-full'
+                            } `}>
+                            <div className={`${isSortBarVisible ? 'translate-x-0' : '-translate-x-full'}`}>
+                                <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
+                                <div className="line w-full h-px bg-gray-300 my-6">
+                                </div>
+                                <ColorBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
+                                <div className="line w-full h-px bg-gray-300 my-6">
+                                </div>
+                                <StockStatus productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
+                                <div className="line w-full h-px bg-gray-300 my-6">
                                 </div>
 
-                                <div className={`left w-80 bg-white p-4 overflow-scroll fixed z-20  transition-all duration-300 lg:static  lg:hidden ${isSortBarVisible ? ' top-0 left-0 bottom-0 ' : ' top-0 -left-full'
-                                    } `}>
-                                    <div className={`${isSortBarVisible ? 'translate-x-0' : '-translate-x-full'}`}>
-                                        <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
-                                        <div className="line w-full h-px bg-gray-300 my-6">
-                                        </div>
-                                        {/* <ColorBar products={products} /> */}
-                                        <div className="line w-full h-px bg-gray-300 my-6">
-                                        </div>
-                                        <StockStatus />
-                                        <div className="line w-full h-px bg-gray-300 my-6">
-                                        </div>
-                                        <TopRatedProducts />
-                                    </div>
+                            </div>
 
+                        </div>
+                        <div className="right  w-full lg:w-4/5 px-4 ">
+                            <div className="flex justify-between items-center pb-5">
+                                <div className="tex hidden lg:block">
+                                    <p className=" text-sm  decoration-gray-800 font-semibold  my-3">
+                                        <span className="hover:text-gray-900 transition-colors duration-300 text-gray-500 font-light cursor-pointer">Home </span>
+                                        / Shop
+                                    </p>
                                 </div>
-                                <div className="right  w-full lg:w-4/5 px-4 ">
-                                    <div className="flex justify-between items-center pb-5">
-                                        <div className="tex hidden lg:block">
-                                            <p className=" text-sm  decoration-gray-800 font-semibold  my-3">
-                                                <span className="hover:text-gray-900 transition-colors duration-300 text-gray-500 font-light cursor-pointer">Home </span>
-                                                / Shop
-                                            </p>
-                                        </div>
-                                        <div className="tex  lg:hidden cursor-pointer">
-                                            <button className=" text-sm  decoration-gray-800 font-semibold  my-3" onClick={toggleSortBar}>
-                                                <MenuIcon />
-                                            </button>
-                                        </div>
-                                        <div className="sorting_section ">
-                                            <SortingSection />
-                                        </div>
-                                    </div>
-                                    {productsFetched && products && (
-                                    <div className="infiniteScroll ">
-                                        <InfiniteScroll products={products} />
-                                    </div>
-                                )}
+                                <div className="tex  lg:hidden cursor-pointer">
+                                    <button className=" text-sm  decoration-gray-800 font-semibold  my-3" onClick={toggleSortBar}>
+                                        <MenuIcon />
+                                    </button>
+                                </div>
+                                <div className="sorting_section ">
+                                    <SortingSection productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
                                 </div>
                             </div>
-                        
-                
+                            {productsFetched && products && (
+                                <div className="infiniteScroll ">
+                                    <InfiniteScroll products={products} filterSearch={filterSearch} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
 

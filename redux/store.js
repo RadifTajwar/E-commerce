@@ -6,6 +6,7 @@ import categoryByIdSlice from "./category/categoryByIdSlice";
 import createCategorySlice from "./category/createCategorySlice";
 import deleteCategoryByIdSlice from "./category/deleteCategoryByIdSlice";
 import updateCategoryDataSlice from "./category/updateCategoryDataSlice";
+import getColorReducer from "./color/getColorSlice";
 import allHeroBannerReducer from "./heroBanner/allHeroBannerSlice";
 import heroBannerByIdReducer from "./heroBanner/heroBannerByIdSlice";
 import updateHeroBannerReducer from "./heroBanner/updateHeroBannerSlice";
@@ -33,11 +34,11 @@ import allVideoBannerReducer from "./video/allVideoBannerSlice";
 import updateVideoBannerReducer from "./video/updateVideoBannerSlice";
 import videoBannerByIdReducer from "./video/videoBannerByIdSlice";
 // Check if in browser
-const isBrowser = typeof window !== "undefined";
+
 
 // Load cart state from localStorage if in the browser
 const loadCartState = () => {
-    if (isBrowser) {
+
         try {
             const serializedState = localStorageUtil.getItem("cart");
             return serializedState ? JSON.parse(serializedState) : undefined;
@@ -45,20 +46,20 @@ const loadCartState = () => {
             console.error("Could not load cart state", error);
             return undefined;
         }
-    }
-    return undefined; // Return undefined if not in the browser
+    
+    
 };
 
 // Save cart state to localStorage if in the browser
 const saveCartState = (state) => {
-    if (isBrowser) {
+  
         try {
             const serializedState = JSON.stringify(state);
             localStorageUtil.setItem("cart", serializedState);
         } catch (error) {
             console.error("Could not save cart state", error);
         }
-    }
+    
 };
 
 // Configure the Redux store
@@ -95,7 +96,8 @@ const store = configureStore({
         loginUser: loginUserReducer,
         getOrderByUser: getOrderByUserReducer,
         createRating: createRatingReducer,
-        getRatingByProductId: getRatingByProductIdReducer
+        getRatingByProductId: getRatingByProductIdReducer,
+        getColor : getColorReducer,
     },
     preloadedState: {
         cart: loadCartState(), // Load cart state only if in browser

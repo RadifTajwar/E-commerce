@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import DoneIcon from '@mui/icons-material/Done';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function eachColorBar({ colorName, count, hex }) {
+export default function eachColorBar({ colorName, count, hex ,productsFetched, setProductsFetched}) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const filter_color = searchParams.get('filter_color');
@@ -15,25 +15,26 @@ export default function eachColorBar({ colorName, count, hex }) {
         const existingColors = params.get("filter_color") ? params.get("filter_color").split(",") : [];
 
         if (!existingColors.includes(colorName)) {
-            existingColors.push(colorName); // Add color if it’s not in the list
+            existingColors.unshift(colorName); // Add color to the beginning
         } else {
-            // Remove the specific color from the list
-            const colorIndex = existingColors.indexOf(colorName);
-            if (colorIndex > -1) {
-                existingColors.splice(colorIndex, 1); // Remove colorName at the found index
-            }
+            existingColors.splice(existingColors.indexOf(colorName), 1); // Remove color
         }
 
-        // Manually construct the query string with commas
         if (existingColors.length === 0) {
             params.delete("filter_color");
         } else {
-            // Otherwise, set filter_color with the updated list of colors
-            params.set("filter_color", existingColors.join(","));
+            params.set("filter_color", existingColors.join(",")); // Manually set to keep commas
         }
 
-        router.push(`${window.location.pathname}?${params.toString()}`);
+        // Manually construct the final URL to prevent unwanted encoding
+        const newUrl = `${window.location.pathname}?${params.toString().replace(/%2C/g, ",")}`;
+
+        router.push(newUrl, { scroll: false });
+        setTimeout(() => {
+            setProductsFetched(!productsFetched);
+          }, 500);
     };
+
 
 
 
@@ -41,7 +42,7 @@ export default function eachColorBar({ colorName, count, hex }) {
 
     return (
         <>
-    
+
             <div key={colorName} className="flex space-between w-full gap-x-4 items-center group cursor-pointer" onClick={handleFilterClick}>
                 <div className="w-5/6 ">
                     <div className="color_palette_&_text flex gap-x-3 items-center">
@@ -79,7 +80,7 @@ export default function eachColorBar({ colorName, count, hex }) {
                     </p>
                 </div>
             </div>
-         
+
         </>
     );
 }

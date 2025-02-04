@@ -1,12 +1,11 @@
 'use client';
 
-// import ColorBar from "@/components/ui/components/shop/colorBar";
-// import ColorBar from "@/components/ui/components/shop/colorBar";
+
+import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
 import RangeBar from "@/components/ui/components/shop/rangeBar";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
-import TopRatedProducts from "@/components/ui/components/shop/topRatedProducts";
 import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
 import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
 import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
@@ -54,7 +53,7 @@ export default function Page() {
     }, [dispatch]);
 
     const [isSortBarVisible, setSortBarVisible] = useState(false);
-
+    const [filterSearch, setFilterSearch] = useState({});
     // Access products, loading, and error states from the Redux store
     const { products, isLoading, error } = useSelector((state) => state.allProducts);
 
@@ -65,18 +64,30 @@ export default function Page() {
     useEffect(() => {
         const minPrice = searchParams.get("min_price");
         const maxPrice = searchParams.get("max_price");
-
+        const filterColor = searchParams.get("filter_color");
+        const sortOrder = searchParams.get("orderby");
         if (!productsFetched) {
-            dispatch(clearState()); // Clear the state
+            dispatch(clearState()); // Clear the state before fetching
+
+            const filters = {};
+
             if (minPrice && maxPrice) {
-                // Dispatch with price filters
-                console.log("minPrice", minPrice);
-                console.log("maxPrice", maxPrice);
-                dispatch(fetchAllProducts({ startPrice: minPrice, endPrice: maxPrice }));
-            } else {
-                // Dispatch without filters
-                dispatch(fetchAllProducts());
+                filters.startPrice = minPrice;
+                filters.endPrice = maxPrice;
             }
+            
+            if (filterColor) {
+                filters.colorName = filterColor;
+            }
+            if(sortOrder){
+                filters.sortBy="discountedPrice";
+                filters.sortOrder = sortOrder;
+                
+
+            }
+            setFilterSearch(filters);
+            console.log("filters", filters);
+            dispatch(fetchAllProducts(filters));
             setProductsFetched(true); // Mark as fetched
         }
     }, [productsFetched, dispatch, searchParams]); // Depend on searchParams to react to URL changes
@@ -334,13 +345,13 @@ export default function Page() {
                             <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
                             <div className="line w-full h-px bg-gray-300 my-6">
                             </div>
-                            {/* <ColorBar products={products} /> */}
+                            <ColorBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
                             <div className="line w-full h-px bg-gray-300 my-6">
                             </div>
-                            <StockStatus />
+                            <StockStatus productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
                             <div className="line w-full h-px bg-gray-300 my-6">
                             </div>
-                            <TopRatedProducts />
+
 
 
                         </div>
@@ -351,13 +362,13 @@ export default function Page() {
                                 <RangeBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} maxPrice={searchParams.get('max_price') ? searchParams.get('max_price') : 18000} minPrice={searchParams.get('min_price') ? searchParams.get('min_price') : 0} />
                                 <div className="line w-full h-px bg-gray-300 my-6">
                                 </div>
-                                {/* <ColorBar products={products} /> */}
+                                <ColorBar productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
                                 <div className="line w-full h-px bg-gray-300 my-6">
                                 </div>
-                                <StockStatus />
+                                <StockStatus productsFetched={productsFetched} setProductsFetched={setProductsFetched} />
                                 <div className="line w-full h-px bg-gray-300 my-6">
                                 </div>
-                                <TopRatedProducts />
+
                             </div>
 
                         </div>
@@ -375,13 +386,13 @@ export default function Page() {
                                     </button>
                                 </div>
                                 <div className="sorting_section ">
-                                    <SortingSection />
+                                    <SortingSection productsFetched={productsFetched} setProductsFetched={setProductsFetched}/>
                                 </div>
                             </div>
 
                             {productsFetched && products && (
                                 <div className="infiniteScroll ">
-                                    <InfiniteScroll products={products} />
+                                    <InfiniteScroll products={products} filterSearch={filterSearch}/>
                                 </div>
                             )}
                         </div>

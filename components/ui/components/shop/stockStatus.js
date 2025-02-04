@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, useSearchParams } from "next/navigation";
-export default function StockStatus() {
+export default function StockStatus({productsFetched, setProductsFetched}) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const stock_status = searchParams.get('stock_status') || ""; // Default to an empty string if not present
@@ -28,6 +28,10 @@ export default function StockStatus() {
         }
 
         router.push(`${window.location.pathname}?${params.toString()}`);
+
+        setTimeout(() => {
+            setProductsFetched(!productsFetched);
+          }, 500);
     };
 
     return (

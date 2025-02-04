@@ -553,6 +553,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
 
         setIsOpen(false); // Close dropdown after selecting a category
     };
+    
     useEffect(() => {
         console.log("Updated products:", productData); // Logs updated products
     }, [productData]);
@@ -638,7 +639,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                                                     className="parentCategory flex items-center justify-between px-3 py-2 bg-gray-100 border border-gray-300 rounded-md cursor-pointer dark:bg-gray-700 dark:border-gray-600"
                                                     onClick={toggleDropdown} // Toggle the dropdown visibility
                                                 >
-                                                    <span className="text-sm text-gray-700 dark:text-gray-300">{formData.category}</span>
+                                                    <span className="text-sm text-gray-700 dark:text-gray-300">{formData.category}asdf</span>
                                                     <span className="text-gray-500 dark:text-gray-300">▼</span>
                                                 </div>
 

@@ -2,7 +2,7 @@
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-export default function SortingSection() {
+export default function SortingSection({productsFetched, setProductsFetched}) {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const [selectedOrder, setSelectedOrder]=useState("Default Sorting");
@@ -15,9 +15,16 @@ export default function SortingSection() {
     const handleSort = (orderby,sortingName) => {
         const params = new URLSearchParams(window.location.search);
         params.set('orderby', orderby);
-        router.push(`${window.location.pathname}?${params.toString()}`);
+         // Manually construct the final URL to prevent unwanted encoding
+         const newUrl = `${window.location.pathname}?${params.toString().replace(/%2C/g, ",")}`;
+
+         router.push(newUrl, { scroll: false });
+      
         setSelectedOrder(sortingName);
         setIsOpen(false);
+        setTimeout(() => {
+            setProductsFetched(!productsFetched);
+          }, 500);
     };
 
     return (
@@ -68,28 +75,28 @@ export default function SortingSection() {
                                 Default Sorting
                             </a>
                         </li>
-                        <li className="w-full">
+                        {/* <li className="w-full">
                             <a onClick={() => handleSort('popularity','Sort By Popularity')} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-xs md:text-sm cursor-pointer">
                                 Sort By Popularity
                             </a>
-                        </li>
-                        <li>
+                        </li> */}
+                        {/* <li>
                             <a onClick={() => handleSort('rating','Sort By Average Rating')} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-xs md:text-sm cursor-pointer">
                                 Sort By Average Rating
                             </a>
-                        </li>
-                        <li>
+                        </li> */}
+                        {/* <li>
                             <a onClick={() => handleSort('latest','Sort By Latest')} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-xs md:text-sm cursor-pointer">
                                 Sort By Latest
                             </a>
-                        </li>
+                        </li> */}
                         <li>
-                            <a onClick={() => handleSort('price_asc','Sort By Price: Low To High')} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-xs md:text-sm cursor-pointer">
+                            <a onClick={() => handleSort('asc','Sort By Price: Low To High')} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-xs md:text-sm cursor-pointer">
                                 Sort By Price: Low To High
                             </a>
                         </li>
                         <li>
-                            <a onClick={() => handleSort('price_desc','Sort By Price: High To Low')} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-xs md:text-sm cursor-pointer">
+                            <a onClick={() => handleSort('desc','Sort By Price: High To Low')} className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-xs md:text-sm cursor-pointer">
                                 Sort By Price: High To Low
                             </a>
                         </li>

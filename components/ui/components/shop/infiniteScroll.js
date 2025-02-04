@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Card from './card';
-export default function InfiniteScroll({ products: initialProducts }) {
+export default function InfiniteScroll({ products: initialProducts,filterSearch }) {
     const params = useParams();
     const dispatch = useDispatch();
     const { products: fetchedProducts, isLoading, error, meta } = useSelector((state) => state.allProducts);
@@ -33,45 +33,44 @@ export default function InfiniteScroll({ products: initialProducts }) {
 
     // Fetch products when page number changes
     useEffect(() => {
-        if (pageNumber > 1 && pageNumber <= maxPages && !isFetchingRef.current) {
-            isFetchingRef.current = true;
-
-            if (slug && slug.length === 2) {
-
-                const categoryId = localStorageUtil.getItem('categoryId');
-                // Dispatch with categoryId if slug has 2 elements
-                dispatch(fetchAllProducts({ page: pageNumber, categoryId: categoryId })).finally(() => {
+        const fetchProducts = async () => {
+            if (pageNumber > 1 && pageNumber <= maxPages && !isFetchingRef.current) {
+                isFetchingRef.current = true;
+    
+                try {
+                    let response;
+                    if (slug && slug.length === 2) {
+                        const categoryId = localStorageUtil.getItem("categoryId");
+                        response = await dispatch(fetchAllProducts({ page: pageNumber, categoryId, filterSearch })).unwrap();
+                    } else if (slug && slug.length === 1) {
+                        const parentId = localStorageUtil.getItem("parentCategoryId");
+                        response = await dispatch(fetchAllProducts({ page: pageNumber, parentCategoryId: parentId, filterSearch })).unwrap();
+                    } else {
+                        console.log("Fetching products with filter:", filterSearch);
+                        response = await dispatch(fetchAllProducts({ page: pageNumber, ...filterSearch })).unwrap();
+                        console.log("Fetched products:", response);
+                    }
+    
+                    if (response?.products?.length > 0) {
+                  
+                        setAllProducts((prevProducts) => {
+                            const newProducts = response?.products?.filter(
+                                (product) => !prevProducts.some((prevProduct) => prevProduct.id === product.id)
+                            );
+                            return [...prevProducts, ...newProducts];
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                } finally {
                     isFetchingRef.current = false;
-                });
-            } else if (slug && slug.length === 1) {
-                // Dispatch with parentCategoryId if slug has 1 element
-
-                const parentId = localStorageUtil.getItem('parentCategoryId');
-                dispatch(fetchAllProducts({ page: pageNumber, parentCategoryId: parentId })).finally(() => {
-                    isFetchingRef.current = false;
-                });
-            } else {
-                // Fallback if slug is not an array or empty
-                console.log("third dhukse");
-                dispatch(fetchAllProducts({ page: pageNumber })).finally(() => {
-                    isFetchingRef.current = false;
-                });
+                }
             }
-
-        }
+        };
+    
+        fetchProducts();
     }, [dispatch, pageNumber, maxPages]);
-
-    // Append new products
-    useEffect(() => {
-        if (fetchedProducts?.length > 0 && pageNumber > 1) {
-            setAllProducts((prevProducts) => {
-                const newProducts = fetchedProducts.filter(
-                    (product) => !prevProducts.some((prevProduct) => prevProduct.id === product.id)
-                );
-                return [...prevProducts, ...newProducts];
-            });
-        }
-    }, [fetchedProducts, pageNumber]);
+    
 
     // Intersection Observer setup
     useEffect(() => {

@@ -1,5 +1,6 @@
 'use client'
 import { decrementItem, incrementItem, removeItemFromCart } from '@/redux/cart/cartSlicer';
+import localStorageUtil from '@/utils/localStorageUtil';
 import ProductionQuantityLimitsOutlinedIcon from '@mui/icons-material/ProductionQuantityLimitsOutlined';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,7 +13,7 @@ export default function page() {
     const handleShippingChange = (e) => {
         const cost = Number(e.target.value);
         setSelectedShipping(cost);
-        localStorage.setItem("selectedShipping", cost); // Save to local storage
+        localStorageUtil.setItem("selectedShipping", cost); // Save to local storage
     };
     const cartItems = useSelector((state) => state.cart.items);
     console.log("here cart items are : ", cartItems)
@@ -32,7 +33,7 @@ export default function page() {
     }
 
     useEffect(() => {
-        const savedShipping = localStorage.getItem("selectedShipping");
+        const savedShipping = localStorageUtil.getItem("selectedShipping");
         if (savedShipping) {
             setSelectedShipping(Number(savedShipping));
         }
@@ -62,11 +63,11 @@ export default function page() {
                                                     </thead>
 
                                                     <tbody className="w-full">
-                                                        {cartItems.map((item, index) => (
+                                                        {cartItems?.map((item, index) => (
                                                             <tr key={index} className="flex w-full border-b border-gray-200 justify-between">
 
                                                                 <td className="text-start py-4 px-2.5 w-[40px] text-md text-gray-900 font-normal flex items-center justify-center" >
-                                                                    <button className="m-0 min-w-[30px] min-h-[30px] flex justify-center items-center  cursor-pointer group" onClick={() => { handleRemovefromCart(item.colorId) }}>
+                                                                    <button className="m-0 min-w-[30px] min-h-[30px] flex justify-center items-center  cursor-pointer group" onClick={() => { handleRemovefromCart(item?.colorId) }}>
                                                                        
                                                                         <svg className="h-3 w-3 fill-black group-hover:fill-gray-600" viewBox="0 0 24 24">
                                                                             <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"></path>
@@ -76,27 +77,27 @@ export default function page() {
                                                                 <td className="text-start py-4 px-2.5 w-[104px] text-md text-gray-900 font-normal flex items-center flex items-center">
                                                                     <Image src={item.image} alt={item.name} height={80} width={80} className="min-h-[80px] min-w-[80px]" />
                                                                 </td>
-                                                                <td className="text-start py-4 px-2.5 w-[258px] text-sm text-gray-900 font-normal flex items-center hover:text-gray-500 cursor-pointer transition-color duration-200">{item.name}-{item.color}</td>
-                                                                <td className="text-start py-4 px-2.5 w-[117px] text-sm text-gray-600 font-normal flex items-center">$ {item.price}</td>
+                                                                <td className="text-start py-4 px-2.5 w-[258px] text-sm text-gray-900 font-normal flex items-center hover:text-gray-500 cursor-pointer transition-color duration-200">{item?.name}-{item?.color}</td>
+                                                                <td className="text-start py-4 px-2.5 w-[117px] text-sm text-gray-600 font-normal flex items-center">$ {item?.price}</td>
                                                                 <td className="text-start py-4 px-2.5 w-[133px] text-sm text-gray-900 font-normal flex items-center">
                                                                     <div className="quantity_section flex justify-center">
                                                                         <div className="inner flex">
                                                                          
-                                                                            <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleDecrementItem(item.colorId) }}>
+                                                                            <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleDecrementItem(item?.colorId) }}>
                                                                                 -
                                                                             </button>
 
                                                                            
-                                                                            <span className="px-3 py-3  border-t-2 border-b-2">{item.quantity}</span>
+                                                                            <span className="px-3 py-3  border-t-2 border-b-2">{item?.quantity}</span>
 
                                                                        
-                                                                            <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleIncrementItem(item.colorId) }}>
+                                                                            <button className="border border-2 px-2 py-2 hover:bg-gray-800 hover:text-white transition  hover:border-black" onClick={() => { handleIncrementItem(item?.colorId) }}>
                                                                                 +
                                                                             </button>
                                                                         </div>
                                                                     </div>
                                                                 </td>
-                                                                <td className="text-start py-4 px-2.5 w-[133px] text-md text-gray-800 font-medium flex items-center">$ {item.price * item.quantity}</td>
+                                                                <td className="text-start py-4 px-2.5 w-[133px] text-md text-gray-800 font-medium flex items-center">$ {item?.price * item?.quantity}</td>
                                                             </tr>
 
                                                         ))}
