@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from "../icon/searchIcon";
-export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInForm ,isLoggedIn,setIsLoggedIn}) {
+export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInForm, isLoggedIn, setIsLoggedIn }) {
 
     const router = useRouter();
     const dispatch = useDispatch();
@@ -58,7 +58,7 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
         return () => clearTimeout(delayDebounceFn); // Cleanup timeout on every keystroke
     }, [searchTerm, dispatch]);
 
-   
+
     // Fetch all parent categories and categories
     useEffect(() => {
         const accessToken = localStorageUtil.getItem("accessToken");
@@ -71,7 +71,7 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
 
         dispatch(fetchAllParentCategories());
         dispatch(fetchAllCategories());
-    }, [dispatch,isLoggedIn]);
+    }, [dispatch, isLoggedIn]);
     const [searchBar, setSearchBar] = useState("");
     const [isSelected, setIsSelected] = useState(true);
     const [expandedStates, setExpandedStates] = useState({});
@@ -136,7 +136,7 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     };
 
     const handleUserMenuClicked = (menu) => {
-      
+
         handleToggleSideBar();
         setToggleAccountExpanded(false);
         router.push(menu);
@@ -145,8 +145,8 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     const handleLogOut = () => {
         localStorageUtil.removeItem('accessToken');
         setIsLoggedIn(false);
-        
-        
+
+
         handleToggleSideBar();
         setToggleAccountExpanded(false);
         router.push('/');
@@ -243,9 +243,9 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                         </div>
                         <div>
                             {/* Main Category Item */}
-                            {
-                                isSelected ? (
-                                    parentCategories?.map((parentCategory) => {
+                            {isSelected ? (
+                                <>
+                                    {parentCategories?.map((parentCategory) => {
                                         const childCategories = categories?.filter(
                                             (category) => category.parentCategoryId === parentCategory.id
                                         );
@@ -253,32 +253,30 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                                         const isExpanded = expandedStates[parentCategory.id] || false;
 
                                         return (
-
-                                            <div key={parentCategory.id} className='overflow-scroll '>
-                                                <div
-                                                    className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
-                                                >
+                                            <div key={parentCategory.id} className="overflow-scroll">
+                                                <div className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold">
                                                     <div
-                                                        className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? 'bg-[#F7F7F7]' : ''}`}
+                                                        className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 ${isExpanded ? "bg-[#F7F7F7]" : ""
+                                                            }`}
                                                         onClick={() => handleParentCategoryClicked(parentCategory.id, parentCategory.name)}
                                                     >
                                                         {parentCategory.name}
                                                     </div>
                                                     <div
-                                                        className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
+                                                        className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${isExpanded ? "bg-[#4C4C4C]" : "bg-[#F5F5F5]"
+                                                            }`}
                                                         onClick={() => toggleExpand(parentCategory.id)}
                                                     >
                                                         <ChevronRightIcon
                                                             fontSize="medium"
-                                                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
+                                                            className={`transition-transform duration-200 ${isExpanded ? "rotate-90 text-white" : "text-gray-500"
+                                                                }`}
                                                             style={{ strokeWidth: 1 }}
                                                         />
                                                     </div>
                                                 </div>
                                                 {isExpanded && childCategories?.length > 0 && (
-                                                    <div
-                                                        className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'max-h-40' : 'max-h-0'}`}
-                                                    >
+                                                    <div className={`overflow-hidden transition-all duration-200 ${isExpanded ? "max-h-40" : "max-h-0"}`}>
                                                         {childCategories.map((category) => (
                                                             <div
                                                                 key={category.id}
@@ -290,115 +288,71 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
                                                         ))}
                                                     </div>
                                                 )}
-                                                <Link href="/shop">
-                                                    <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={handleToggleSideBar} >
-                                                        SHOP
-                                                    </div >
-                                                </Link>
-
-                                                <div className="transition-all duration-200 category w-full py-3 ps-5  border-b border-gray-300 cursor-pointer text-[13px] font-semibold" >
-                                                    ABOUT US
-                                                </div>
-                                                {
-                                                    !isLoggedIn ? (
-
-                                                        <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold flex items-center space-x-2" onClick={handleLoginClicked}>
-                                                            <User className="w-5 h-5" />
-                                                            <span>LOGIN / REGISTER</span>
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <div
-                                                                className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold"
-                                                            >
-                                                                <div
-                                                                    className={` transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 flex items-center space-x-2 ${toggleAccountExpanded ? 'bg-[#F7F7F7]' : ''}`}
-
-                                                                >
-                                                                    <User className="w-5 h-5" />
-                                                                    MY ACCOUNT
-                                                                </div>
-                                                                <div
-                                                                    className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${toggleAccountExpanded ? 'bg-[#4C4C4C]' : 'bg-[#F5F5F5]'}`}
-                                                                    onClick={() => setToggleAccountExpanded(!toggleAccountExpanded)}
-                                                                >
-                                                                    <ChevronRightIcon
-                                                                        fontSize="medium"
-                                                                        className={`transition-transform duration-200 ${toggleAccountExpanded ? 'rotate-90 text-white' : 'text-gray-500'}`}
-                                                                        style={{ strokeWidth: 1 }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            {
-                                                                toggleAccountExpanded && (
-                                                                    <div
-                                                                        className={`overflow-hidden transition-all duration-200 `}
-                                                                    >
-
-                                                                        <div
-
-                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
-                                                                            onClick={() => {handleUserMenuClicked("/myAccount")}}
-                                                                        >
-                                                                            Dashboard
-                                                                        </div>
-                                                                        <div
-
-                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
-                                                                            onClick={() =>  {handleUserMenuClicked("/myAccount/orders")}}
-                                                                        >
-                                                                            Orders
-                                                                        </div>
-                                                                        <div
-
-                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
-                                                                            onClick={() =>  {handleUserMenuClicked("/myAccount/editAddress")}}
-                                                                        >
-                                                                            Addresses
-                                                                        </div>
-                                                                        <div
-
-                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
-                                                                            onClick={() =>  {handleUserMenuClicked("/myAccount/editAccount")}}
-                                                                        >
-                                                                            Account
-                                                                        </div>
-                                                                        <div
-
-                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
-
-                                                                        >
-                                                                            Wishlist
-                                                                        </div>
-                                                                        <div
-
-                                                                            className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800"
-                                                                            onClick={handleLogOut}
-                                                                        >
-                                                                            Logout
-                                                                        </div>
-
-                                                                    </div>
-                                                                )}
-
-                                                        </>
-                                                    )
-                                                }
-
                                             </div>
-
-
                                         );
-                                    })
-                                ) : (
-                                    // Only show parent category names when not selected
-                                    parentCategories?.map((parentCategory) => (
-                                        <div key={parentCategory.id} className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={() => handleParentCategoryClicked(parentCategory.id, parentCategory.name)}>
-                                            <div className="w-10/12 py-3 ps-5">{parentCategory.name}</div>
+                                    })}
+
+                                    {/* SHOP and ABOUT US sections moved outside of .map() */}
+                                    <Link href="/shop">
+                                        <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={handleToggleSideBar}>
+                                            SHOP
                                         </div>
-                                    ))
-                                )
-                            }
+                                    </Link>
+
+                                    <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold">
+                                        ABOUT US
+                                    </div>
+
+                                    {!isLoggedIn ? (
+                                        <div className="transition-all duration-200 category w-full py-3 ps-5 border-b border-gray-300 cursor-pointer text-[13px] font-semibold flex items-center space-x-2" onClick={handleLoginClicked}>
+                                            <User className="w-5 h-5" />
+                                            <span>LOGIN / REGISTER</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold">
+                                                <div className={`transition-all duration-200 category w-10/12 py-3 ps-5 border-e border-gray-300 flex items-center space-x-2 ${toggleAccountExpanded ? "bg-[#F7F7F7]" : ""}`}>
+                                                    <User className="w-5 h-5" />
+                                                    MY ACCOUNT
+                                                </div>
+                                                <div className={`icon w-2/12 py-3 flex justify-center items-center space-x-2 transition-all duration-200 ${toggleAccountExpanded ? "bg-[#4C4C4C]" : "bg-[#F5F5F5]"}`} onClick={() => setToggleAccountExpanded(!toggleAccountExpanded)}>
+                                                    <ChevronRightIcon fontSize="medium" className={`transition-transform duration-200 ${toggleAccountExpanded ? "rotate-90 text-white" : "text-gray-500"}`} style={{ strokeWidth: 1 }} />
+                                                </div>
+                                            </div>
+                                            {toggleAccountExpanded && (
+                                                <div className="overflow-hidden transition-all duration-200">
+                                                    <div className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800" onClick={() => handleUserMenuClicked("/myAccount")}>
+                                                        Dashboard
+                                                    </div>
+                                                    <div className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800" onClick={() => handleUserMenuClicked("/myAccount/orders")}>
+                                                        Orders
+                                                    </div>
+                                                    <div className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800" onClick={() => handleUserMenuClicked("/myAccount/editAddress")}>
+                                                        Addresses
+                                                    </div>
+                                                    <div className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800" onClick={() => handleUserMenuClicked("/myAccount/editAccount")}>
+                                                        Account
+                                                    </div>
+                                                    <div className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800">
+                                                        Wishlist
+                                                    </div>
+                                                    <div className="py-4 px-5 text-gray-400 dark:text-gray-300 border-b border-gray-300 cursor-pointer text-[13px] font-regular transition-all duration-300 hover:text-gray-800" onClick={handleLogOut}>
+                                                        Logout
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </>
+                            ) : (
+                                // Only show parent category names when not selected
+                                parentCategories?.map((parentCategory) => (
+                                    <div key={parentCategory.id} className="categoryItem flex justify-between text-gray-800 dark:text-gray-400 border-b border-gray-300 cursor-pointer text-[13px] font-semibold" onClick={() => handleParentCategoryClicked(parentCategory.id, parentCategory.name)}>
+                                        <div className="w-10/12 py-3 ps-5">{parentCategory.name}</div>
+                                    </div>
+                                ))
+                            )}
+
 
 
 

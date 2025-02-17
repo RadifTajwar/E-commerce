@@ -470,7 +470,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                             </div>
                         </li>
 
-                        <li className="relative">
+                        {/* <li className="relative">
                             <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors  ${pathName == '/admin/customers' ? 'bg-blue-500 text-white' : ''} hover:text-blue-600 cursor-pointer duration-150 dark:hover:text-gray-200`}
                                 target="_self" onClick={() => { sideBarComponentClicked('customers') }}
                             >
@@ -490,7 +490,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
                                 </svg>
                                 <span className="ml-4">Customers</span>
                             </div>
-                        </li>
+                        </li> */}
                         <li className="relative">
                             <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600 cursor-pointer ${pathName == '/admin/orders' ? 'bg-blue-500 text-white' : ''} duration-150 dark:hover:text-gray-200`} target="_self" onClick={() => { sideBarComponentClicked('orders') }}
                             >

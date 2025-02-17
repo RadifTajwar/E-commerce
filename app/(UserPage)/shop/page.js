@@ -109,6 +109,7 @@ export default function Page() {
             console.log("filters", filters);
             dispatch(fetchAllProducts(filters));
             setProductsFetched(true); // Mark as fetched
+            toggleSortBar();
         }
     }, [productsFetched, dispatch, searchParams]); // Depend on searchParams to react to URL changes
 
@@ -126,19 +127,19 @@ export default function Page() {
     const router = useRouter();
 
     // Function to handle category click and update the query parameter
-    const handleParentCategoryClick = (categoryName) => {
-        const params = new URLSearchParams(window.location.search);
-        const existingParentCategory = params.get("parentCategory");
+    // const handleParentCategoryClick = (categoryName) => {
+    //     const params = new URLSearchParams(window.location.search);
+    //     const existingParentCategory = params.get("parentCategory");
 
-        if (existingParentCategory != categoryName) {
-            // If the same parent category is clicked, clear it
-            // Set the new parent category
-            params.set("parentCategory", categoryName);
-            // Clear the child category as it may no longer be relevant
-            params.delete("childCategory");
-            router.push(`${window.location.pathname}?${params.toString()}`);
-        }
-    };
+    //     if (existingParentCategory != categoryName) {
+    //         // If the same parent category is clicked, clear it
+    //         // Set the new parent category
+    //         params.set("parentCategory", categoryName);
+    //         // Clear the child category as it may no longer be relevant
+    //         params.delete("childCategory");
+    //         router.push(`${window.location.pathname}?${params.toString()}`);
+    //     }
+    // };
 
     const handleChildCategoryClick = (categoryName, parentCategoryName) => {
         const params = new URLSearchParams(window.location.search);
