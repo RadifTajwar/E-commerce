@@ -127,7 +127,7 @@ export default function page() {
   }, [status, order, router, dispatch]);
 
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async(e) => {
     e.preventDefault();
 
     const newErrors = {};
@@ -170,7 +170,8 @@ export default function page() {
         additionalDetails: formState.additionalInfo,
       };
       console.log("the whole order is ", orderData);;
-      dispatch(createOrder(orderData));
+      const orderDataRes =dispatch(createOrder(orderData)).unwrap();
+      console.log("the order data response is ", orderDataRes);
       if (status === 'succeeded') {
         setFormState({
           name: "",
@@ -381,10 +382,10 @@ export default function page() {
 
                         <div className="w-full pb-5">
                           <label htmlFor="email" className="block text-sm font-normal text-gray-700 pb-1">
-                            Email address (optional) <span className="text-sm text-red-600">*</span>
+                            Email address Or Phone Number <span className="text-sm text-red-600">*</span>
                           </label>
                           <input
-                            type="email"
+                            type="text"
                             id="email"
                             value={formState.email}
                             onChange={handleInputChange}

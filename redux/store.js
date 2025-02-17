@@ -35,10 +35,10 @@ import updateVideoBannerReducer from "./video/updateVideoBannerSlice";
 import videoBannerByIdReducer from "./video/videoBannerByIdSlice";
 // Check if in browser
 
-
+const isBrowser = typeof window !== "undefined";
 // Load cart state from localStorage if in the browser
 const loadCartState = () => {
-
+if (isBrowser) {
         try {
             const serializedState = localStorageUtil.getItem("cart");
             return serializedState ? JSON.parse(serializedState) : undefined;
@@ -46,12 +46,15 @@ const loadCartState = () => {
             console.error("Could not load cart state", error);
             return undefined;
         }
+}
     
     
 };
 
 // Save cart state to localStorage if in the browser
 const saveCartState = (state) => {
+  if(isBrowser){
+
   
         try {
             const serializedState = JSON.stringify(state);
@@ -59,7 +62,7 @@ const saveCartState = (state) => {
         } catch (error) {
             console.error("Could not save cart state", error);
         }
-    
+  }
 };
 
 // Configure the Redux store

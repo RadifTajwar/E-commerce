@@ -27,7 +27,9 @@ export default function StockStatus({productsFetched, setProductsFetched}) {
             params.set("stock_status", existingStockStatus.join(","));
         }
 
-        router.push(`${window.location.pathname}?${params.toString()}`);
+        const newUrl = `${window.location.pathname}?${params.toString().replace(/%2C/g, ",")}`;
+
+        router.push(newUrl, { scroll: false });
 
         setTimeout(() => {
             setProductsFetched(!productsFetched);

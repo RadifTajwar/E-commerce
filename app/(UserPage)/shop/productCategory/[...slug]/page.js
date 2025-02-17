@@ -75,6 +75,17 @@ export default function Page() {
             const maxPrice = searchParams.get("max_price");
             const filterColor = searchParams.get("filter_color");
             const sortOrder = searchParams.get("orderby");
+            const stockStatus = searchParams.get("stock_status");
+
+            let inStock = false;
+            let onSale = false;
+            if (stockStatus) {
+                const statusArray = stockStatus.split(",");
+
+                inStock = statusArray.includes("inStock");
+                onSale = statusArray.includes("onSale");
+            }
+
             if (!productsFetched) {
 
                 console.log("Fetching products with slug:", slug, "Fetched:", productsFetched);
@@ -95,8 +106,19 @@ export default function Page() {
                     fetchParams.colorName = filterColor;
                 }
 
-                if(sortOrder){
-                    filters.sortBy="discountedPrice";
+                if (inStock) {
+                    filters.inStock = true;
+                    fetchParams.inStock = true;
+                }
+
+                if (onSale) {
+
+                    filters.onSale = true;
+                    fetchParams.onSale = true;
+                }
+
+                if (sortOrder) {
+                    filters.sortBy = "discountedPrice";
                     filters.sortOrder = sortOrder;
                     fetchParams.sortOrder = sortOrder;
                     fetchParams.sortBy = "discountedPrice";

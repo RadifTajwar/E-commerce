@@ -24,6 +24,8 @@ export const fetchAllProducts = createAsyncThunk(
             ...(params.startPrice && params.endPrice &&  { startPrice: Number(params.startPrice),endPrice: Number(params.endPrice) }),
             ...(params.colorName && { colorName: params.colorName }),
             ...(params.sortOrder && { sortOrder: params.sortOrder, sortBy: params.sortBy }),
+            ...(params.inStock && { inStock: params.inStock }),
+            ...(params.onSale && { onSale: params.onSale }),
           })}`
         : "";
 

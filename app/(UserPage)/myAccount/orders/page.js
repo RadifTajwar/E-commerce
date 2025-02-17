@@ -31,9 +31,18 @@ export default function page() {
     return (
         <>
 
-            {isLoading && <p>Loading...</p>}
+            {isLoading &&  <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
+                    <div className="border border-gray-700 py-2  text-black text-sm">
+                    <span className="flex justify-center items-center ">
+                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin me-2"></div>
+                        Loading...
+                    </span>
+                        </div>
+                   
+                </div>
+            }
             {error && <p>{error}</p>}
-            {!isLoading && order && order.length>0 && (
+            {!isLoading && order && order.length>0 ? (
                 <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
 
                     <div className="table_container_lg_screen hidden lg:block">
@@ -158,6 +167,14 @@ export default function page() {
                     </div>
                 </div>
                
+            ):(
+                isLoading? null :
+                <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
+                <div className="flex justify-center items-center h-96">
+                    <p className="text-lg text-gray-500">No Orders Found</p>
+                </div>
+            </div>
+
             )
             }
         </>

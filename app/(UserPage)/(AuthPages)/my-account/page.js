@@ -4,14 +4,13 @@ import { createUser } from "@/redux/user/createUserSlice";
 import { loginUser } from "@/redux/user/userLoginSlice";
 import localStorageUtil from "@/utils/localStorageUtil";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import emailjs from 'emailjs-com';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function page() {
-    const [userEmail, setUserEmail] = useState('');
+    
     const { status } = useSelector((state) => state.createUser);
     const { status: loginStatus } = useSelector((state) => state.loginUser);
     const [errorLogin, setErrorLogin] = useState(null);
@@ -93,14 +92,7 @@ export default function page() {
             router.push('/myAccount');
 
             // Send email after user is successfully created
-            emailjs
-                .send('service_p5i09vd', 'template_65b3mvb', templateParams, 'bTYfvC_lPLdd40JEu')
-                .then((response) => {
-                    console.log('Email sent successfully:', response.status, response.text);
-                })
-                .catch((error) => {
-                    console.error('Failed to send email:', error);
-                });
+            
         } catch (error) {
             // Handle errors (e.g., invalid credentials or user already exists)
             console.error('Login failed:', error.message);
