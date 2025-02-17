@@ -109,7 +109,9 @@ export default function Page() {
             console.log("filters", filters);
             dispatch(fetchAllProducts(filters));
             setProductsFetched(true); // Mark as fetched
-            toggleSortBar();
+            if(isSortBarVisible){
+                setSortBarVisible(false);
+            }
         }
     }, [productsFetched, dispatch, searchParams]); // Depend on searchParams to react to URL changes
 
