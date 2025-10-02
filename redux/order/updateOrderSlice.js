@@ -22,7 +22,8 @@ export const updateOrderStatus = createAsyncThunk(
     } catch (error) {
       // Handle error and reject
       return rejectWithValue(
-        error.response?.data || "Something went wrong while updating the order status"
+        error.response?.data ||
+          "Something went wrong while updating the order status"
       );
     }
   }

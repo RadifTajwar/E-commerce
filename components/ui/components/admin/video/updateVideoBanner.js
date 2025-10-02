@@ -23,7 +23,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
     // Fetch the category data by ID
 
     const isValidId = (id) => /^[a-fA-F0-9]{24}$/.test(id); // Checks for valid MongoDB ObjectId format
-    // console.log(categoryData);
+    // 
 
     // Fetch the category by ID
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
     // Populate the form once both categoryData and parentCategories are available
     useEffect(() => {
         if (videoBannerData) {
-            console.log(videoBannerData);
+            
             setFormData({
                 image: videoBannerData.url || null,
                 previewImage: videoBannerData.url || null,
@@ -56,7 +56,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
 
     const handleVideoInputDefault = (e) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -64,9 +64,9 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 image: file,
                 previewImage: URL.createObjectURL(file),
             }));
-            console.log('Updated formData:', { ...formData, image: URL.createObjectURL(file) });
+             });
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
@@ -79,15 +79,15 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
 
         // Validation: Check if all required fields are filled
         if (!formData.image) {
-            console.error("All fields are required.");
-            console.log(formData);// Inform user about validation error
+            
+            // Inform user about validation error
             return; // Exit the function early
         }
 
         try {
             // Upload image to Cloudinary
             const folderName = `Video`;
-            console.log(formData);
+            
             setImageUploading(true);
             const imageUrl = await uploadVideoToCloudinary(formData.image, folderName);
             setImageUploading(false);
@@ -95,7 +95,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
             const bannerData = {
                 url: imageUrl, // Replace the file with the uploaded image URL
             };
-            console.log("parent category ", bannerData);
+            
             // Dispatch the action to create a new category
             const updateResult = await dispatch(updateVideoBanner({ id, bannerData })).unwrap();
 
@@ -109,14 +109,14 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
             toggleVisibility();
         } catch (error) {
             setImageUploading(false);
-            console.error("Error creating category:", error);
+            
             resetId();
 
         }
     };
 
     const cancelButtonPressed = () => {
-        console.log("Cancel button pressed");
+        
         setFormData({
 
             image: null,

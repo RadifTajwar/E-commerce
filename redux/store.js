@@ -38,78 +38,71 @@ import videoBannerByIdReducer from "./video/videoBannerByIdSlice";
 const isBrowser = typeof window !== "undefined";
 // Load cart state from localStorage if in the browser
 const loadCartState = () => {
-if (isBrowser) {
-        try {
-            const serializedState = localStorageUtil.getItem("cart");
-            return serializedState ? JSON.parse(serializedState) : undefined;
-        } catch (error) {
-            console.error("Could not load cart state", error);
-            return undefined;
-        }
-}
-    
-    
+  if (isBrowser) {
+    try {
+      const serializedState = localStorageUtil.getItem("cart");
+      return serializedState ? JSON.parse(serializedState) : undefined;
+    } catch (error) {
+      return undefined;
+    }
+  }
 };
 
 // Save cart state to localStorage if in the browser
 const saveCartState = (state) => {
-  if(isBrowser){
-
-  
-        try {
-            const serializedState = JSON.stringify(state);
-            localStorageUtil.setItem("cart", serializedState);
-        } catch (error) {
-            console.error("Could not save cart state", error);
-        }
+  if (isBrowser) {
+    try {
+      const serializedState = JSON.stringify(state);
+      localStorageUtil.setItem("cart", serializedState);
+    } catch (error) {}
   }
 };
 
 // Configure the Redux store
 const store = configureStore({
-    reducer: {
-        cart: cartReducer,
-        createParentCategory: createParentCategoryReducer,
-        allParentCategories: allParentCategorySlice,
-        parentCategoryById: parentCategoryByIdSlice,
-        deleteParentCategoryById: deleteParentCategoryByIdSlice,
-        updateParentcategoryData: updateParentCategoryDataSlice,
-        categories: allCategoriesSlice,
-        categoryById: categoryByIdSlice,
-        createNewCategory: createCategorySlice,
-        updateCategoryData: updateCategoryDataSlice,
-        deleteCategoryById: deleteCategoryByIdSlice,
-        allProducts: allProductReducer,
-        createNewProduct: createProductReducer,
-        deleteProduct: deleteProductReducer,
-        productById: productByIdReducer,
-        updateProductData: updateProductReducer,
-        createOrderItem: createOrderReducer,
-        allOrders: allOrderReducer,
-        orderById :getOrderByIdReducer,
-        updateOrder: updateOrderReducer,
-        allHeroBanner:allHeroBannerReducer,
-        heroBannerById: heroBannerByIdReducer,
-        updateHeroBanners: updateHeroBannerReducer,
-        allVideoBanners: allVideoBannerReducer,
-        videoBannerById: videoBannerByIdReducer,
-        updateVideoBanners: updateVideoBannerReducer,
-        productBySlug: productBySlugReducer,
-        createUser: createUserReducer,
-        loginUser: loginUserReducer,
-        getOrderByUser: getOrderByUserReducer,
-        createRating: createRatingReducer,
-        getRatingByProductId: getRatingByProductIdReducer,
-        getColor : getColorReducer,
-    },
-    preloadedState: {
-        cart: loadCartState(), // Load cart state only if in browser
-    },
+  reducer: {
+    cart: cartReducer,
+    createParentCategory: createParentCategoryReducer,
+    allParentCategories: allParentCategorySlice,
+    parentCategoryById: parentCategoryByIdSlice,
+    deleteParentCategoryById: deleteParentCategoryByIdSlice,
+    updateParentcategoryData: updateParentCategoryDataSlice,
+    categories: allCategoriesSlice,
+    categoryById: categoryByIdSlice,
+    createNewCategory: createCategorySlice,
+    updateCategoryData: updateCategoryDataSlice,
+    deleteCategoryById: deleteCategoryByIdSlice,
+    allProducts: allProductReducer,
+    createNewProduct: createProductReducer,
+    deleteProduct: deleteProductReducer,
+    productById: productByIdReducer,
+    updateProductData: updateProductReducer,
+    createOrderItem: createOrderReducer,
+    allOrders: allOrderReducer,
+    orderById: getOrderByIdReducer,
+    updateOrder: updateOrderReducer,
+    allHeroBanner: allHeroBannerReducer,
+    heroBannerById: heroBannerByIdReducer,
+    updateHeroBanners: updateHeroBannerReducer,
+    allVideoBanners: allVideoBannerReducer,
+    videoBannerById: videoBannerByIdReducer,
+    updateVideoBanners: updateVideoBannerReducer,
+    productBySlug: productBySlugReducer,
+    createUser: createUserReducer,
+    loginUser: loginUserReducer,
+    getOrderByUser: getOrderByUserReducer,
+    createRating: createRatingReducer,
+    getRatingByProductId: getRatingByProductIdReducer,
+    getColor: getColorReducer,
+  },
+  preloadedState: {
+    cart: loadCartState(), // Load cart state only if in browser
+  },
 });
 
 // Subscribe to store updates to save the cart state in localStorage
 store.subscribe(() => {
-    saveCartState(store.getState().cart);
+  saveCartState(store.getState().cart);
 });
 
 export default store;

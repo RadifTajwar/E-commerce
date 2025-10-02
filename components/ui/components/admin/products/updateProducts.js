@@ -29,14 +29,14 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
 
 
     const isValidId = (id) => /^[a-fA-F0-9]{24}$/.test(id); // Checks for valid MongoDB ObjectId format
-    // console.log(categoryData);
+    // 
 
     // Fetch the category by ID
     useEffect(() => {
-        console.log("id ashche??", id);
+        
         if (id && isValidId(id)) {
             dispatch(fetchProductById(id));
-            console.log("dhukse to");
+            
         }
     }, [id, dispatch]);
 
@@ -101,7 +101,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             const matchingCategory = categories.find(
                 (parentCategory) => parentCategory.id === productData.parentCategoryId
             );
-            console.log("matchingCategory", matchingCategory);
+            
 
             setFormData({
                 // Basic information
@@ -173,12 +173,12 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             ...prevData,
             [name]: type === "checkbox" ? checked : value, // Handle checkboxes differently
         }));
-        console.log("formData", formData);
+        
     };
 
     const handleImageInputDefault = (e) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -186,15 +186,15 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 imageDefault: file,
                 previewImageDefault: URL.createObjectURL(file),
             }));
-            console.log('Updated formData:', { ...formData, imageDefault: URL.createObjectURL(file) });
+             });
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
     const handleImageInputHover = (e) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -202,15 +202,15 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 imageHover: file,
                 previewImageHover: URL.createObjectURL(file),
             }));
-            console.log('Updated formData:', { ...formData, imageHover: URL.createObjectURL(file) });
+             });
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
     const handleLeatherImageInputDefault = (e, colorIndex) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -222,7 +222,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             }));
 
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
@@ -275,7 +275,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
     };
 
     const handleAddTitle = () => {
-        console.log("here after title  is ", formData.leather);
+        
         setFormData({
             ...formData,
             leather: {
@@ -290,10 +290,10 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
 
     const handleImageUpload = (e, colorIndex) => {
         const files = Array.from(e.target.files); // Convert FileList to Array
-        console.log("files", files);
+        
 
         const fileURLs = files.map((file) => URL.createObjectURL(file)); // Generate preview URLs
-        console.log("fileUrls", fileURLs);
+        
 
         // Create a deep copy of the current additionalDetails array to avoid modifying frozen objects
         const updatedAdditionalDetails = formData.additionalDetails.map((detail, index) => ({
@@ -386,7 +386,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             !formData.productDetails.size ||
             !formData.productDetails.warranty
         ) {
-            console.error("All fields are required.");
+            
             doneUpdate(); // Inform user about validation error
             return; // Exit the function early
         }
@@ -399,7 +399,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             // Upload default and hover images
             const ImageDefault = await uploadToCloudinary(formData.imageDefault, folderName);
             const ImageHover = await uploadToCloudinary(formData.imageHover, folderName);
-            console.log("uploaded image", ImageDefault, ImageHover);
+            
             // Map through additionalDetails and upload their images to color-specific folders
             const updatedLeather = { ...formData.leather }; // Create a copy of the leather object to avoid direct mutation
 
@@ -409,7 +409,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             }
 
             // Proceed with the rest of your work using updatedLeather
-            console.log(updatedLeather, "updatedLeather is this");
+            
 
             const updatedAdditionalDetails = await Promise.all(
                 formData.additionalDetails.map(async (detail) => {
@@ -420,7 +420,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                         const colorFolderName = `${folderName}/${detail.color}`; // Folder specific to the color name
                         const uploadedImages = await Promise.all(
                             detail.images.map(async (image) => {
-                                console.log("image is this ", image);
+                                
                                 return await uploadToCloudinary(image, colorFolderName);
                             })
                         );
@@ -444,7 +444,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
                 leather: updatedLeather
             };
 
-            console.log("Updated data is :", updatedData);
+            
 
             // Dispatch the action to create the product
             const updateResult = await dispatch(updateProductData({ id, updatedData })).unwrap();
@@ -455,7 +455,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
             setImageUploading(false);
             resetId();
         } catch (error) {
-            console.error("Error creating product:", error);
+            
 
             doneUpdate();
             setImageUploading(false);
@@ -466,7 +466,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
 
 
     const cancelButtonPressed = () => {
-        console.log("Cancel button pressed");
+        
         setFormData({
             // Basic Product Information
             barcode: "",
@@ -555,7 +555,7 @@ export default function updateProducts({ toggleVisibility, doneUpdate, id, reset
     };
     
     useEffect(() => {
-        console.log("Updated products:", productData); // Logs updated products
+         // Logs updated products
     }, [productData]);
 
     return (

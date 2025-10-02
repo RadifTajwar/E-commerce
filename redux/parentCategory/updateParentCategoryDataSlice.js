@@ -1,17 +1,17 @@
 // redux/category/updateParentCategoryDataSlice.js
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
 
 // Define the async thunk for making the API call to update the parent category
 export const updateParentCategoryData = createAsyncThunk(
-  'category/updateParentCategoryData',
+  "category/updateParentCategoryData",
   async ({ id, categoryData }, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
         `https://leather-for-luxury.vercel.app/api/v1/parent-category/update/${id}`,
         categoryData
       );
-      console.log("parentCategoryData sent", categoryData);
+
       return response.data.data; // Return the updated parent category data
     } catch (error) {
       return rejectWithValue(error.response.data); // Return the error response if the request fails
@@ -21,7 +21,7 @@ export const updateParentCategoryData = createAsyncThunk(
 
 // Create a slice to handle parent category data updates
 const updateParentCategoryDataSlice = createSlice({
-  name: 'category/updateParentCategoryData',
+  name: "category/updateParentCategoryData",
   initialState: {
     parentCategoryData: null,
     isLoading: false,

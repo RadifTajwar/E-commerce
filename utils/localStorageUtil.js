@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 const SECRET_KEY = "Tajwar@00452268";
 
@@ -6,11 +6,12 @@ const localStorageUtil = {
   setItem(key, value) {
     try {
       // Encrypt the value
-      const encryptedValue = CryptoJS.AES.encrypt(JSON.stringify(value), SECRET_KEY).toString();
+      const encryptedValue = CryptoJS.AES.encrypt(
+        JSON.stringify(value),
+        SECRET_KEY
+      ).toString();
       localStorage.setItem(key, encryptedValue);
-    } catch (error) {
-      console.error(`Error setting ${key} in local storage`, error);
-    }
+    } catch (error) {}
   },
 
   getItem(key) {
@@ -23,7 +24,6 @@ const localStorageUtil = {
       const decryptedValue = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       return decryptedValue;
     } catch (error) {
-      console.error(`Error getting ${key} from local storage`, error);
       return null;
     }
   },
@@ -31,9 +31,7 @@ const localStorageUtil = {
   removeItem(key) {
     try {
       localStorage.removeItem(key);
-    } catch (error) {
-      console.error(`Error removing ${key} from local storage`, error);
-    }
+    } catch (error) {}
   },
 };
 

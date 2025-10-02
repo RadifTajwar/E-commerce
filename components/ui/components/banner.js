@@ -16,15 +16,15 @@ import { useDispatch, useSelector } from "react-redux";
 
 export function Banner() {
   const dispatch = useDispatch();
-  const { heroBanners, isLoading, error } = useSelector((state) => state.allHeroBanner);
+  const { heroBanners, isLoading, error } = useSelector(
+    (state) => state.allHeroBanner
+  );
   const [videoFetched, setVideoFetched] = useState(false);
   const [bannerImages, setBannerImages] = useState([]); // State to store sliced images
 
   // Fetch banners on component mount
   useEffect(() => {
-    if (!videoFetched && bannerImages.length==0) {
-      console.log("videofetched",videoFetched);
-      console.log("bannerImages",bannerImages);
+    if (!videoFetched && bannerImages.length == 0) {
       dispatch(fetchAllHeroBanners());
       setVideoFetched(true); // Mark banners as fetched
     }
@@ -47,24 +47,29 @@ export function Banner() {
         <div className="inner_image w-full">
           <Carousel className="w-full">
             <CarouselContent>
-              {[1, 2, 3].map((_, index) => ( // Show 3 skeletons as placeholders
-                <CarouselItem key={index}>
-                  <div className="p-0">
-                    <Card className="rounded-none border-none">
-                      <CardContent className="flex items-center justify-center p-0">
-                        <div className="inner w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
-                          <Skeleton
-                            variant="rectangular"
-                            width="100%"
-                            height="100%"
-                            className=""
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
+              {[1, 2, 3].map(
+                (
+                  _,
+                  index // Show 3 skeletons as placeholders
+                ) => (
+                  <CarouselItem key={index}>
+                    <div className="p-0">
+                      <Card className="rounded-none border-none">
+                        <CardContent className="flex items-center justify-center p-0">
+                          <div className="inner w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
+                            <Skeleton
+                              variant="rectangular"
+                              width="100%"
+                              height="100%"
+                              className=""
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                )
+              )}
             </CarouselContent>
           </Carousel>
         </div>

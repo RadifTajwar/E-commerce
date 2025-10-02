@@ -32,7 +32,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
     // Fetch the category data by ID
 
     const isValidId = (id) => /^[a-fA-F0-9]{24}$/.test(id); // Checks for valid MongoDB ObjectId format
-    // console.log(categoryData);
+    // 
 
     // Fetch the category by ID
     useEffect(() => {
@@ -46,7 +46,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
     // Populate the form once both categoryData and parentCategories are available
     useEffect(() => {
         if (heroBannerData) {
-            console.log(heroBannerData);
+            
             setFormData({
                 name: heroBannerData.header || 'asdfasd',
                 image: heroBannerData.image?.[0] || null,
@@ -56,8 +56,8 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 title: heroBannerData.title || [],
                 images: heroBannerData.image || [],
             });
-            console.log("heroBannerData", heroBannerData);
-            console.log(heroBannerData.title);
+            
+            
         }
     }, [heroBannerData]);
 
@@ -77,7 +77,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
 
     const handleImageInputDefault = (e) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -85,15 +85,15 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 image: file,
                 previewImage: URL.createObjectURL(file),
             }));
-            console.log('Updated formData:', { ...formData, image: URL.createObjectURL(file) });
+             });
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
     const handleImageInputHover = (e) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -101,9 +101,9 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 image2: file,
                 previewImage2: URL.createObjectURL(file),
             }));
-            console.log('Updated formData:', { ...formData, image2: URL.createObjectURL(file) });
+             });
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
@@ -112,20 +112,20 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
 
 
     const handleSubmit = async (e) => {
-        console.log("form data", formData);
+        
         e.preventDefault();
 
         // Validation: Check if all required fields are filled
         if (!formData.name || !formData.image || !formData.image2) {
-            console.error("All fields are required.");
-            console.log(formData);// Inform user about validation error
+            
+            // Inform user about validation error
             return; // Exit the function early
         }
 
         try {
             // Upload image to Cloudinary
             const folderName = `Banner`;
-            console.log(formData);
+            
             setImageUploading(true);
             const imageUrl = await uploadToCloudinary(formData.image, folderName);
             const imageUrl2 = await uploadToCloudinary(formData.image2, folderName);
@@ -141,7 +141,7 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
                 image: updatedImages, // Replace the file with the uploaded image URL
                 title: formData.title // Replace the file with the uploaded image URL
             };
-            console.log("parent category ", bannerData);
+            
             // Dispatch the action to create a new category
             const updateResult = await dispatch(updateHeroBanner({ id, bannerData })).unwrap();
 
@@ -161,14 +161,14 @@ export default function updateBanner({ id, toggleVisibility, resetId, doneUpdate
             toggleVisibility();
         } catch (error) {
             setImageUploading(false);
-            console.error("Error creating category:", error);
+            
             resetId();
 
         }
     };
 
     const cancelButtonPressed = () => {
-        console.log("Cancel button pressed");
+        
         setFormData({
             name: '',
             image: null,

@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import AddProduct from "@/components/ui/components/admin/products/addProduct";
 import AllProducts from "@/components/ui/components/admin/products/allProducts";
 import DeleteVisible from "@/components/ui/components/admin/products/deleteVisible";
@@ -11,30 +11,27 @@ import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 export default function page() {
-
   const dispatch = useDispatch();
   const [categoryId, setCategoryId] = useState("");
   const [isInput, setIsInput] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isVisibleAddProduct, setIsVisibleAddProduct] = useState(false);
-  const [exportButtonForm, setExportButtonForm] = useState(false)
-  const [importButtonForm, setImportButtonForm] = useState(false)
+  const [exportButtonForm, setExportButtonForm] = useState(false);
+  const [importButtonForm, setImportButtonForm] = useState(false);
   const [fileName, setFileName] = useState(null);
   const inputRef = useRef(null);
-  const [deleteVisible, setDeleteVisible] = useState(false)
+  const [deleteVisible, setDeleteVisible] = useState(false);
   const [selectedPrice, setSelectedPrice] = useState(""); // State to track the selected option
 
   const idRef = useRef(null);
   const resetId = () => {
     idRef.current = null; // Reset the ID
-    setIsVisible(false);  // Optionally hide the drawer
+    setIsVisible(false); // Optionally hide the drawer
     setDeleteVisible(false);
   };
 
   const doneAddProduct = (result) => {
-    console.log("result is", result)
     if (result == "success") {
-      console.log("success bro success take a chill pill")
       toast.success("Product Added Successfully!", {
         position: "top-right",
         autoClose: 3000, // Auto-close after 3 seconds
@@ -50,8 +47,7 @@ export default function page() {
         dispatch(fetchAllProducts());
       }, 2000); // 2000 milliseconds = 2 seconds
       setIsVisibleAddProduct(false); // Optionally hide the drawer
-    }
-    else if (result == "duplicate") {
+    } else if (result == "duplicate") {
       toast.error("Duplicate Product!", {
         position: "top-right",
         autoClose: 3000, // Auto-close after 3 seconds
@@ -62,8 +58,7 @@ export default function page() {
         progress: undefined,
         theme: "light",
       });
-    }
-    else if (result == "validationError") {
+    } else if (result == "validationError") {
       toast.error("No input field can be empty!", {
         position: "top-right",
         autoClose: 3000, // Auto-close after 3 seconds
@@ -74,8 +69,7 @@ export default function page() {
         progress: undefined,
         theme: "light",
       });
-    }
-    else {
+    } else {
       toast.error("Internal Server Error!", {
         position: "top-right",
         autoClose: 3000, // Auto-close after 3 seconds
@@ -87,9 +81,7 @@ export default function page() {
         theme: "light",
       });
     }
-
-
-  }
+  };
 
   const doneUpdate = () => {
     toast.success("Category Updated Successfully!", {
@@ -118,7 +110,6 @@ export default function page() {
   };
 
   const toggleAddProductVisible = (id) => {
-
     setIsVisibleAddProduct(!isVisibleAddProduct);
   };
 
@@ -144,7 +135,6 @@ export default function page() {
   const handleInputChange = (event) => {
     const { value } = event.target;
     setIsInput(value);
-    console.log(isInput);
     setCategoryId("");
     setSelectedPrice("");
     dispatch(fetchAllProducts({ searchTerm: value }));
@@ -161,39 +151,38 @@ export default function page() {
     setCategoryId("");
     setIsInput("");
     setSelectedPrice(price);
-    dispatch(fetchAllProducts({ sortOrder: selectedPrice })); 
-    };
+    dispatch(fetchAllProducts({ sortOrder: selectedPrice }));
+  };
   const [productsFetched, setProductsFetched] = useState(false);
 
   return (
     <>
       <div className=" max-w-2xl md:max-w-3xl lg:max-w-7xl grid px-6 mx-auto overflow-x-auto">
         <ToastContainer />
-        {
-          isVisible && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-30" onClick={
-              toggleVisibility
-            } />
-          )
-        }
+        {isVisible && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={toggleVisibility}
+          />
+        )}
 
-        {
-          isVisibleAddProduct && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-30 " onClick={
-              toggleAddProductVisible
-            } />
-          )
-        }
+        {isVisibleAddProduct && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 "
+            onClick={toggleAddProductVisible}
+          />
+        )}
 
-        {
-          deleteVisible && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-30" onClick={
-              toggleDeleteVisible
-            } />
-          )
-        }
+        {deleteVisible && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={toggleDeleteVisible}
+          />
+        )}
 
-        <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Products</h1>
+        <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">
+          Products
+        </h1>
 
         <div className="min-w-0  border border-gray-200 rounded-lg ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 shadow-xs mb-5">
           <div className="p-4">
@@ -202,7 +191,12 @@ export default function page() {
                 <div className="lg:flex md:flex flex-grow-0">
                   <div className="flex">
                     <div className="lg:flex-1 md:flex-1 mr-3 sm:flex-none">
-                      <div className="border flex justify-center items-center border-gray-300 hover:border-blue-400 hover:text-blue-400 dark:text-gray-300 cursor-pointer h-10 w-20 rounded-md focus:outline-none" onClick={() => { setExportButtonForm(!exportButtonForm) }}>
+                      <div
+                        className="border flex justify-center items-center border-gray-300 hover:border-blue-400 hover:text-blue-400 dark:text-gray-300 cursor-pointer h-10 w-20 rounded-md focus:outline-none"
+                        onClick={() => {
+                          setExportButtonForm(!exportButtonForm);
+                        }}
+                      >
                         <svg
                           stroke="currentColor"
                           fill="none"
@@ -221,48 +215,62 @@ export default function page() {
                         </svg>
                         <span className="text-xs">Export</span>
                       </div>
-                      {
-                        exportButtonForm && (
-                          <>
-                            <ul className="origin-top-left absolute  w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
-                              <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                                <button type="button" className="focus:outline-none">
-                                  <span className="flex items-center text-sm">
-                                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 16 16" className="w-4 h-4 mr-3" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M7.5 5.5a.5.5 0 0 0-1 0v.634l-.549-.317a.5.5 0 1 0-.5.866L6 7l-.549.317a.5.5 0 1 0 .5.866l.549-.317V8.5a.5.5 0 1 0 1 0v-.634l.549.317a.5.5 0 1 0 .5-.866L8 7l.549-.317a.5.5 0 1 0-.5-.866l-.549.317V5.5zm-2 4.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z">
-
-                                      </path>
-                                      <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z">
-
-                                      </path>
-                                    </svg>
-                                    <span>Export to CSV</span>
-                                  </span>
-                                </button>
-                              </li>
-                              <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                                <button type="button" className="focus:outline-none">
-                                  <span className="flex items-center text-sm">
-                                    <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 16 16" className="w-4 h-4 mr-3" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z">
-
-                                      </path>
-                                      <path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708z">
-
-                                      </path>
-                                    </svg>
-                                    <span>Export to JSON</span>
-                                  </span>
-                                </button>
-                              </li>
-                            </ul>
-                          </>
-                        )
-                      }
+                      {exportButtonForm && (
+                        <>
+                          <ul className="origin-top-left absolute  w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
+                            <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                              <button
+                                type="button"
+                                className="focus:outline-none"
+                              >
+                                <span className="flex items-center text-sm">
+                                  <svg
+                                    stroke="currentColor"
+                                    fill="currentColor"
+                                    strokeWidth="0"
+                                    viewBox="0 0 16 16"
+                                    className="w-4 h-4 mr-3"
+                                    aria-hidden="true"
+                                    height="1em"
+                                    width="1em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path d="M7.5 5.5a.5.5 0 0 0-1 0v.634l-.549-.317a.5.5 0 1 0-.5.866L6 7l-.549.317a.5.5 0 1 0 .5.866l.549-.317V8.5a.5.5 0 1 0 1 0v-.634l.549.317a.5.5 0 1 0 .5-.866L8 7l.549-.317a.5.5 0 1 0-.5-.866l-.549.317V5.5zm-2 4.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"></path>
+                                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"></path>
+                                  </svg>
+                                  <span>Export to CSV</span>
+                                </span>
+                              </button>
+                            </li>
+                            <li className="justify-between font-serif font-medium py-2 pl-4 transition-colors duration-150 hover:bg-gray-100 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                              <button
+                                type="button"
+                                className="focus:outline-none"
+                              >
+                                <span className="flex items-center text-sm">
+                                  <svg
+                                    stroke="currentColor"
+                                    fill="currentColor"
+                                    strokeWidth="0"
+                                    viewBox="0 0 16 16"
+                                    className="w-4 h-4 mr-3"
+                                    aria-hidden="true"
+                                    height="1em"
+                                    width="1em"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"></path>
+                                    <path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708z"></path>
+                                  </svg>
+                                  <span>Export to JSON</span>
+                                </span>
+                              </button>
+                            </li>
+                          </ul>
+                        </>
+                      )}
                     </div>
-
                   </div>
-
                 </div>
               </div>
               <div className="lg:flex md:flex xl:justify-end xl:w-1/2 md:w-full md:justify-start flex-grow-0">
@@ -297,39 +305,68 @@ export default function page() {
         </div>
 
         <div className="seaarchForm">
-          <SearchForm handleCatSelect={handleCategorySelect} handleInputChange={handleInputChange} isInput={isInput} categoryId={categoryId} setCategoryId={setCategoryId} handlePrcChange={handlePriceChange} selectedPrice={selectedPrice} />
+          <SearchForm
+            handleCatSelect={handleCategorySelect}
+            handleInputChange={handleInputChange}
+            isInput={isInput}
+            categoryId={categoryId}
+            setCategoryId={setCategoryId}
+            handlePrcChange={handlePriceChange}
+            selectedPrice={selectedPrice}
+          />
         </div>
 
-
-        <AllProducts toggleDeleteVisible={toggleDeleteVisible} toggleVisibility={toggleVisibility} categoryId={categoryId} productsFetched={productsFetched} setProductsFetched={setProductsFetched} isInput={isInput} />
-
-      </div>
-
-
-      <div
-        className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-x-0' : 'translate-x-full'
-          }`}
-      >
-        <UpdateProducts toggleVisibility={toggleVisibility} id={idRef.current} resetId={resetId}
-          doneUpdate={doneUpdate} />
+        <AllProducts
+          toggleDeleteVisible={toggleDeleteVisible}
+          toggleVisibility={toggleVisibility}
+          categoryId={categoryId}
+          productsFetched={productsFetched}
+          setProductsFetched={setProductsFetched}
+          isInput={isInput}
+        />
       </div>
 
       <div
-        className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${isVisibleAddProduct ? 'translate-x-0' : 'translate-x-full'
-          }`}
+        className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${
+          isVisible ? "translate-x-0" : "translate-x-full"
+        }`}
       >
-        <AddProduct toggleAddProductVisible={toggleAddProductVisible} doneAddProduct={doneAddProduct} categoryId={categoryId} isInput={isInput} />
+        <UpdateProducts
+          toggleVisibility={toggleVisibility}
+          id={idRef.current}
+          resetId={resetId}
+          doneUpdate={doneUpdate}
+        />
+      </div>
+
+      <div
+        className={`drawer-content-wrapper w-full sm:w-8/12 fixed top-0 right-0 z-50 transform transition-transform duration-300 ease-in-out ${
+          isVisibleAddProduct ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <AddProduct
+          toggleAddProductVisible={toggleAddProductVisible}
+          doneAddProduct={doneAddProduct}
+          categoryId={categoryId}
+          isInput={isInput}
+        />
       </div>
 
       <div
         className={`fixed w-[576px] h-[306px] top-1/2 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-200 ease-in-out
-    ${deleteVisible ? '-translate-y-1/2 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+    ${
+      deleteVisible
+        ? "-translate-y-1/2 opacity-100"
+        : "translate-y-20 opacity-0 pointer-events-none"
+    }`}
       >
-        <DeleteVisible toggleDeleteVisible={toggleDeleteVisible} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate} />
+        <DeleteVisible
+          toggleDeleteVisible={toggleDeleteVisible}
+          id={idRef.current}
+          resetId={resetId}
+          doneUpdate={doneUpdate}
+        />
       </div>
-
-
-
     </>
-  )
+  );
 }

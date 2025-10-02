@@ -6,20 +6,22 @@ export const uploadToCloudinary = async (file, folder) => {
   formData.append("folder", folder); // Specify the folder dynamically
 
   try {
-    const response = await fetch(`https://api.cloudinary.com/v1_1/dzmhtdw6b/image/upload`, {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/dzmhtdw6b/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Failed to upload image to Cloudinary");
     }
 
     const data = await response.json();
-    console.log("Uploaded Image URL:", data.secure_url);
+
     return data.secure_url; // Return the uploaded image URL
   } catch (error) {
-    console.error("Error uploading image:", error);
     throw error;
   }
 };

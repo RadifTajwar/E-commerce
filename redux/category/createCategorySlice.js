@@ -2,7 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Define the API endpoint for creating a category
-const API_URL = "https://leather-for-luxury.vercel.app/api/v1/category/create-category";
+const API_URL =
+  "https://leather-for-luxury.vercel.app/api/v1/category/create-category";
 
 // Create an async thunk for creating a category
 export const createCategory = createAsyncThunk(
@@ -22,14 +23,10 @@ export const createCategory = createAsyncThunk(
 
       return response.data.data; // Return the created category data
     } catch (error) {
-      console.log("Here we go again",error.status);
       return rejectWithValue(error.status || "Failed to create category");
     }
   }
 );
-
-
-
 
 // Create the slice
 const createCategorySlice = createSlice({

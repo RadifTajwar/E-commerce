@@ -80,12 +80,12 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             ...prevData,
             [name]: type === "checkbox" ? checked : value, // Handle checkboxes differently
         }));
-        console.log("formData", formData);
+        
     };
 
     const handleImageInputDefault = (e) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -93,15 +93,15 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                 imageDefault: file,
                 previewImageDefault: URL.createObjectURL(file),
             }));
-            console.log('Updated formData:', { ...formData, imageDefault: URL.createObjectURL(file) });
+             });
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
     const handleImageInputHover = (e) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -109,9 +109,9 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                 imageHover: file,
                 previewImageHover: URL.createObjectURL(file),
             }));
-            console.log('Updated formData:', { ...formData, imageHover: URL.createObjectURL(file) });
+             });
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
@@ -148,10 +148,10 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
 
     const handleImageUpload = (e, colorIndex) => {
         const files = Array.from(e.target.files); // Convert FileList to Array
-        console.log("files", files);
+        
 
         const fileURLs = files.map((file) => URL.createObjectURL(file)); // Generate preview URLs
-        console.log("fileUrls", fileURLs);
+        
 
         // Create a copy of the current additionalDetails array
         const updatedAdditionalDetails = [...formData.additionalDetails];
@@ -222,7 +222,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             !formData.productDetails.size ||
             !formData.productDetails.warranty
         ) {
-            console.error("All fields are required.");
+            
             doneAddProduct("validationError"); // Inform user about validation error
             return; // Exit the function early
         }
@@ -274,8 +274,8 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
                 additionalDetails: updatedAdditionalDetails,
                 leather: updatedLeather,
             };
-            console.log("formData", formData);
-            console.log("formData updated", updatedFormData);
+            
+            
             // Dispatch the action to create the product
             const updateResult = await dispatch(createProduct(updatedFormData)).unwrap();
 
@@ -283,7 +283,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             cancelButtonPressed();
             doneAddProduct("success");
         } catch (error) {
-            console.error("Error creating product:", error);
+            
 
             // Check if the error response exists
             if (error.response?.status === 500) {
@@ -298,7 +298,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
 
     const handleLeatherImageInputDefault = (e, colorIndex) => {
         const file = e.target.files[0];
-        console.log('Uploaded file:', file);
+        
         if (file) {
 
             setFormData((prevData) => ({
@@ -310,14 +310,14 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
             }));
 
         } else {
-            console.error('No file selected.');
+            
         }
     };
 
 
 
     const cancelButtonPressed = () => {
-        console.log("Cancel button pressed");
+        
         setFormData({
             // Basic Product Information
             barcode: "",
@@ -432,7 +432,7 @@ export default function addProduct({ toggleAddProductVisible, doneAddProduct }) 
         });
     };
     const handleAddTitle = () => {
-        console.log("here after title  is ", formData.leather);
+        
         setFormData({
             ...formData,
             leather: {

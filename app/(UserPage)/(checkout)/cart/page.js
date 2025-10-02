@@ -16,13 +16,11 @@ export default function page() {
         localStorageUtil.setItem("selectedShipping", cost); // Save to local storage
     };
     const cartItems = useSelector((state) => state.cart.items);
-    console.log("here cart items are : ", cartItems)
     const cartTotal = useSelector((state) => state.cart.total);
     const dispatch = useDispatch();
 
     const handleRemovefromCart = (id) => {
         dispatch(removeItemFromCart({ id }));
-        console.log("this id is coming :", id);
     };
 
     const handleIncrementItem = (id) => {
