@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import localStorageUtil from "@/utils/localStorageUtil";
 export default function page() {
   const router = useRouter();
 
@@ -97,8 +98,11 @@ export default function page() {
 
   const handleShippingChange = (e) => {
     const cost = Number(e.target.value);
+
+    localStorageUtil.setItem("selectedShipping", cost);
+    const savedShipping = localStorageUtil.getItem("selectedShipping");
+
     setSelectedShipping(cost);
-    localStorage.setItem("selectedShipping", cost); // Save to local storage
   };
 
   const handleIncrementItem = (id) => {
@@ -190,6 +194,15 @@ export default function page() {
       // Handle actual form submission logic here
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedShipping = localStorageUtil.getItem("selectedShipping");
+      if (savedShipping) {
+        setSelectedShipping(Number(savedShipping));
+      }
+    }
+  }, []);
 
   return (
     <>
