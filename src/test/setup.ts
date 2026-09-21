@@ -7,3 +7,9 @@ process.env.NEXT_PUBLIC_IMAGE_HOSTS ??= "res.cloudinary.com";
 process.env.CLOUDINARY_CLOUD_NAME ??= "test-cloud";
 process.env.CLOUDINARY_UPLOAD_PRESET ??= "test-preset";
 process.env.LOG_LEVEL ??= "silent";
+
+// Node 18 does not expose WebCrypto globally; Next's runtime does.
+import { webcrypto } from "node:crypto";
+if (!globalThis.crypto) {
+  Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
+}
