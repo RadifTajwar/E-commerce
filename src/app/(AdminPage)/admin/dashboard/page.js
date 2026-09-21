@@ -2,7 +2,6 @@
 import DashboardStats from "@/components/ui/components/admin/dashboard/dashboardStats";
 import HighestSellingProducts from '@/components/ui/components/admin/dashboard/highestSellingProducts';
 import OrderStats from "@/components/ui/components/admin/dashboard/orderStats";
-// import WeeklySales from "@/components/ui/components/admin/dashboard/weeklySales";
 
 import { usePathname } from "next/navigation";
 
@@ -32,9 +31,6 @@ export default function page() {
                                 </div>
 
                                 <div className="grid gap-4 md:grid-cols-2 my-8 mx-auto">
-                                    {/* <div className="weeklySales flex justify-center w-full">
-                                        <WeeklySales />
-                                    </div> */}
                                     <div className="higestSellingProducts  flex justify-center w-full">
                                         <HighestSellingProducts />
                                     </div>

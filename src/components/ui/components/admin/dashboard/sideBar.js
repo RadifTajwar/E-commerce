@@ -509,27 +509,7 @@ export default function SideBar({ isOpen, setIsOpen }) {
               </div>
             </li>
 
-            {/* <li className="relative">
-                            <div className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors  ${pathName == '/admin/customers' ? 'bg-blue-500 text-white' : ''} hover:text-blue-600 cursor-pointer duration-150 dark:hover:text-gray-200`}
-                                target="_self" onClick={() => { sideBarComponentClicked('customers') }}
-                            >
-                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2">
-
-                                    </path>
-                                    <circle cx="9" cy="7" r="4">
-
-                                    </circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87">
-
-                                    </path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75">
-
-                                    </path>
-                                </svg>
-                                <span className="ml-4">Customers</span>
-                            </div>
-                        </li> */}
+            
             <li className="relative">
               <div
                 className={`px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors hover:text-blue-600 cursor-pointer ${

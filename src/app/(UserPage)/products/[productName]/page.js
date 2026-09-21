@@ -19,7 +19,6 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import "./style.css";
 export default function productId() {
   const pathname = usePathname(); // Get the full pathname
   const [selectedColor, setSelectedColor] = useState(null);
