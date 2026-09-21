@@ -1,4 +1,4 @@
-import { fetchAllHeroBanners } from "@/redux/heroBanner/allHeroBannerSlice";
+import { fetchAllHeroBanners } from "@/store/slices/banner.slice";
 import { Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";

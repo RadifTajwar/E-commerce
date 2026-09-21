@@ -12,10 +12,9 @@ import Cart from "@/components/ui/components/cart";
 import AccordionSection from "@/components/ui/components/productCart/accordionSection";
 import "@/components/ui/components/shop/scrollbar.css";
 import { cn } from "@/lib/utils";
-import { addItemToCart } from "@/redux/cart/cartSlicer";
-import { fetchProductBySlug } from "@/redux/product/productBySlugSlice";
+import { addItemToCart } from "@/store/slices/cart.slice";
+import { fetchProductBySlug } from "@/store/slices/product.slice";
 import { Skeleton } from "@mui/material";
-import CryptoJS from "crypto-js";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -25,6 +24,7 @@ export default function productId() {
   const pathname = usePathname(); // Get the full pathname
   const [selectedColor, setSelectedColor] = useState(null);
   const [colorId, setColorId] = useState(null);
+  const [availableQuantity, setAvailableQuantity] = useState(undefined);
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {
@@ -39,6 +39,7 @@ export default function productId() {
           price: productData?.discountedPrice,
           image: productData?.imageDefault,
           quantity: quantity,
+          availableQuantity,
           colorId: colorId, // Send the selected color along with other data
           color: selectedColor, // Send the selected color along with other data
         })
@@ -48,22 +49,15 @@ export default function productId() {
   const [quantity, setQuantity] = useState(1); // Initialize quantity state
 
   const handleIncrease = () => {
-    setQuantity((prevQuantity) => prevQuantity + 1); // Increment quantity
+    // Never exceed the stock of the selected colour.
+    setQuantity((prevQuantity) =>
+      availableQuantity !== undefined ? Math.min(prevQuantity + 1, Math.max(availableQuantity, 1)) : prevQuantity + 1
+    );
   };
 
   const handleDecrease = () => {
     setQuantity((prevQuantity) => (prevQuantity > 1 ? prevQuantity - 1 : 1)); // Decrement with a minimum of 1
   };
-  // Obfuscated key name
-  const obfuscatedKey = "wc_di";
-  const secretKey = "Tajwar@00452268"; // Must match the one used for encryption
-
-  // Retrieve and decrypt the ID
-  const encryptedId = localStorage.getItem(obfuscatedKey);
-  const PID = encryptedId
-    ? CryptoJS.AES.decrypt(encryptedId, secretKey).toString(CryptoJS.enc.Utf8)
-    : null;
-
   // Access the update category data from the store
   const { productData, isLoading, error } = useSelector(
     (state) => state.productBySlug
@@ -85,10 +79,14 @@ export default function productId() {
   const [outOfStock, setOutOfStock] = useState(false);
 
   const handleColorClick = (colorName, colorId, availableQuantity) => {
-    if (availableQuantity === 0) {
+    const stock =
+      availableQuantity === undefined || availableQuantity === null ? undefined : Number(availableQuantity);
+    setAvailableQuantity(stock);
+    if (stock === 0) {
       setOutOfStock(true);
     } else {
       setOutOfStock(false);
+      if (stock !== undefined) setQuantity((q) => Math.min(q, Math.max(stock, 1)));
     }
     setSelectedColor(colorName); // Update the selected color state
     setColorId(colorId); // Update the selected color ID state

@@ -25,9 +25,6 @@ const nextConfig = {
   experimental: {
     // pino uses worker threads / dynamic requires that must not be bundled.
     serverComponentsExternalPackages: ["pino", "pino-pretty", "ioredis"],
-    // TEMPORARY (removed in the layout step): three pages call useSearchParams
-    // without a Suspense boundary. The original config carried this flag too.
-    missingSuspenseWithCSRBailout: false,
   },
   eslint: {
     // Lint runs as its own CI step (`npm run lint`). Keeping the build focused

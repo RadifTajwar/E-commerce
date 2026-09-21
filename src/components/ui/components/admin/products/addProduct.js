@@ -1,6 +1,6 @@
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import { createProduct } from "@/redux/product/createProductSlice";
-import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
+import { fetchAllCategories } from "@/store/slices/category.slice";
+import { createProduct } from "@/store/slices/product.slice";
+import { uploadService } from "@/services/upload.service";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function addProduct({
@@ -216,11 +216,11 @@ export default function addProduct({
 
     try {
       // Upload default and hover images
-      const ImageDefault = await uploadToCloudinary(
+      const ImageDefault = await uploadService.image(
         formData.imageDefault,
         folderName
       );
-      const ImageHover = await uploadToCloudinary(
+      const ImageHover = await uploadService.image(
         formData.imageHover,
         folderName
       );
@@ -228,7 +228,7 @@ export default function addProduct({
       const updatedLeather = { ...formData.leather }; // Create a copy of the leather object to avoid direct mutation
 
       if (formData.leather.image) {
-        const leatherImageUrl = await uploadToCloudinary(
+        const leatherImageUrl = await uploadService.image(
           formData.leather.image,
           folderName
         );
@@ -244,7 +244,7 @@ export default function addProduct({
             const colorFolderName = `${folderName}/${detail.color}`; // Folder specific to the color name
             const uploadedImages = await Promise.all(
               detail.images.map(async (image) => {
-                return await uploadToCloudinary(image, colorFolderName);
+                return await uploadService.image(image, colorFolderName);
               })
             );
             return {

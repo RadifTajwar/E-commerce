@@ -1,5 +1,5 @@
-import { createParentCategory } from "@/redux/parentCategory/createParentCategorySlice";
-import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
+import { createParentCategory } from "@/store/slices/parent-category.slice";
+import { uploadService } from "@/services/upload.service";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function addParentCategory({
@@ -59,7 +59,7 @@ export default function addParentCategory({
       const folderName = `ParentCategory/${formData.name}`;
 
       setImageUploading(true);
-      const imageUrl = await uploadToCloudinary(formData.image, folderName);
+      const imageUrl = await uploadService.image(formData.image, folderName);
       setImageUploading(false);
       // Prepare the final data for the backend
       const categoryData = {

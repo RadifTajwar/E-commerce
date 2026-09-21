@@ -1,16 +1,20 @@
 "use client";
-import localStorageUtil from "@/utils/localStorageUtil";
-import { usePathname, useRouter } from "next/navigation";
+import { logoutUser } from "@/store/slices/auth.slice";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 
-export default function topBar({ toggleSidebar }) {
+export default function TopBar({ toggleSidebar }) {
   const router = useRouter();
-  const pathName = usePathname();
+  const dispatch = useDispatch();
   const [notificationBarClicked, setNotificationBarClicked] = useState(false);
   const [profileClicked, setProfileClicked] = useState(false);
-  const handleLogOut = () => {
-    localStorageUtil.removeItem("accessToken");
-    router.push("/admin");
+  const handleLogOut = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+    } finally {
+      router.push("/admin");
+    }
   };
   return (
     <>

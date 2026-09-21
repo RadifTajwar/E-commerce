@@ -4,7 +4,7 @@ import AllProducts from "@/components/ui/components/admin/categories/allCategori
 import DeleteVisible from "@/components/ui/components/admin/categories/deleteVisible";
 import SearchForm from "@/components/ui/components/admin/categories/searchForm";
 import UpdateCategories from "@/components/ui/components/admin/categories/updateCateogories";
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
+import { fetchAllCategories } from "@/store/slices/category.slice";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";

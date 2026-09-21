@@ -1,27 +1,21 @@
 "use client";
-import { fetchOrderByUser } from "@/redux/order/getOrderByUserSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
-import { jwtDecode } from "jwt-decode";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { fetchOrderByUser } from "@/store/slices/order.slice";
+import { useSession } from "@/hooks/useSession";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function page() {
+export default function OrdersPage() {
   const router = useRouter();
-  const pathName = usePathname();
   const dispatch = useDispatch();
-  const [orderFetched, setOrderFetched] = useState(false);
+  const { session } = useSession();
+  const email = session?.email;
   const { order, isLoading, error } = useSelector(
     (state) => state.getOrderByUser
   );
   useEffect(() => {
-    const token = localStorageUtil.getItem("accessToken");
-    const decoded = jwtDecode(token);
-    if (!orderFetched) {
-      dispatch(fetchOrderByUser(decoded.email));
-      setOrderFetched(true);
-    }
-  }, [dispatch, pathName]);
+    if (email) dispatch(fetchOrderByUser(email));
+  }, [dispatch, email]);
 
   const handleView = (id) => {
     router.push(`/myAccount/viewOrder/${id}`);

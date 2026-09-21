@@ -1,6 +1,6 @@
 'use client'
-import { decrementItem, incrementItem, removeItemFromCart } from '@/redux/cart/cartSlicer';
-import localStorageUtil from '@/utils/localStorageUtil';
+import { decrementItem, incrementItem, removeItemFromCart } from "@/store/slices/cart.slice";
+import { readStorage, writeStorage } from "@/lib/storage";
 import ProductionQuantityLimitsOutlinedIcon from '@mui/icons-material/ProductionQuantityLimitsOutlined';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ export default function page() {
     const handleShippingChange = (e) => {
         const cost = Number(e.target.value);
         setSelectedShipping(cost);
-        localStorageUtil.setItem("selectedShipping", cost); // Save to local storage
+        writeStorage("selectedShipping", cost); // Save to local storage
     };
     const cartItems = useSelector((state) => state.cart.items);
     const cartTotal = useSelector((state) => state.cart.total);
@@ -31,7 +31,7 @@ export default function page() {
     }
 
     useEffect(() => {
-        const savedShipping = localStorageUtil.getItem("selectedShipping");
+        const savedShipping = readStorage("selectedShipping", null);
         if (savedShipping) {
             setSelectedShipping(Number(savedShipping));
         }

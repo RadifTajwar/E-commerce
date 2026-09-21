@@ -1,4 +1,5 @@
 'use client';
+import { Suspense } from "react";
 import DeleteVisible from "@/components/ui/components/admin/orders/deleteVisible";
 import RecentOrders from "@/components/ui/components/admin/orders/recentOrders";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -6,7 +7,7 @@ import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-export default function Page() {
+function PageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isOrderFetched, setIsOrderFetched] = useState(false);
@@ -199,5 +200,14 @@ export default function Page() {
         <DeleteVisible toggleDeleteVisible={toggleDeleteVisible} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate} setIsOrderFetched={setIsOrderFetched} />
       </div>
     </>
+  );
+}
+
+/** useSearchParams() requires a Suspense boundary for static prerendering. */
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <PageContent />
+    </Suspense>
   );
 }

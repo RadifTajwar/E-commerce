@@ -1,5 +1,5 @@
 "use client";
-import { fetchOrderById } from "@/redux/order/getOrderByIdSlice";
+import { fetchOrderById } from "@/store/slices/order.slice";
 import jsPDF from "jspdf";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";

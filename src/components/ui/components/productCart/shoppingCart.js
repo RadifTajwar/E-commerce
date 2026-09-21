@@ -2,7 +2,7 @@ import {
   decrementItem,
   incrementItem,
   removeItemFromCart,
-} from "@/redux/cart/cartSlicer";
+} from "@/store/slices/cart.slice";
 import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimits";
 import Image from "next/image";
 import Link from "next/link";

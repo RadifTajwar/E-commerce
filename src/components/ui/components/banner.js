@@ -7,7 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { fetchAllHeroBanners } from "@/redux/heroBanner/allHeroBannerSlice";
+import { fetchAllHeroBanners } from "@/store/slices/banner.slice";
 
 import Skeleton from "@mui/material/Skeleton";
 import Image from "next/image";

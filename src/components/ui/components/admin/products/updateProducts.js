@@ -1,7 +1,7 @@
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import { fetchProductById } from "@/redux/product/productByIdSlice";
-import { updateProductData } from "@/redux/product/updateProductDataSlice";
-import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
+import { fetchAllCategories } from "@/store/slices/category.slice";
+import { fetchProductById } from "@/store/slices/product.slice";
+import { updateProductData } from "@/store/slices/product.slice";
+import { uploadService } from "@/services/upload.service";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function updateProducts({
@@ -375,11 +375,11 @@ export default function updateProducts({
 
     try {
       // Upload default and hover images
-      const ImageDefault = await uploadToCloudinary(
+      const ImageDefault = await uploadService.image(
         formData.imageDefault,
         folderName
       );
-      const ImageHover = await uploadToCloudinary(
+      const ImageHover = await uploadService.image(
         formData.imageHover,
         folderName
       );
@@ -388,7 +388,7 @@ export default function updateProducts({
       const updatedLeather = { ...formData.leather }; // Create a copy of the leather object to avoid direct mutation
 
       if (formData.leather.image) {
-        const leatherImageUrl = await uploadToCloudinary(
+        const leatherImageUrl = await uploadService.image(
           formData.leather.image,
           folderName
         );
@@ -406,7 +406,7 @@ export default function updateProducts({
             const colorFolderName = `${folderName}/${detail.color}`; // Folder specific to the color name
             const uploadedImages = await Promise.all(
               detail.images.map(async (image) => {
-                return await uploadToCloudinary(image, colorFolderName);
+                return await uploadService.image(image, colorFolderName);
               })
             );
             return {

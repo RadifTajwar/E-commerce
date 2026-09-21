@@ -1,16 +1,17 @@
 "use client";
+import { Suspense } from "react";
 import AddProduct from "@/components/ui/components/admin/products/addProduct";
 import AllProducts from "@/components/ui/components/admin/products/allProducts";
 import DeleteVisible from "@/components/ui/components/admin/products/deleteVisible";
 import SearchForm from "@/components/ui/components/admin/products/searchForm";
 
 import UpdateProducts from "@/components/ui/components/admin/products/updateProducts";
-import { fetchAllProducts } from "@/redux/product/allProductsSlice";
+import { fetchAllProducts } from "@/store/slices/product.slice";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-export default function page() {
+function PageContent() {
   const dispatch = useDispatch();
   const [categoryId, setCategoryId] = useState("");
   const [isInput, setIsInput] = useState("");
@@ -368,5 +369,14 @@ export default function page() {
         />
       </div>
     </>
+  );
+}
+
+/** useSearchParams() requires a Suspense boundary for static prerendering. */
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <PageContent />
+    </Suspense>
   );
 }

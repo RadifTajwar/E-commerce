@@ -1,5 +1,5 @@
 "use client";
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
+import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

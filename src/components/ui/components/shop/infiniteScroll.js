@@ -1,6 +1,6 @@
 "use client";
-import { fetchAllProducts } from "@/redux/product/allProductsSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
+import { fetchAllProducts } from "@/store/slices/product.slice";
+import { readStorage } from "@/lib/storage";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -44,12 +44,12 @@ export default function InfiniteScroll({
         try {
           let response;
           if (slug && slug.length === 2) {
-            const categoryId = localStorageUtil.getItem("categoryId");
+            const categoryId = readStorage("categoryId", undefined);
             response = await dispatch(
               fetchAllProducts({ page: pageNumber, categoryId, filterSearch })
             ).unwrap();
           } else if (slug && slug.length === 1) {
-            const parentId = localStorageUtil.getItem("parentCategoryId");
+            const parentId = readStorage("parentCategoryId", undefined);
             response = await dispatch(
               fetchAllProducts({
                 page: pageNumber,

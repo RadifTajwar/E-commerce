@@ -1,6 +1,6 @@
-import { fetchParentCategoryById } from "@/redux/parentCategory/parentCategoryByIdSlice";
-import { updateParentCategoryData } from "@/redux/parentCategory/updateParentCategoryDataSlice";
-import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
+import { fetchParentCategoryById } from "@/store/slices/parent-category.slice";
+import { updateParentCategoryData } from "@/store/slices/parent-category.slice";
+import { uploadService } from "@/services/upload.service";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function updateParentCategories({
@@ -89,7 +89,7 @@ export default function updateParentCategories({
       const folderName = `ParentCategory/${formData.name}`;
 
       setImageUploading(true);
-      const imageUrl = await uploadToCloudinary(formData.image, folderName);
+      const imageUrl = await uploadService.image(formData.image, folderName);
       setImageUploading(false);
       // Prepare the final data for the backend
       const categoryData = {

@@ -1,14 +1,14 @@
 "use client";
-import { loginUser } from "@/redux/user/userLoginSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
-import { jwtDecode } from "jwt-decode";
+import { useSession } from "@/hooks/useSession";
+import { loginUser, logoutUser } from "@/store/slices/auth.slice";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-export default function page() {
+export default function AdminLoginPage() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { isAdmin, isLoading: sessionLoading } = useSession();
   const [logMail, setLogMail] = useState("");
   const [logPass, setLogPass] = useState("");
   const [errorLogin, setErrorLogin] = useState(null);
@@ -32,14 +32,12 @@ export default function page() {
         loginUser({ email: logMail, password: logPass })
       ).unwrap();
 
-      // Store email and accessToken in localStorage
-
-      // Handle successful login if needed
-      const decoded = jwtDecode(result.accessToken);
-      if (decoded.role === "admin" && decoded.email) {
-        localStorageUtil.setItem("accessToken", result.accessToken);
+      // The session cookie was set by /api/auth/login.
+      if (result.session?.role === "admin") {
         router.push("/admin/dashboard");
       } else {
+        // A non-admin account must not keep a session on the admin login page.
+        await dispatch(logoutUser());
         setErrorLogin("Only Admins are allowed to login.");
       }
     } catch (error) {
@@ -51,17 +49,9 @@ export default function page() {
   };
 
   useEffect(() => {
-    // Retrieve userEmail and accessToken from localStorage
-    const token = localStorageUtil.getItem("accessToken");
-    if (token) {
-      const decoded = jwtDecode(token);
-      const storedEmail = decoded.email;
-      if (storedEmail && decoded.role === "admin") {
-        // Redirect to 'my-account' page if either is missing
-        router.push("/admin/dashboard");
-      }
-    }
-  }, [router]);
+    // Already signed in as an admin: go straight to the dashboard.
+    if (!sessionLoading && isAdmin) router.push("/admin/dashboard");
+  }, [router, isAdmin, sessionLoading]);
 
   return (
     <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">

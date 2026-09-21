@@ -1,6 +1,6 @@
-import { fetchHeroBannerById } from "@/redux/heroBanner/heroBannerByIdSlice";
-import { updateHeroBanner } from "@/redux/heroBanner/updateHeroBannerSlice";
-import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
+import { fetchHeroBannerById } from "@/store/slices/banner.slice";
+import { updateHeroBanner } from "@/store/slices/banner.slice";
+import { uploadService } from "@/services/upload.service";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function updateBanner({
@@ -109,8 +109,8 @@ export default function updateBanner({
       const folderName = `Banner`;
 
       setImageUploading(true);
-      const imageUrl = await uploadToCloudinary(formData.image, folderName);
-      const imageUrl2 = await uploadToCloudinary(formData.image2, folderName);
+      const imageUrl = await uploadService.image(formData.image, folderName);
+      const imageUrl2 = await uploadService.image(formData.image2, folderName);
       setImageUploading(false);
       // Prepare the final data for the backend
 

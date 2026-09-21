@@ -1,34 +1,20 @@
 "use client";
-import localStorageUtil from "@/utils/localStorageUtil";
-import { jwtDecode } from "jwt-decode";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useSession } from "@/hooks/useSession";
+import { useRouter } from "next/navigation";
 export default function Layout({ children }) {
-  const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useSession();
   const sideBarComponentClicked = (route) => {
     if (route === "myAccount") router.push(`/${route}`);
     else router.push(`/myAccount/${route}`);
   };
-  useEffect(() => {
-    // Retrieve userEmail from localStorage
-    const token = localStorageUtil.getItem("accessToken");
-    if (token) {
-      const decoded = jwtDecode(token);
-      const storedEmail = decoded.email;
-      if (!storedEmail) {
-        // Redirect to 'my-account' page if userEmail is missing
-        router.push("/my-account");
-      }
-    } else {
+  // Access is enforced server-side in middleware.ts; nothing to check here.
+  const handleLogOut = async () => {
+    try {
+      await logout();
+    } finally {
       router.push("/my-account");
     }
-  }, [pathname]);
-
-  const handleLogOut = () => {
-    localStorageUtil.removeItem("accessToken");
-
-    router.push("/my-account");
   };
 
   return (

@@ -1,7 +1,7 @@
 'use client'
 import AllVideoBanners from "@/components/ui/components/admin/video/allVideoBanners";
 import UpdateVideoBanner from "@/components/ui/components/admin/video/updateVideoBanner";
-import { fetchAllVideoBanners } from "@/redux/video/allVideoBannerSlice";
+import { fetchAllVideoBanners } from "@/store/slices/banner.slice";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";

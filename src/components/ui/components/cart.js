@@ -6,7 +6,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { fetchAllProducts } from "@/redux/product/allProductsSlice";
+import { fetchAllProducts } from "@/store/slices/product.slice";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

@@ -1,10 +1,10 @@
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
-import { jwtDecode } from "jwt-decode";
+import { fetchAllCategories } from "@/store/slices/category.slice";
+import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
+import { clearState, fetchAllProducts } from "@/store/slices/product.slice";
+import { useSession } from "@/hooks/useSession";
+import { writeStorage } from "@/lib/storage";
 import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,10 +16,9 @@ export default function SideBar({
   toggleSideBar,
   isVisibleSideBar,
   toggleLogInForm,
-  isLoggedIn,
-  setIsLoggedIn,
 }) {
   const router = useRouter();
+  const { isLoggedIn, logout } = useSession();
   const dispatch = useDispatch();
 
   // Access the parent categories from the store
@@ -64,17 +63,9 @@ export default function SideBar({
 
   // Fetch all parent categories and categories
   useEffect(() => {
-    const accessToken = localStorageUtil.getItem("accessToken");
-    if (accessToken) {
-      const email = jwtDecode(accessToken);
-      if (email?.email) {
-        setIsLoggedIn(true);
-      }
-    }
-
     dispatch(fetchAllParentCategories());
     dispatch(fetchAllCategories());
-  }, [dispatch, isLoggedIn]);
+  }, [dispatch]);
   const [searchBar, setSearchBar] = useState("");
   const [isSelected, setIsSelected] = useState(true);
   const [expandedStates, setExpandedStates] = useState({});
@@ -111,7 +102,7 @@ export default function SideBar({
       .replace(/\s+/g, "-");
 
     // Store parentCategoryId in localStorage
-    localStorageUtil.setItem("parentCategoryId", parentCategoryId);
+    writeStorage("parentCategoryId", parentCategoryId);
     dispatch(clearState());
     // Navigate to the formatted URL
     router.push(`/shop/productCategory/${formattedCategoryName}`);
@@ -129,7 +120,7 @@ export default function SideBar({
     const formattedParentCategoryName = parentCategoryName
       .toLowerCase()
       .replace(/\s+/g, "-");
-    localStorageUtil.setItem("categoryId", categoryId);
+    writeStorage("categoryId", categoryId);
     dispatch(clearState());
     // Navigate to the formatted URL
 
@@ -140,9 +131,6 @@ export default function SideBar({
   };
   const handleProductClick = (slug, id) => {
     // Hash the product ID
-
-    // Save the hashed ID to localStorage
-    localStorageUtil.setItem("obfuscatedKey", id);
 
     // Redirect to the product page
     router.push(`/products/${slug}`);
@@ -158,9 +146,7 @@ export default function SideBar({
   };
 
   const handleLogOut = () => {
-    localStorageUtil.removeItem("accessToken");
-    setIsLoggedIn(false);
-
+    logout().catch(() => undefined);
     handleToggleSideBar();
     setToggleAccountExpanded(false);
     router.push("/");

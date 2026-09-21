@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
-import { fetchAllProducts } from "@/redux/product/allProductsSlice";
+import { fetchAllProducts } from "@/store/slices/product.slice";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function allProducts({

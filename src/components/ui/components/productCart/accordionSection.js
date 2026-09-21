@@ -1,5 +1,5 @@
-import { sendRating } from "@/redux/rating/createRatingSlice";
-import { getRatingById } from "@/redux/rating/ratingByProductIdSlice";
+import { sendRating } from "@/store/slices/rating.slice";
+import { getRatingById } from "@/store/slices/rating.slice";
 import { Skeleton } from "@mui/material";
 import Rating from "@mui/material/Rating";
 import "flowbite";

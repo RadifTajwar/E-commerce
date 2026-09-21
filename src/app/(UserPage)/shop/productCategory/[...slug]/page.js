@@ -1,21 +1,22 @@
 "use client";
 
+import { Suspense } from "react";
 // import ColorBar from "@/components/ui/components/shop/colorBar";
 import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
 import RangeBar from "@/components/ui/components/shop/rangeBar";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
+import { fetchAllCategories } from "@/store/slices/category.slice";
+import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
+import { clearState, fetchAllProducts } from "@/store/slices/product.slice";
+import { readStorage, writeStorage } from "@/lib/storage";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react"; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
 
-export default function Page() {
+function PageContent() {
   const params = useParams();
 
   const router = useRouter();
@@ -123,10 +124,10 @@ export default function Page() {
         setFilterSearch(filters);
 
         if (slug && slug.length === 2) {
-          const categoryId = await localStorageUtil.getItem("categoryId");
+          const categoryId = readStorage("categoryId", undefined);
           fetchParams.categoryId = categoryId;
         } else if (slug && slug.length === 1) {
-          const parentId = await localStorageUtil.getItem("parentCategoryId");
+          const parentId = readStorage("parentCategoryId", undefined);
           fetchParams.parentCategoryId = parentId;
         }
 
@@ -174,7 +175,7 @@ export default function Page() {
       .replace(/\s+/g, "-");
 
     // Store parentCategoryId in localStorage
-    localStorageUtil.setItem("parentCategoryId ", parentCategoryId);
+    writeStorage("parentCategoryId", parentCategoryId);
     dispatch(clearState());
     // Navigate to the formatted URL
     router.push(`/shop/productCategory/${formattedCategoryName}`);
@@ -191,7 +192,7 @@ export default function Page() {
     const formattedParentCategoryName = parentCategoryName
       .toLowerCase()
       .replace(/\s+/g, "-");
-    localStorageUtil.setItem("categoryId", categoryId);
+    writeStorage("categoryId", categoryId);
     dispatch(clearState());
     router.push(
       `/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`
@@ -495,5 +496,14 @@ export default function Page() {
         </div>
       </div>
     </>
+  );
+}
+
+/** useSearchParams() requires a Suspense boundary for static prerendering. */
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <PageContent />
+    </Suspense>
   );
 }

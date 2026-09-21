@@ -1,38 +1,18 @@
 'use client'
-import localStorageUtil from '@/utils/localStorageUtil';
-import { jwtDecode } from 'jwt-decode';
+import { useSession } from "@/hooks/useSession";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from "react";
 export default function Page() {
-  const [userEmail, setUserEmail] = useState('');
-  const [accessToken, setAccessToken] = useState('');
   const router = useRouter();
- 
-  useEffect(() => {
-    // Retrieve userEmail and accessToken from localStorage
-    const token = localStorageUtil.getItem('accessToken');
-    if(token){
-      setAccessToken(token);
-      const decoded= jwtDecode(token);
-   
-       if (decoded.email) {
-         // Redirect to 'my-account' page if either is missing
-         setUserEmail(decoded.email);
-   
-       } 
-    }  
-    
-  }, [userEmail, accessToken]);
+  const { session, logout } = useSession();
+  const userEmail = session?.email ?? "";
 
-  // Render nothing if either userEmail or accessToken is missing
-  if (!accessToken ) {
+  // Access is enforced in middleware.ts; wait for the session before rendering.
+  if (!session) {
     return null;
   }
   const handleLogOut = () => {
-    localStorageUtil.removeItem('userEmail');
-   
-    router.push('/my-account');
+    logout().finally(() => router.push('/my-account'));
 }
   return (
     

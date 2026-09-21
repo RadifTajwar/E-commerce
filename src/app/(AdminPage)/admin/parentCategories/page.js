@@ -3,7 +3,7 @@ import AddParentCategory from "@/components/ui/components/admin/parentCategories
 import AllParentCategories from "@/components/ui/components/admin/parentCategories/allParentCategories";
 import DeleteVisible from "@/components/ui/components/admin/parentCategories/deleteVisible";
 import UpdateParentCateogories from "@/components/ui/components/admin/parentCategories/updateParentCategories";
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
+import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";

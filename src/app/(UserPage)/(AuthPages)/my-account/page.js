@@ -1,15 +1,14 @@
 "use client";
 import Footer from "@/components/ui/components/footer";
-import { createUser } from "@/redux/user/createUserSlice";
-import { loginUser } from "@/redux/user/userLoginSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
+import { useSession } from "@/hooks/useSession";
+import { createUser, loginUser } from "@/store/slices/auth.slice";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function page() {
+export default function MyAccountPage() {
+  const { isLoggedIn, isLoading: sessionLoading } = useSession();
   const { status } = useSelector((state) => state.createUser);
   const { status: loginStatus } = useSelector((state) => state.loginUser);
   const [errorLogin, setErrorLogin] = useState(null);
@@ -19,6 +18,7 @@ export default function page() {
   const dispatch = useDispatch();
   const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
   const [logMail, setLogMail] = useState("");
   const [logPass, setLogPass] = useState("");
   const onLogMailChange = (e) => {
@@ -44,53 +44,23 @@ export default function page() {
     setEmail(e.target.value);
   };
   useEffect(() => {
-    // Retrieve userEmail and accessToken from localStorage
-    const token = localStorageUtil.getItem("accessToken");
-    if (token) {
-      const decoded = jwtDecode(token);
-      const storedEmail = decoded.email;
-      if (storedEmail) {
-        // Redirect to 'my-account' page if either is missing
-        router.push("/myAccount");
-      }
-    }
-  }, [router]);
+    // Already signed in: go to the account dashboard.
+    if (!sessionLoading && isLoggedIn) router.push("/myAccount");
+  }, [router, isLoggedIn, sessionLoading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (registerPassword.length < 6) {
+      seterrorSignUp("Password must be at least 6 characters.");
+      return;
+    }
     try {
-      const dynamicPassword = Math.random().toString(36).slice(-8);
-
-      const templateParams = {
-        to_email: email,
-        dynamic_password: dynamicPassword,
-      };
-
       const name = email.split("@")[0]; // Get the part before '@'
-      const userData = {
-        name,
-        email,
-        password: dynamicPassword,
-      };
-
-      // Dispatch the createUser thunk and wait for its result
-      const result1 = await dispatch(createUser(userData)).unwrap();
-      const result2 = await dispatch(
-        loginUser({ email: email, password: dynamicPassword })
-      ).unwrap();
-
-      // Store email and accessToken in localStorage
-
-      localStorageUtil.setItem("accessToken", result2.accessToken);
-
-      const decoded = jwtDecode(result2.accessToken);
-      // Handle successful login if needed
+      await dispatch(createUser({ name, email, password: registerPassword })).unwrap();
+      await dispatch(loginUser({ email, password: registerPassword })).unwrap();
       router.push("/myAccount");
-
-      // Send email after user is successfully created
     } catch (error) {
-      // Handle errors (e.g., invalid credentials or user already exists)
-      seterrorSignUp("User already exists.");
+      seterrorSignUp(error?.message || "User already exists.");
     }
   };
 
@@ -103,12 +73,7 @@ export default function page() {
         loginUser({ email: logMail, password: logPass })
       ).unwrap();
 
-      // Store email and accessToken in localStorage
-
-      localStorageUtil.setItem("accessToken", result.accessToken);
-      const decoded = jwtDecode(result.accessToken);
-      // Handle successful login if needed
-      router.push("/myAccount");
+      if (result.session) router.push("/myAccount");
     } catch (error) {
       // Handle errors (e.g., invalid credentials)
 
@@ -295,10 +260,31 @@ export default function page() {
                           />
                         </div>
 
-                        <p className="text-[13px] text-gray-500 my-[20px]">
-                          A link to set a new password will be sent to your
-                          email address.
-                        </p>
+                        <div>
+                          <label
+                            htmlFor="register-password"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                          >
+                            Password <span className="text-red-700">*</span>
+                          </label>
+                          <input
+                            type="password"
+                            name="password"
+                            id="register-password"
+                            autoComplete="new-password"
+                            minLength={6}
+                            className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 ${
+                              errorSignUp ? "border-red-500" : "border-gray-200"
+                            }`}
+                            placeholder="Choose a password (min. 6 characters)"
+                            value={registerPassword}
+                            onChange={(e) => {
+                              seterrorSignUp(null);
+                              setRegisterPassword(e.target.value);
+                            }}
+                            required
+                          />
+                        </div>
                         <p className="text-[13px]  text-gray-500 my-[20px]">
                           Your personal data will be used to support your
                           experience throughout this website, to manage access

@@ -7,8 +7,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { fetchAllOrders } from "@/redux/order/getAllOrderSlice";
-import { updateOrderStatus } from "@/redux/order/updateOrderSlice";
+import { fetchAllOrders } from "@/store/slices/order.slice";
+import { updateOrderStatus } from "@/store/slices/order.slice";
 import { Skeleton } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";

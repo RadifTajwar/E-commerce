@@ -1,5 +1,5 @@
-import { fetchOrderById } from "@/redux/order/getOrderByIdSlice";
-import { updateOrderStatus } from "@/redux/order/updateOrderSlice";
+import { fetchOrderById } from "@/store/slices/order.slice";
+import { updateOrderStatus } from "@/store/slices/order.slice";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function deleteVisible({

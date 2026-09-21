@@ -1,5 +1,5 @@
-import { fetchCategoryById } from "@/redux/category/categoryByIdSlice";
-import { deleteProductById } from "@/redux/product/deleteProductByIdSlice";
+import { fetchCategoryById } from "@/store/slices/category.slice";
+import { deleteProductById } from "@/store/slices/product.slice";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function deleteVisible({

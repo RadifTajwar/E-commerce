@@ -1,6 +1,6 @@
 "use client";
 import OrderDetails from "@/components/ui/components/viewOrder/orderDetails";
-import { fetchOrderById } from "@/redux/order/getOrderByIdSlice";
+import { fetchOrderById } from "@/store/slices/order.slice";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";

@@ -1,5 +1,4 @@
-import { loginUser } from "@/redux/user/userLoginSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
+import { loginUser } from "@/store/slices/auth.slice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -36,18 +35,10 @@ export default function LoginForm({
         loginUser({ email: logMail, password: logPass })
       ).unwrap();
 
-      // Store email and accessToken in localStorage
-
-      localStorageUtil.setItem("userEmail", logMail);
-      localStorageUtil.setItem("accessToken", result.accessToken);
-
-      // Handle successful login if needed
-
+      // The session cookie is set by /api/auth/login; nothing is stored here.
       toggleLogInForm();
-      setIsLoggedIn(true);
-      setTimeout(() => {
-        router.push("/myAccount");
-      }, 500);
+      setIsLoggedIn?.(Boolean(result.session));
+      router.push("/myAccount");
     } catch (error) {
       // Handle errors (e.g., invalid credentials)
 

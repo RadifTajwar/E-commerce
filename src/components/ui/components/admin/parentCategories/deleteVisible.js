@@ -1,5 +1,5 @@
-import { deleteParentCategoryById } from "@/redux/parentCategory/deleteParentCategoryByIdSlice";
-import { fetchParentCategoryById } from "@/redux/parentCategory/parentCategoryByIdSlice";
+import { deleteParentCategoryById } from "@/store/slices/parent-category.slice";
+import { fetchParentCategoryById } from "@/store/slices/parent-category.slice";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function deleteVisible({

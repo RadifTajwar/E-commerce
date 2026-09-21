@@ -1,7 +1,7 @@
 'use client'
 import AllMainBanner from "@/components/ui/components/admin/mainBanner/allMainBanner";
 import UpdateMainBanner from "@/components/ui/components/admin/mainBanner/updateMainBanner";
-import { fetchAllHeroBanners } from "@/redux/heroBanner/allHeroBannerSlice";
+import { fetchAllHeroBanners } from "@/store/slices/banner.slice";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";

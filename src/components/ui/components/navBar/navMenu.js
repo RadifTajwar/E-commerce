@@ -1,7 +1,7 @@
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
-import localStorageUtil from "@/utils/localStorageUtil";
+import { fetchAllCategories } from "@/store/slices/category.slice";
+import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
+import { clearState, fetchAllProducts } from "@/store/slices/product.slice";
+import { writeStorage } from "@/lib/storage";
 import { Search } from "lucide-react"; // Install lucide-react for the icon
 import Image from "next/image";
 import Link from "next/link";
@@ -86,7 +86,7 @@ export default function NavMenu() {
       .replace(/\s+/g, "-");
 
     // Store parentCategoryId in localStorage
-    localStorageUtil.setItem("parentCategoryId", parentCategoryId);
+    writeStorage("parentCategoryId", parentCategoryId);
     dispatch(clearState());
     // Navigate to the formatted URL
     router.push(`/shop/productCategory/${formattedCategoryName}`);
@@ -103,7 +103,7 @@ export default function NavMenu() {
     const formattedParentCategoryName = parentCategoryName
       .toLowerCase()
       .replace(/\s+/g, "-");
-    localStorageUtil.setItem("categoryId", categoryId);
+    writeStorage("categoryId", categoryId);
     dispatch(clearState());
     // Navigate to the formatted URL
 
@@ -114,9 +114,6 @@ export default function NavMenu() {
 
   const handleProductClick = (slug, id) => {
     // Hash the product ID
-
-    // Save the hashed ID to localStorage
-    localStorageUtil.setItem("obfuscatedKey", id);
 
     // Redirect to the product page
     router.push(`/products/${slug}`);

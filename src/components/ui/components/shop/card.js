@@ -1,8 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-// import { addItemToCart } from "@/redux/cart/cartSlicer";
-import { addItemToCart } from "@/redux/cart/cartSlicer";
-import { fetchProductById } from "@/redux/product/productByIdSlice";
-import CryptoJS from "crypto-js";
+// import { addItemToCart } from "@/store/slices/cart.slice";
+import { addItemToCart } from "@/store/slices/cart.slice";
+import { fetchProductById } from "@/store/slices/product.slice";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,6 +17,7 @@ export default function card({ product }) {
   const [selectedColor, setSelectedColor] = useState(null);
   const [unavailableColors, setUnavailableColors] = useState(false);
   const [colorId, setColorId] = useState(null);
+  const [availableQuantity, setAvailableQuantity] = useState(undefined);
   const [isLoadingCart, setIsLoadingCart] = useState(false);
   const { productData, isLoading, error } = useSelector(
     (state) => state.productById
@@ -33,7 +33,7 @@ export default function card({ product }) {
           name: product?.name,
           price: product?.discountedPrice,
           image: product?.imageDefault,
-
+          availableQuantity,
           colorId: colorId, // Send the selected color along with other data
           color: selectedColor, // Send the selected color along with other data
         })
@@ -42,6 +42,9 @@ export default function card({ product }) {
   };
 
   const handleColorClick = (colorName, colorId, colorQuantity) => {
+    setAvailableQuantity(
+      colorQuantity === undefined || colorQuantity === null ? undefined : Number(colorQuantity)
+    );
     if (colorQuantity == 0) {
       setUnavailableColors(true); // Set the unavailable colors state
       setSelectedColor(colorName); // Update the selected color state
@@ -55,17 +58,6 @@ export default function card({ product }) {
   };
 
   const handleProductClick = () => {
-    // Hash the product ID
-    const secretKey = "Tajwar@00452268"; // Keep this secret and do not expose it
-    const hashedId = CryptoJS.AES.encrypt(product.id, secretKey).toString();
-
-    // Use an obfuscated key name
-    const obfuscatedKey = "wc_di";
-
-    // Save the hashed ID to localStorage
-    localStorage.setItem(obfuscatedKey, hashedId);
-
-    // Redirect to the product page
     Router.push(`/products/${product.slug}`);
   };
   const handleCardCloseClicked = () => {
@@ -335,7 +327,7 @@ export default function card({ product }) {
             </Card>
             <div className="lower_txt flex justify-start ">
               <div className="price_text_image text-start  px-5 py-4">
-                <Link href={`/product/1`}>
+                <Link href={`/products/${product?.slug}`}>
                   <h1
                     className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
                     style={{ fontWeight: "400", fontSize: "14px" }}

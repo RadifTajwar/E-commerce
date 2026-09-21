@@ -1,4 +1,4 @@
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
+import { fetchAllCategories } from "@/store/slices/category.slice";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function searchForm({

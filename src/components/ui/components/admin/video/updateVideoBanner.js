@@ -1,6 +1,6 @@
-import { updateVideoBanner } from "@/redux/video/updateVideoBannerSlice";
-import { fetchVideoBannerById } from "@/redux/video/videoBannerByIdSlice";
-import { uploadVideoToCloudinary } from "@/utils/uploadVidToCloudinary";
+import { updateVideoBanner } from "@/store/slices/banner.slice";
+import { fetchVideoBannerById } from "@/store/slices/banner.slice";
+import { uploadService } from "@/services/upload.service";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -82,7 +82,7 @@ export default function updateBanner({
       const folderName = `Video`;
       console.log(formData);
       setImageUploading(true);
-      const imageUrl = await uploadVideoToCloudinary(
+      const imageUrl = await uploadService.video(
         formData.image,
         folderName
       );

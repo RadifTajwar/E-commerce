@@ -1,4 +1,4 @@
-import { fetchAllVideoBanners } from "@/redux/video/allVideoBannerSlice";
+import { fetchAllVideoBanners } from "@/store/slices/banner.slice";
 import { Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";

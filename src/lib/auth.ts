@@ -1,4 +1,5 @@
-import { decodeJwt, jwtVerify } from "jose";
+import { decodeJwt } from "jose/jwt/decode";
+import { jwtVerify } from "jose/jwt/verify";
 import type { JwtClaims, Session } from "@/types/user";
 
 /**

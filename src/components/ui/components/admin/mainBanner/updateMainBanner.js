@@ -1,6 +1,6 @@
-import { fetchHeroBannerById } from "@/redux/heroBanner/heroBannerByIdSlice";
-import { updateHeroBanner } from "@/redux/heroBanner/updateHeroBannerSlice";
-import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
+import { fetchHeroBannerById } from "@/store/slices/banner.slice";
+import { updateHeroBanner } from "@/store/slices/banner.slice";
+import { uploadService } from "@/services/upload.service";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 export default function updateMainBanner({
@@ -65,7 +65,7 @@ export default function updateMainBanner({
       const uploadedImages = await Promise.all(
         imagesToUpload.map(async (image) => {
           // Upload each image to Cloudinary
-          const uploadedImage = await uploadToCloudinary(image, folderName);
+          const uploadedImage = await uploadService.image(image, folderName);
           return uploadedImage; // Return the uploaded image URL
         })
       );

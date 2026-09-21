@@ -1,8 +1,10 @@
 "use client";
-import localStorageUtil from "@/utils/localStorageUtil";
+import { logoutUser } from "@/store/slices/auth.slice";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 export default function SideBar({ isOpen, setIsOpen }) {
+  const dispatch = useDispatch();
   const [catalogButtonForm, setCatalogButtonForm] = useState(false);
   const [bannerButtonForm, setBannerButtonForm] = useState(false);
 
@@ -17,8 +19,9 @@ export default function SideBar({ isOpen, setIsOpen }) {
   };
 
   const handleLogOut = () => {
-    localStorageUtil.removeItem("accessToken");
-    router.push("/admin");
+    dispatch(logoutUser())
+      .unwrap()
+      .finally(() => router.push("/admin"));
   };
   return (
     <>

@@ -1,4 +1,4 @@
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
+import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
 import { Skeleton } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { FiEdit } from "react-icons/fi";

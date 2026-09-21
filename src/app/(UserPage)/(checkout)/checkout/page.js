@@ -3,8 +3,8 @@ import {
   decrementItem,
   incrementItem,
   resetCart,
-} from "@/redux/cart/cartSlicer";
-import { createOrder, resetOrder } from "@/redux/order/createOrderSlice";
+} from "@/store/slices/cart.slice";
+import { createOrder, resetOrder } from "@/store/slices/order.slice";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/ProductionQuantityLimits";
 import SearchIcon from "@mui/icons-material/Search";
@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import localStorageUtil from "@/utils/localStorageUtil";
+import { readStorage, writeStorage } from "@/lib/storage";
 export default function page() {
   const router = useRouter();
 
@@ -99,9 +99,7 @@ export default function page() {
   const handleShippingChange = (e) => {
     const cost = Number(e.target.value);
 
-    localStorageUtil.setItem("selectedShipping", cost);
-    const savedShipping = localStorageUtil.getItem("selectedShipping");
-
+    writeStorage("selectedShipping", cost);
     setSelectedShipping(cost);
   };
 
@@ -112,7 +110,7 @@ export default function page() {
     dispatch(decrementItem({ id }));
   };
   useEffect(() => {
-    const savedShipping = localStorage.getItem("selectedShipping");
+    const savedShipping = readStorage("selectedShipping", null);
     if (savedShipping) {
       setSelectedShipping(Number(savedShipping));
     }
@@ -197,7 +195,7 @@ export default function page() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedShipping = localStorageUtil.getItem("selectedShipping");
+      const savedShipping = readStorage("selectedShipping", null);
       if (savedShipping) {
         setSelectedShipping(Number(savedShipping));
       }

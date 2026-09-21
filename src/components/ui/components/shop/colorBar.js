@@ -1,5 +1,5 @@
 'use client';
-import { fetchColors } from '@/redux/color/getColorSlice';
+import { fetchColors } from "@/store/slices/product.slice";
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';

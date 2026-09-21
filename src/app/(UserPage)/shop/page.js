@@ -1,18 +1,20 @@
 "use client";
 
+import { Suspense } from "react";
 import ColorBar from "@/components/ui/components/shop/colorBar";
 import InfiniteScroll from "@/components/ui/components/shop/infiniteScroll";
 import RangeBar from "@/components/ui/components/shop/rangeBar";
 import SortingSection from "@/components/ui/components/shop/sortingSection";
 import StockStatus from "@/components/ui/components/shop/stockStatus";
-import { fetchAllCategories } from "@/redux/category/allCategoriesSlice";
-import { fetchAllParentCategories } from "@/redux/parentCategory/allParentCategorySlice";
-import { clearState, fetchAllProducts } from "@/redux/product/allProductsSlice";
+import { fetchAllCategories } from "@/store/slices/category.slice";
+import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
+import { clearState, fetchAllProducts } from "@/store/slices/product.slice";
+import { writeStorage } from "@/lib/storage";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react"; // Import Suspense from React
 import { useDispatch, useSelector } from "react-redux";
-export default function Page() {
+function PageContent() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const [parentRes, setParentRes] = useState([]);
@@ -154,7 +156,7 @@ export default function Page() {
       .replace(/\s+/g, "-");
 
     // Store parentCategoryId in localStorage
-    localStorageUtil.setItem("parentCategoryId", parentCategoryId);
+    writeStorage("parentCategoryId", parentCategoryId);
 
     // Navigate to the formatted URL
     router.push(`/shop/productCategory/${formattedCategoryName}`);
@@ -171,7 +173,7 @@ export default function Page() {
     const formattedParentCategoryName = parentCategoryName
       .toLowerCase()
       .replace(/\s+/g, "-");
-    localStorageUtil.setItem("categoryId", categoryId);
+    writeStorage("categoryId", categoryId);
     router.push(
       `/shop/productCategory/${formattedParentCategoryName}/${formattedCategoryName}`
     );
@@ -475,5 +477,14 @@ export default function Page() {
         </div>
       </div>
     </>
+  );
+}
+
+/** useSearchParams() requires a Suspense boundary for static prerendering. */
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <PageContent />
+    </Suspense>
   );
 }
