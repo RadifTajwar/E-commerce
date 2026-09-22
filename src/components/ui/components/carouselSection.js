@@ -1,11 +1,11 @@
 import Link from "next/link"
 import { Banner } from "./banner"
-export default function CarouselSection() {
+export default function CarouselSection({ initialBanners }) {
   return (
     <>
     <div id="default-carousel" className="relative w-full z-0" >
         
-        <Banner />
+        <Banner initialBanners={initialBanners} />
 
         {/* Shop now button  */}
 

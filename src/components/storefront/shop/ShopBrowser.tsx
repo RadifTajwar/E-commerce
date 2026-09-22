@@ -16,7 +16,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchAllCategories } from "@/store/slices/category.slice";
 import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
 import { clearState, fetchAllProducts, fetchColors } from "@/store/slices/product.slice";
-import type { ProductListQuery } from "@/types";
+import type { Category, ParentCategory, ProductListQuery } from "@/types";
 
 /**
  * The shop grid + filter rail, shared by `/shop` and
@@ -30,6 +30,13 @@ import type { ProductListQuery } from "@/types";
 export interface ShopBrowserProps {
   /** Catch-all route segments: `[parentSlug]` or `[parentSlug, childSlug]`. */
   slug?: string[];
+  /**
+   * Taxonomy rendered on the server. When present the browser uses it directly,
+   * so the category strip and the slug resolution are correct on first paint
+   * and no extra round trip is made.
+   */
+  initialParentCategories?: ParentCategory[];
+  initialCategories?: Category[];
 }
 
 interface ResolvedCategory {
@@ -69,13 +76,20 @@ function useUrlFilters(): ProductListQuery {
   }, [key]);
 }
 
-export default function ShopBrowser({ slug }: ShopBrowserProps) {
+export default function ShopBrowser({
+  slug,
+  initialParentCategories,
+  initialCategories,
+}: ShopBrowserProps) {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const filters = useUrlFilters();
 
-  const { parentCategories } = useAppSelector((state) => state.allParentCategories);
-  const { categories } = useAppSelector((state) => state.categories);
+  const hasServerTaxonomy = Boolean(initialParentCategories && initialCategories);
+  const { parentCategories: storeParentCategories } = useAppSelector((state) => state.allParentCategories);
+  const { categories: storeCategories } = useAppSelector((state) => state.categories);
+  const parentCategories = initialParentCategories ?? storeParentCategories;
+  const categories = initialCategories ?? storeCategories;
   const { products, error } = useAppSelector((state) => state.allProducts);
   const colorStatus = useAppSelector((state) => state.getColor.status);
 
@@ -87,10 +101,12 @@ export default function ShopBrowser({ slug }: ShopBrowserProps) {
   const { goToParentCategory, goToCategory } = useCatalogNavigation();
 
   // Taxonomy: needed both for the category strip and to resolve the slug.
+  // Skipped when the server already rendered it.
   useEffect(() => {
+    if (hasServerTaxonomy) return;
     void dispatch(fetchAllParentCategories());
     void dispatch(fetchAllCategories());
-  }, [dispatch]);
+  }, [dispatch, hasServerTaxonomy]);
 
   // Colours are rendered twice (desktop + mobile rail) but fetched once here.
   useEffect(() => {

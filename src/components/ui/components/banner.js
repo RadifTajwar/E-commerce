@@ -14,14 +14,25 @@ import {
 } from "@/components/ui/carousel";
 import { fetchAllHeroBanners } from "@/store/slices/banner.slice";
 
-export function Banner() {
+/**
+ * @param {{ initialBanners?: import("@/types").HeroBanner[] }} props
+ *   `initialBanners` comes from the server; when present no fetch is made and
+ *   the hero (the page's LCP element) is in the initial HTML.
+ */
+export function Banner({ initialBanners }) {
   const dispatch = useDispatch();
-  const { heroBanners, isLoading, error } = useSelector((state) => state.allHeroBanner);
+  const { heroBanners: storeBanners, isLoading: storeLoading, error } = useSelector(
+    (state) => state.allHeroBanner,
+  );
 
-  // Fetch banners on component mount
+  const heroBanners = initialBanners ?? storeBanners;
+  const isLoading = initialBanners ? false : storeLoading;
+
+  // Fetch banners on mount unless the server already provided them.
   useEffect(() => {
+    if (initialBanners) return;
     dispatch(fetchAllHeroBanners());
-  }, [dispatch]);
+  }, [dispatch, initialBanners]);
 
   // The carousel shows everything from index 2 on; the field may be missing.
   const bannerImages = useMemo(() => {

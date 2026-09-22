@@ -4,18 +4,26 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function ProductSection() {
+/**
+ * @param {{ initialParentCategories?: import("@/types").ParentCategory[] }} props
+ */
+export default function ProductSection({ initialParentCategories }) {
   const dispatch = useDispatch();
 
-  // Access categories, loading, and error states from the store
-  const { parentCategories, isLoading, error } = useSelector(
-    (state) => state.allParentCategories
-  );
+  const {
+    parentCategories: storeParentCategories,
+    isLoading: storeLoading,
+    error,
+  } = useSelector((state) => state.allParentCategories);
 
-  // Fetch categories on component mount
+  const parentCategories = initialParentCategories ?? storeParentCategories;
+  const isLoading = initialParentCategories ? false : storeLoading;
+
+  // Fetch categories on mount unless the server already provided them.
   useEffect(() => {
+    if (initialParentCategories) return;
     dispatch(fetchAllParentCategories());
-  }, [dispatch]);
+  }, [dispatch, initialParentCategories]);
 
   return (
     <>
