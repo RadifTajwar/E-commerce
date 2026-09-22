@@ -1,18 +1,17 @@
+"use client";
+
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function eachColorBar({
-  colorName,
-  count,
-  hex,
-  productsFetched,
-  setProductsFetched,
-}) {
+/**
+ * One colour swatch. Clicking it only rewrites the query string — the browser
+ * re-fetches because it derives its params from `useSearchParams()`.
+ */
+export default function EachColorBar({ colorName, count, hex }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const filter_color = searchParams.get("filter_color");
-  //
+  const filterColor = searchParams.get("filter_color");
 
   const handleFilterClick = () => {
     const params = new URLSearchParams(window.location.search);
@@ -34,20 +33,14 @@ export default function eachColorBar({
     }
 
     // Manually construct the final URL to prevent unwanted encoding
-    const newUrl = `${window.location.pathname}?${params
-      .toString()
-      .replace(/%2C/g, ",")}`;
+    const newUrl = `${window.location.pathname}?${params.toString().replace(/%2C/g, ",")}`;
 
     router.push(newUrl, { scroll: false });
-    setTimeout(() => {
-      setProductsFetched(!productsFetched);
-    }, 500);
   };
 
   return (
     <>
       <div
-        key={colorName}
         className="flex space-between w-full gap-x-4 items-center group cursor-pointer"
         onClick={handleFilterClick}
       >
@@ -57,7 +50,7 @@ export default function eachColorBar({
               className="color_palette w-[62px] h-[62px] rounded-3xl flex items-center justify-center"
               style={{ backgroundColor: hex }}
             >
-              {filter_color && filter_color.split(",").includes(colorName) ? (
+              {filterColor && filterColor.split(",").includes(colorName) ? (
                 <>
                   <div className="tick_icon hidden group-hover:block">
                     <CloseIcon className="text-white" />
@@ -75,9 +68,7 @@ export default function eachColorBar({
               )}
             </div>
             <div className="text">
-              <p className="text-sm font-light text-gray-600 group-hover:text-black">
-                {colorName}
-              </p>
+              <p className="text-sm font-light text-gray-600 group-hover:text-black">{colorName}</p>
             </div>
           </div>
         </div>

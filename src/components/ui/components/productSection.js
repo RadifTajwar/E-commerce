@@ -1,9 +1,10 @@
 "use client";
 import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-export default function productSection() {
+
+export default function ProductSection() {
   const dispatch = useDispatch();
 
   // Access categories, loading, and error states from the store
@@ -11,16 +12,10 @@ export default function productSection() {
     (state) => state.allParentCategories
   );
 
-  // State to check if categories are already fetched
-  const [categoriesFetched, setCategoriesFetched] = useState(false);
-
   // Fetch categories on component mount
   useEffect(() => {
-    if (!categoriesFetched) {
-      dispatch(fetchAllParentCategories());
-      setCategoriesFetched(true); // Mark categories as fetched
-    }
-  }, [categoriesFetched, dispatch]);
+    dispatch(fetchAllParentCategories());
+  }, [dispatch]);
 
   return (
     <>
@@ -34,8 +29,8 @@ export default function productSection() {
               href="#"
               className=" text-md  decoration-gray-800 hover:opacity-60 transition-opacity duration-300 cursor-pointer"
             >
-              what's on the minds and in the carts of leather for luxury today?
-              here's what we offer.
+              what&apos;s on the minds and in the carts of leather for luxury today?
+              here&apos;s what we offer.
             </a>
           </div>
 
@@ -52,13 +47,15 @@ export default function productSection() {
                   >
                     <div className="image_1 cursor-pointer">
                       <div className="inner_imag h-[180px] w-[180px] lg:w-[220px] lg:h-[220px] xl:w-[250px] xl:h-[250px] rounded-lg relative group overflow-hidden">
-                        <Image
-                          src={category.image}
-                          alt={category.name}
-                          height={400}
-                          width={400}
-                          className="rounded-lg group-hover:scale-110 duration-500"
-                        />
+                        {category.image && (
+                          <Image
+                            src={category.image}
+                            alt={category.name}
+                            height={400}
+                            width={400}
+                            className="rounded-lg group-hover:scale-110 duration-500"
+                          />
+                        )}
                       </div>
                       <div className="lower_txt flex justify-center">
                         <div className="price_text_image text-center m-5">

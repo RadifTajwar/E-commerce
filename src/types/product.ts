@@ -22,6 +22,14 @@ export interface ProductLeather {
   image: string | null;
 }
 
+/** Colour summary shown on cards and the product page. */
+export interface ProductColorSummary {
+  id?: string;
+  colorName: string;
+  hex?: string;
+  availableQuantity?: number;
+}
+
 export interface Product {
   id: string;
   _id?: string;
@@ -39,7 +47,7 @@ export interface Product {
   imageDefault: string;
   imageHover?: string;
   leather?: ProductLeather;
-  color?: string[];
+  color?: ProductColorSummary[];
   additionalDetails: ProductColorDetail[];
   productDetails?: ProductDetails;
   rating?: number;

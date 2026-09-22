@@ -1,15 +1,21 @@
+/*
+ * Scoped to the cart page's own table. These rules used to be unscoped
+ * (`table, thead, tbody, tr, td { display: block }`) and leaked into every
+ * table in the app. `:where()` keeps the original zero/element specificity so
+ * the Tailwind width utilities on the cells still win.
+ */
 
-    table {
-        width: 100%;
-        display: block;
-        overflow-x: auto;
-    }
+:where(.cart-table) {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
 
-    thead, tbody, th, td, tr {
-        display: block;
-    }
+:where(.cart-table) :where(thead, tbody, th, td, tr) {
+  display: block;
+}
 
-    th, td {
-        width: 100%;
-        box-sizing: border-box;
-    }
+:where(.cart-table) :where(th, td) {
+  width: 100%;
+  box-sizing: border-box;
+}

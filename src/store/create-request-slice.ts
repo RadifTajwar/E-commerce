@@ -35,29 +35,31 @@ export interface RequestStateBase {
 
 export type RequestState<K extends string, TData> = RequestStateBase & { [key in K]: TData };
 
-type AnyState = RequestStateBase;
-
-export interface RequestSliceOptions<TData, TResult, TArg, TState extends AnyState> {
+export interface RequestSliceOptions<K extends string, TData, TResult, TArg, TExtra extends object> {
   name: string;
   thunk: AsyncThunk<TResult, TArg, ThunkConfig>;
-  dataKey: string;
+  /** Name of the field holding the data, e.g. "categories" → state.categories. */
+  dataKey: K;
   initialData: TData;
   /** Convert the thunk result into the stored data (default: identity). */
   mapResult?: (result: TResult) => TData;
   /** Set on fulfilled, cleared on pending. */
   successMessage?: string;
   /** Extra fields in the initial state (e.g. meta, status). */
-  initialExtra?: Partial<TState>;
+  initialExtra?: TExtra;
   /** Extra synchronous reducers. */
-  reducers?: SliceCaseReducers<TState>;
-  onPending?: (state: TState) => void;
-  onFulfilled?: (state: TState, result: TResult) => void;
-  onRejected?: (state: TState, error: string) => void;
+  reducers?: SliceCaseReducers<RequestState<K, TData> & TExtra>;
+  onPending?: (state: RequestState<K, TData> & TExtra) => void;
+  onFulfilled?: (state: RequestState<K, TData> & TExtra, result: TResult) => void;
+  onRejected?: (state: RequestState<K, TData> & TExtra, error: string) => void;
 }
 
-export function createRequestSlice<TData, TResult, TArg, TState extends AnyState = AnyState>(
-  options: RequestSliceOptions<TData, TResult, TArg, TState>,
+type NoExtra = Record<string, never>;
+
+export function createRequestSlice<K extends string, TData, TResult, TArg, TExtra extends object = NoExtra>(
+  options: RequestSliceOptions<K, TData, TResult, TArg, TExtra>,
 ) {
+  type TState = RequestState<K, TData> & TExtra;
   const { name, thunk, dataKey, initialData, mapResult, successMessage } = options;
 
   const initialState = {

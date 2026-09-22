@@ -1,31 +1,33 @@
 "use client";
+import { DEFAULT_SHIPPING_COST } from "@/config/constants";
+import { notify } from "@/lib/toast";
+import { formatMoney } from "@/lib/utils";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchOrderById } from "@/store/slices/order.slice";
 import jsPDF from "jspdf";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-export default function page() {
-  const [orderId, setOrderId] = useState(null);
-  const pathname = usePathname();
-  const dispatch = useDispatch();
-  var id;
-  useEffect(() => {
-    if (pathname) {
-      // Split the path and extract the ID
-      const pathSegments = pathname.split("/");
-      id = pathSegments[pathSegments.length - 1]; // Get the last segment
-      setOrderId(id);
-    }
-  }, [pathname, orderId]);
+import { useParams } from "next/navigation";
+import { Fragment, useEffect } from "react";
 
-  const { order, isLoading, error } = useSelector((state) => state.orderById);
-  const [isOrderFetched, setIsOrderFetched] = useState(false);
+/** Invoice header and the lines the backend does not send. */
+const INVOICE = {
+  shopName: "Leather For Luxury",
+  shopAddress: "London, london-1230, England",
+  paymentMethod: "Cash",
+  shippingCost: DEFAULT_SHIPPING_COST,
+  discount: 0,
+  fileName: "invoice.pdf",
+};
+
+export default function AdminOrderPage() {
+  const params = useParams();
+  const orderId = Array.isArray(params.orderId) ? params.orderId[0] : params.orderId;
+  const dispatch = useAppDispatch();
+
+  const { order, isLoading, error } = useAppSelector((state) => state.orderById);
+
   useEffect(() => {
-    if (!isOrderFetched && orderId) {
-      dispatch(fetchOrderById(orderId));
-      setIsOrderFetched(true);
-    }
-  }, [dispatch, isOrderFetched, orderId]);
+    if (orderId) dispatch(fetchOrderById(orderId));
+  }, [dispatch, orderId]);
 
   const downloadInvoice = async () => {
     const element = document.getElementById("Whole");
@@ -49,10 +51,12 @@ export default function page() {
           scale: 0.45, // Ensures good resolution
         },
         callback: (doc) => {
-          doc.save("invoice.pdf"); // Save the PDF
+          doc.save(INVOICE.fileName);
         },
       });
-    } catch (error) {}
+    } catch (err) {
+      notify.error(err?.message ?? "Could not generate the invoice PDF");
+    }
   };
 
   return (
@@ -83,10 +87,10 @@ export default function page() {
                   </h1>
                   <div className="lg:text-right text-left">
                     <h2 className="lg:flex lg:justify-end text-lg font-serif font-semibold mt-4 lg:mt-0 lg:ml-0 md:mt-0">
-                      Leather For Luxury
+                      {INVOICE.shopName}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                      London, london-1230, England
+                      {INVOICE.shopAddress}
                     </p>
                   </div>
                 </div>
@@ -138,8 +142,8 @@ export default function page() {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400 text-serif text-sm">
-                        {order.orderItems.map((item, index) => (
-                          <>
+                        {(order?.orderItems ?? []).map((item, index) => (
+                          <Fragment key={item?._id ?? `${item?.product?._id ?? "item"}-${index}`}>
                             <tr className="dark:border-gray-700 dark:text-gray-400">
                               <td className="px-4 py-3 px-6 py-1 whitespace-nowrap font-normal text-gray-500 text-left">
                                 {index + 1}
@@ -159,7 +163,7 @@ export default function page() {
                                   item?.quantity}
                               </td>
                             </tr>
-                          </>
+                          </Fragment>
                         ))}
                       </tbody>
                     </table>
@@ -174,7 +178,7 @@ export default function page() {
                       PAYMENT METHOD
                     </span>
                     <span className="text-sm text-gray-500 dark:text-gray-400 font-semibold font-serif block">
-                      Cash
+                      {INVOICE.paymentMethod}
                     </span>
                   </div>
                   <div className="mb-3 md:mb-0 lg:mb-0 flex flex-col sm:flex-wrap">
@@ -182,7 +186,7 @@ export default function page() {
                       SHIPPING COST
                     </span>
                     <span className="text-sm text-gray-500 dark:text-gray-400 font-semibold font-serif block">
-                      $60.00
+                      {formatMoney(INVOICE.shippingCost)}
                     </span>
                   </div>
                   <div className="mb-3 md:mb-0 lg:mb-0 flex flex-col sm:flex-wrap">
@@ -190,7 +194,7 @@ export default function page() {
                       DISCOUNT
                     </span>
                     <span className="text-sm text-gray-500 dark:text-gray-400 font-semibold font-serif block">
-                      $0.00
+                      {formatMoney(INVOICE.discount)}
                     </span>
                   </div>
                   <div className="flex flex-col sm:flex-wrap">
@@ -198,7 +202,7 @@ export default function page() {
                       TOTAL AMOUNT
                     </span>
                     <span className="text-xl font-serif font-bold text-red-500 dark:text-blue-500 block">
-                      ${order?.totalPrice}
+                      {formatMoney(order?.totalPrice)}
                     </span>
                   </div>
                 </div>
@@ -207,10 +211,7 @@ export default function page() {
           </div>
           <div className="max-w-4xl lg:max-w-7xl grid px-6 mx-auto">
             <div className="mb-4 mt-3  sm:flex justify-between">
-              <a
-                download="Invoice"
-                href="blob:https://mern-admin-pi.vercel.app/0a39bbe8-de81-4dcc-b312-124f9bd2cc93"
-              >
+              <div>
                 <button
                   className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600  w-auto cursor-pointer mb-4 sm:mb-0"
                   onClick={downloadInvoice}
@@ -250,7 +251,7 @@ export default function page() {
                     </svg>
                   </span>
                 </button>
-              </a>
+              </div>
               <button className="flex items-center text-sm leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-2 rounded-md text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600  w-auto">
                 Print Invoice
                 <span className="ml-2">

@@ -1,5 +1,4 @@
 "use client";
-import Footer from "@/components/ui/components/footer";
 import { useSession } from "@/hooks/useSession";
 import { createUser, loginUser } from "@/store/slices/auth.slice";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -16,7 +15,6 @@ export default function MyAccountPage() {
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [logMail, setLogMail] = useState("");
@@ -32,9 +30,6 @@ export default function MyAccountPage() {
 
   const [registerToLoginToggleState, setRegisterToLoginToggleState] =
     useState(false);
-  const toggleChecked = () => {
-    setIsChecked(!isChecked);
-  };
   const RegisterToLoginToggle = () => {
     setRegisterToLoginToggleState(!registerToLoginToggleState);
   };
@@ -136,6 +131,7 @@ export default function MyAccountPage() {
                           <input
                             type="email"
                             name="logMail"
+                            id="email"
                             className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600
                                                             ${
                                                               errorLogin
@@ -177,15 +173,12 @@ export default function MyAccountPage() {
                                 aria-describedby="remember"
                                 type="checkbox"
                                 className="w-4 h-4 border border-gray-300 bg-gray-50 focus:ring-0 focus:outline-none dark:bg-gray-700 dark:border-gray-600"
-                                checked={isChecked}
-                                onChange={toggleChecked}
                               />
                             </div>
                             <div className="ml-3 text-sm">
                               <label
                                 htmlFor="remember"
                                 className="text-gray-900 dark:text-gray-300 cursor-pointer"
-                                onClick={toggleChecked}
                               >
                                 Remember me
                               </label>
@@ -323,7 +316,7 @@ export default function MyAccountPage() {
                     <p className="text-[13px] text-center text-gray-500 my-[20px]">
                       Registering for this site allows you to access your order
                       status and history. Just fill in the fields below, and
-                      we'll get a new account set up for you in no time. We will
+                      we&apos;ll get a new account set up for you in no time. We will
                       only ask you for information necessary to make the
                       purchase process faster and easier.
                     </p>
@@ -346,8 +339,6 @@ export default function MyAccountPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </>
   );
 }

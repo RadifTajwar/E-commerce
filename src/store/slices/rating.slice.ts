@@ -1,7 +1,7 @@
 import type { ActionCreatorWithoutPayload } from "@reduxjs/toolkit";
 import { productService } from "@/services/product.service";
 import type { Rating, RatingInput } from "@/types/product";
-import { createApiThunk, createRequestSlice, type RequestState } from "../create-request-slice";
+import { createApiThunk, createRequestSlice } from "../create-request-slice";
 
 export const sendRating = createApiThunk<Rating, RatingInput>("rating/sendRating", (input) =>
   productService.createRating(input),
@@ -10,8 +10,7 @@ export const getRatingById = createApiThunk<Rating[], string>("rating/getRatingB
   productService.ratings(productId),
 );
 
-type SendState = RequestState<"rating", Rating | null> & { isSuccess: boolean };
-const send = createRequestSlice<Rating | null, Rating, RatingInput, SendState>({
+const send = createRequestSlice<"rating", Rating | null, Rating, RatingInput, { isSuccess: boolean }>({
   name: "rating",
   thunk: sendRating,
   dataKey: "rating",
@@ -35,7 +34,7 @@ const send = createRequestSlice<Rating | null, Rating, RatingInput, SendState>({
   },
 });
 
-const byProduct = createRequestSlice<Rating[] | null, Rating[], string, RequestState<"data", Rating[] | null>>({
+const byProduct = createRequestSlice({
   name: "getRatingById",
   thunk: getRatingById,
   dataKey: "data",

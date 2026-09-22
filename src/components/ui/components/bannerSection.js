@@ -1,5 +1,5 @@
 import Image from "next/image"
-export default function bannerSection() {
+export default function BannerSection() {
     return (
 
         <>
@@ -12,8 +12,6 @@ export default function bannerSection() {
                             <Image
                                 src="/section2.jpg"
                                 alt="Image"
-                                layout="responsive"
-                                objectFit="contain"
                                 width={400}  // Specify a width
                                 height={400} // Specify a height
                                 className="w-full h-auto"

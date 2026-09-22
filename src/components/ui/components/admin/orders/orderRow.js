@@ -1,7 +1,8 @@
+"use client";
 import { useState } from "react";
 import { FiPrinter } from "react-icons/fi";
 import { LiaSearchPlusSolid } from "react-icons/lia";
-export default function orderRow({ order, handleTrackCode, handleUpdate, handleOrderClick }) {
+export default function OrderRow({ order, handleTrackCode, handleUpdate, handleOrderClick }) {
 
     const [trackingNumber, setTrackingNumber] = useState('');
 

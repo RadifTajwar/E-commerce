@@ -1,202 +1,56 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Skeleton } from "@mui/material";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+"use client";
+import PaginationControls from "@/components/admin/PaginationControls";
+import SkeletonTable from "@/components/admin/SkeletonTable";
+import { usePagination } from "@/components/admin/usePagination";
+import { PAGE_SIZE } from "@/config/constants";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchAllProducts } from "@/store/slices/product.slice";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect } from "react";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
-import { fetchAllProducts } from "@/store/slices/product.slice";
-import { useDispatch, useSelector } from "react-redux";
+const SKELETON_HEAD = [
+  { skeletons: [{ width: "100px", height: "20px" }] },
+  { skeletons: [{ width: "36px", height: "20px" }] },
+  { skeletons: [{ width: "71px", height: "20px" }] },
+  { cellClassName: "flex justify-end", skeletons: [{ width: "56px", height: "20px" }] },
+];
 
-export default function allProducts({
-  toggleVisibility,
-  toggleDeleteVisible,
-  categoryId,
-  productsFetched,
-  setProductsFetched,
-  isInput,
-}) {
-  const dispatch = useDispatch();
-  const [isMeta, setIsMeta] = useState({
-    page: 1,
-    limit: 5,
-    total: 0,
-  });
+const SKELETON_ROW = [
+  {
+    innerClassName: "flex items-center",
+    skeletons: [
+      { variant: "circular", width: 40, height: 40, className: "mr-4" },
+      { width: "150px", height: "20px" },
+    ],
+  },
+  { skeletons: [{ width: "36px", height: "20px" }] },
+  { skeletons: [{ width: "71px", height: "20px" }] },
+  { cellClassName: "flex justify-end", skeletons: [{ width: "56px", height: "20px" }] },
+];
 
-  const router = useRouter();
+export default function AllProducts({ onEdit, onDelete, filters, productsFetched, setProductsFetched }) {
+  const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
-  // Access products, loading, and error states from the Redux store
-  const { products, meta, isLoading, error } = useSelector(
-    (state) => state.allProducts
-  );
 
-  // State to track if products have been fetched
+  const { products, meta, isLoading, error } = useAppSelector((state) => state.allProducts);
 
-  // Dispatch fetchAllOrders action on component mount
+  // Single place the product list is fetched from: page changes and filter
+  // changes both flip `productsFetched` back to false.
   useEffect(() => {
-    if (!productsFetched) {
-      setTimeout(() => {
-        const page = parseInt(searchParams.get("page"), 10) || 1;
+    if (productsFetched) return;
+    const page = Number(searchParams.get("page")) || 1;
+    dispatch(fetchAllProducts({ page, limit: PAGE_SIZE.admin, ...filters }));
+    setProductsFetched(true);
+  }, [searchParams, dispatch, productsFetched, setProductsFetched, filters]);
 
-        if (categoryId || isInput) {
-          if (categoryId) {
-            dispatch(
-              fetchAllProducts({
-                page: page,
-                limit: 10,
-                searchTerm: categoryId,
-              })
-            );
-          } else {
-            dispatch(
-              fetchAllProducts({
-                page: page,
-                limit: 10,
-                searchTerm: isInput,
-              })
-            );
-          }
-        } else {
-          dispatch(fetchAllProducts({ page: page, limit: 10 }));
-        }
-
-        setIsMeta((prev) => ({ ...prev, page: page }));
-        setProductsFetched(true);
-      }, 100);
-    }
-  }, [searchParams, dispatch, productsFetched, categoryId]);
-
-  const [checked, setChecked] = useState(true);
-
-  useEffect(() => {
-    if (products) {
-      //
-
-      setIsMeta({
-        page: meta.page || 1,
-        limit: meta.limit || 10,
-        total: meta.total || 0,
-      });
-    }
-  }, [products]);
-
-  const totalPages = Math.ceil(isMeta.total / isMeta.limit);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      // Update the query parameters in the URL
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("page", pageNumber);
-      router.push(`?${params.toString()}`, { shallow: true, scroll: false });
-      // Update the local state
-      setIsMeta((prev) => ({ ...prev, page: pageNumber }));
-      setProductsFetched(false);
-    }
-  };
-
-  const getPageNumbers = () => {
-    const totalPages = Math.ceil(isMeta.total / isMeta.limit);
-    const currentPage = isMeta.page;
-
-    const pageNumbers = [];
-
-    if (totalPages <= 6) {
-      // If total pages are less than or equal to 6, show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      // Always include the first page
-      pageNumbers.push(1);
-
-      // Initial Pages: Show first 5 pages + ellipsis + last page
-      if (currentPage <= 4) {
-        for (let i = 2; i <= 5; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push("...");
-      }
-      // Middle Pages: Show 1 + ellipsis + current - 1, current, current + 1 + ellipsis + last page
-      else if (currentPage > 4 && currentPage < totalPages - 3) {
-        pageNumbers.push("...");
-        pageNumbers.push(currentPage - 1, currentPage, currentPage + 1);
-        pageNumbers.push("...");
-      }
-      // Last Pages: Show first page + ellipsis + last 5 pages
-      else {
-        pageNumbers.push("...");
-        for (let i = totalPages - 4; i < totalPages; i++) {
-          pageNumbers.push(i);
-        }
-      }
-
-      // Always include the last page
-      pageNumbers.push(totalPages);
-    }
-
-    return pageNumbers;
-  };
+  const onPageChange = useCallback(() => setProductsFetched(false), [setProductsFetched]);
+  const { page, totalPages, goToPage } = usePagination(meta, PAGE_SIZE.admin, onPageChange);
 
   return (
     <>
-      {isLoading && (
-        <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
-          <div className="w-full overflow-x-auto">
-            <table className="w-full whitespace-no-wrap">
-              <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
-                <tr>
-                  <td className="px-4 py-3">
-                    <Skeleton variant="text" width="100px" height="20px" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton variant="text" width="36px" height="20px" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton variant="text" width="71px" height="20px" />
-                  </td>
-                  <td className="px-4 py-3 flex justify-end">
-                    <Skeleton variant="text" width="56px" height="20px" />
-                  </td>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400">
-                {[...Array(10)].map((_, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center">
-                        <Skeleton
-                          variant="circular"
-                          width={40}
-                          height={40}
-                          className="mr-4"
-                        />
-                        <Skeleton variant="text" width="150px" height="20px" />
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Skeleton variant="text" width="36px" height="20px" />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Skeleton variant="text" width="71px" height="20px" />
-                    </td>
-                    <td className="px-4 py-3 flex justify-end">
-                      <Skeleton variant="text" width="56px" height="20px" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {isLoading && <SkeletonTable head={SKELETON_HEAD} row={SKELETON_ROW} />}
       {error && <p>Error: {error}</p>}
       {!isLoading && (
         <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-2 rounded-b-lg">
@@ -205,10 +59,8 @@ export default function allProducts({
               <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
                 <tr>
                   <td className="px-4 py-3">PRODUCT NAME</td>
-
                   <td className="px-4 py-3">Price</td>
                   <td className="px-4 py-3">Sale Price</td>
-
                   <td className="px-4 py-3 text-right">ACTIONS</td>
                 </tr>
               </thead>
@@ -218,46 +70,32 @@ export default function allProducts({
                     <td className="px-4 py-3">
                       <div className="flex items-center">
                         <div className="relative  inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             className="object-cover w-full h-full rounded-full"
                             src={product.imageDefault}
                             alt={product.name}
                             loading="lazy"
                           />
-                          <div
-                            className="absolute inset-0 rounded-full shadow-inner"
-                            aria-hidden="true"
-                          ></div>
+                          <div className="absolute inset-0 rounded-full shadow-inner" aria-hidden="true" />
                         </div>
                         <div>
-                          <h2 className="text-sm font-medium">
-                            {product.name}
-                          </h2>
+                          <h2 className="text-sm font-medium">{product.name}</h2>
                         </div>
                       </div>
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="text-sm font-semibold">
-                        ${product.originalPrice}
-                      </span>
+                      <span className="text-sm font-semibold">${product.originalPrice}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm font-semibold">
-                        ${product.discountedPrice}
-                      </span>
+                      <span className="text-sm font-semibold">${product.discountedPrice}</span>
                     </td>
 
                     <td className="px-4 py-3 ">
                       <div className="flex justify-end gap-x-2">
-                        <FiEdit
-                          className="cursor-pointer"
-                          onClick={() => toggleVisibility(product.id)} // No re-fetch
-                        />
-                        <RiDeleteBin6Line
-                          className="cursor-pointer"
-                          onClick={() => toggleDeleteVisible(product.id)} // No re-fetch
-                        />
+                        <FiEdit className="cursor-pointer" onClick={() => onEdit(product.id)} />
+                        <RiDeleteBin6Line className="cursor-pointer" onClick={() => onDelete(product.id)} />
                       </div>
                     </td>
                   </tr>
@@ -267,60 +105,8 @@ export default function allProducts({
           </div>
         </div>
       )}
-      <div className="mb-4">
-        <Pagination>
-          <PaginationContent>
-            {/* Previous Button */}
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => handlePageChange(isMeta.page - 1)}
-                disabled={isMeta.page === 1}
-                className={` ${
-                  isMeta.page === 1 ? "cursor-not-allowed" : "cursor-pointer"
-                }`}
-              >
-                Previous
-              </PaginationPrevious>
-            </PaginationItem>
 
-            {/* Page Numbers */}
-            {getPageNumbers().map((pageNumber, index) => (
-              <PaginationItem key={index}>
-                {pageNumber === "..." ? (
-                  <span className="px-3 py-1 text-gray-500">...</span>
-                ) : (
-                  <PaginationLink
-                    href="#"
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`${
-                      isMeta.page === pageNumber
-                        ? "bg-blue-500 text-white font-bold"
-                        : "bg-gray-200 text-black"
-                    } rounded px-3 py-1`}
-                  >
-                    {pageNumber}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            ))}
-
-            {/* Next Button */}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => handlePageChange(isMeta.page + 1)}
-                disabled={isMeta.page === totalPages}
-                className={` ${
-                  isMeta.page === totalPages
-                    ? "cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
-              >
-                Next
-              </PaginationNext>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
+      <PaginationControls page={page} totalPages={totalPages} onPageChange={goToPage} />
     </>
   );
 }

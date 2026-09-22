@@ -2,7 +2,7 @@ import type { ActionCreatorWithoutPayload } from "@reduxjs/toolkit";
 import { orderService } from "@/services/order.service";
 import type { PaginationMeta } from "@/types/api";
 import type { Order, OrderInput, OrderListQuery } from "@/types/order";
-import { createApiThunk, createRequestSlice, type RequestState } from "../create-request-slice";
+import { createApiThunk, createRequestSlice } from "../create-request-slice";
 
 const emptyMeta: PaginationMeta = { total: 0, limit: 0, page: 0 };
 type Status = "idle" | "loading" | "succeeded" | "failed";
@@ -28,8 +28,7 @@ export const updateOrderStatus = createApiThunk<Order, { id: string; status?: st
 );
 
 // ---- slices ------------------------------------------------------------------
-type CreateOrderState = RequestState<"order", Order | null> & { status: Status };
-const create = createRequestSlice<Order | null, Order, OrderInput, CreateOrderState>({
+const create = createRequestSlice<"order", Order | null, Order, OrderInput, { status: Status }>({
   name: "createOrder",
   thunk: createOrder,
   dataKey: "order",
@@ -53,8 +52,7 @@ const create = createRequestSlice<Order | null, Order, OrderInput, CreateOrderSt
   },
 });
 
-type AllOrdersState = RequestState<"orders", Order[]> & { meta: PaginationMeta };
-const list = createRequestSlice<Order[], { orders: Order[]; meta: PaginationMeta }, OrderListQuery | void, AllOrdersState>({
+const list = createRequestSlice<"orders", Order[], { orders: Order[]; meta: PaginationMeta }, OrderListQuery | void, { meta: PaginationMeta }>({
   name: "allOrders",
   thunk: fetchAllOrders,
   dataKey: "orders",
@@ -81,8 +79,7 @@ const byUser = createRequestSlice({
   initialData: null as Order[] | null,
 });
 
-type UpdateOrderState = RequestState<"order", Order | null>;
-const update = createRequestSlice<Order | null, Order, { id: string; status?: string; trackCode?: string }, UpdateOrderState>({
+const update = createRequestSlice({
   name: "updateOrder",
   thunk: updateOrderStatus,
   dataKey: "order",

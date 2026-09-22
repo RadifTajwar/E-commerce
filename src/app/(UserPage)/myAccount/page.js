@@ -19,7 +19,7 @@ export default function Page() {
       
         <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
           <div className="upper_text">
-            <p className="text-sm text-gray-500 mb-5">Hello <span className="font-medium text-gray-700">{userEmail}</span>  (not <span className="font-medium text-gray-700">{userEmail}</span>? <span className="text-black cursor-pointer">Log out</span>)</p>
+            <p className="text-sm text-gray-500 mb-5">Hello <span className="font-medium text-gray-700">{userEmail}</span>  (not <span className="font-medium text-gray-700">{userEmail}</span>? <button type="button" className="text-black cursor-pointer" onClick={handleLogOut}>Log out</button>)</p>
             <p className="text-sm text-gray-500 mb-5">From your account dashboard you can view your <span className="text-black cursor-pointer">recent orders</span>, manage your <span className="text-black cursor-pointer">shipping and billing addresses</span> , and edit your  <span className="text-black cursor-pointer">password</span> and  <span className="text-black cursor-pointer">account details.</span></p>
           </div>
           <div className="lowerBoxes mt-8 grid grid-cols-1 sm:gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 ">

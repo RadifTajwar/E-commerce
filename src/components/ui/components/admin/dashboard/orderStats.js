@@ -1,46 +1,62 @@
-import { fetchAllOrders } from "@/store/slices/order.slice";
+"use client";
+import { ORDER_STATUS } from "@/config/constants";
+import { getErrorMessage } from "@/lib/api/errors";
+import { notify } from "@/lib/toast";
+import { orderService } from "@/services/order.service";
 import Skeleton from "@mui/material/Skeleton";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-export default function orderStats() {
-  const dispatch = useDispatch();
+
+/**
+ * Four counters for the dashboard. The four queries run in parallel through
+ * the service and stay in local state, so they never overwrite the shared
+ * `allOrders` slice the orders table paginates.
+ */
+export default function OrderStats() {
   const [pending, setPending] = useState(0);
   const [processing, setProcessing] = useState(0);
   const [delivered, setDelivered] = useState(0);
   const [today, setToday] = useState(0);
-  const { meta, isLoading, error } = useSelector((state) => state.allOrders);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    const fetchOrderData = async () => {
+    let cancelled = false;
+
+    const load = async () => {
+      const now = new Date();
+      const todaysDate = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0"),
+      ].join("-");
+
       try {
-        const today = new Date();
-
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-        const dd = String(today.getDate()).padStart(2, "0");
-
-        const todaysDate = `${yyyy}-${mm}-${dd}`;
-
-        const todayResult = await dispatch(
-          fetchAllOrders({ startDate: todaysDate, endDate: todaysDate })
-        ).unwrap();
-        const pendingResult = await dispatch(
-          fetchAllOrders({ status: "Pending" })
-        ).unwrap();
-        const processingResult = await dispatch(
-          fetchAllOrders({ status: "Processing" })
-        ).unwrap();
-        const deliveredResult = await dispatch(
-          fetchAllOrders({ status: "Delivered" })
-        ).unwrap();
-        setToday(todayResult.meta.total);
-        setPending(pendingResult.meta.total);
-        setProcessing(processingResult.meta.total);
-        setDelivered(deliveredResult.meta.total);
-      } catch (err) {}
+        const [todayRes, pendingRes, processingRes, deliveredRes] = await Promise.all([
+          orderService.list({ startDate: todaysDate, endDate: todaysDate }),
+          orderService.list({ status: ORDER_STATUS.pending }),
+          orderService.list({ status: ORDER_STATUS.processing }),
+          orderService.list({ status: ORDER_STATUS.delivered }),
+        ]);
+        if (cancelled) return;
+        setToday(todayRes.meta.total);
+        setPending(pendingRes.meta.total);
+        setProcessing(processingRes.meta.total);
+        setDelivered(deliveredRes.meta.total);
+      } catch (err) {
+        if (cancelled) return;
+        const message = getErrorMessage(err, "Could not load order statistics");
+        setError(message);
+        notify.error(message);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
     };
 
-    fetchOrderData();
-  }, [dispatch]);
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   return (
     <>
       {isLoading && (
@@ -119,7 +135,7 @@ export default function orderStats() {
         </div>
       )}
       {error && <div>{error}</div>}
-      {meta && !isLoading && (
+      {!isLoading && (
         <div className="grid gap-4 mb-8 md:grid-cols-2 xl:grid-cols-4">
           {/* Card 1 - Today Orders */}
           <div className="min-w-0 rounded-lg  ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 flex h-full shadow-lg">

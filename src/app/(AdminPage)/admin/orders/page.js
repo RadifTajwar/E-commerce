@@ -1,21 +1,24 @@
 'use client';
 import { Suspense } from "react";
-import DeleteVisible from "@/components/ui/components/admin/orders/deleteVisible";
+import ConfirmDeleteDialog from "@/components/admin/ConfirmDeleteDialog";
 import RecentOrders from "@/components/ui/components/admin/orders/recentOrders";
+import { isObjectId, ORDER_STATUS } from "@/config/constants";
+import { notify } from "@/lib/toast";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchOrderById, updateOrderStatus } from "@/store/slices/order.slice";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
 function PageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isOrderFetched, setIsOrderFetched] = useState(false);
-  const [categoryId, setCategoryId] = useState("");
   const [isInput, setIsInput] = useState("");
-  const dispatch = useDispatch();
-  const idRef = useRef(null);
+  const dispatch = useAppDispatch();
+  const [cancelId, setCancelId] = useState(null);
   const [status, setStatus] = useState("Status"); // Initialize with default value
+
+  const { order } = useAppSelector((state) => state.orderById);
+  const cancelName = order && order._id === cancelId ? order._id : "";
 
   const handleChange = (e) => {
     setStatus(e.target.value);
@@ -28,30 +31,25 @@ function PageContent() {
     setIsOrderFetched(false);
   };
   
-  const [deleteVisible, setDeleteVisible] = useState(false)
-  const resetId = () => {
-    idRef.current = null; // Reset the ID
+  const doneUpdate = () => notify.success("Order Updated Successfully!");
 
-    setDeleteVisible(false);
+  /** Cancelling an order is a status change, so it goes through the same dialog. */
+  const openCancel = (id) => {
+    if (!id || typeof id === "object") return;
+    setCancelId(id);
+    if (isObjectId(id)) dispatch(fetchOrderById(id));
   };
+  const closeCancel = () => setCancelId(null);
 
-  const doneUpdate = () => {
-    toast.success("Order Updated Successfully!", {
-      position: "top-right",
-      autoClose: 3000, // Auto-close after 3 seconds
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
-
-  const toggleDeleteVisible = (id) => {
-    setDeleteVisible(!deleteVisible);
-    if (id && typeof id !== "object") {
-      idRef.current = id; // Update idRef only if id is a valid value
+  const confirmCancel = async () => {
+    if (!cancelId) return;
+    try {
+      await dispatch(updateOrderStatus({ id: cancelId, status: ORDER_STATUS.cancelled })).unwrap();
+      closeCancel();
+      doneUpdate();
+      setIsOrderFetched(false);
+    } catch (err) {
+      notify.error(err?.message ?? String(err));
     }
   };
   const handleInputChange = (event) => {
@@ -83,14 +81,7 @@ function PageContent() {
     <>
 
 
-      {
-        deleteVisible && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-30"
-            onClick={toggleDeleteVisible} />
-        )
-      }
       <div className="max-w-4xl lg:max-w-7xl grid px-6 mx-auto">
-        <ToastContainer />
         <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">
           Orders
         </h1>
@@ -190,15 +181,18 @@ function PageContent() {
           </div>
         </div>
 
-        <RecentOrders doneUpdate={doneUpdate} toggleDeleteVisible={toggleDeleteVisible} isOrderFetched={isOrderFetched} setIsOrderFetched={setIsOrderFetched} startDate={dates.startDate} endDate={dates.endDate} stat={status} email={isInput} />
+        <RecentOrders doneUpdate={doneUpdate} toggleDeleteVisible={openCancel} isOrderFetched={isOrderFetched} setIsOrderFetched={setIsOrderFetched} startDate={dates.startDate} endDate={dates.endDate} stat={status} email={isInput} />
 
       </div>
 
-      <div
-        className={`fixed w-[576px] h-[306px] top-1/2 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-200 ease-in-out
-          ${deleteVisible ? '-translate-y-1/2 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`} >
-        <DeleteVisible toggleDeleteVisible={toggleDeleteVisible} id={idRef.current} resetId={resetId} doneUpdate={doneUpdate} setIsOrderFetched={setIsOrderFetched} />
-      </div>
+      <ConfirmDeleteDialog
+        isOpen={Boolean(cancelId)}
+        name={cancelName}
+        onCancel={closeCancel}
+        onConfirm={confirmCancel}
+        question="Are You Sure! Want to Cancel"
+        confirmLabel="Yes, Cancel It"
+      />
     </>
   );
 }

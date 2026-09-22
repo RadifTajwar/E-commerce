@@ -15,7 +15,7 @@ export default function Home() {
       <div className=" text flex justify-center   border-b border-[#ece1d3] max-w-xl xl:max-w-7xl container mx-auto mt-10">
         <div className="text text-center">
           <h1 className="text-4xl font-bold ">
-            <span style={{ color: '#E8A811' }}>TRENDING</span> PRODUCTS
+            <span className="text-[#E8A811]">TRENDING</span> PRODUCTS
           </h1>
           <p className=" text-md  decoration-gray-800 hover:opacity-60 transition-opacity duration-300 cursor-pointer my-3">
             BAGS

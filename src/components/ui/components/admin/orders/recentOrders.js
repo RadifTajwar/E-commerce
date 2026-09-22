@@ -1,17 +1,11 @@
 "use client";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { fetchAllOrders } from "@/store/slices/order.slice";
-import { updateOrderStatus } from "@/store/slices/order.slice";
+import PaginationControls from "@/components/admin/PaginationControls";
+import { PAGE_SIZE, ROUTES } from "@/config/constants";
+import { notify } from "@/lib/toast";
+import { fetchAllOrders, updateOrderStatus } from "@/store/slices/order.slice";
 import { Skeleton } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import OrderRow from "./orderRow";
 export default function RecentOrders({
@@ -26,21 +20,11 @@ export default function RecentOrders({
 }) {
   const [isMeta, setIsMeta] = useState({
     page: 1,
-    limit: 3,
+    limit: PAGE_SIZE.recentOrders,
     total: 0,
   });
-  const [trackingNumber, setTrackingNumber] = useState("");
-
-  const handleInputChange = (e) => {
-    setTrackingNumber(e.target.value); // Update the state with the input value
-  };
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const [status, setStatus] = useState(""); // Initialize with the default value
-
-  const Router = useRouter();
-
   const dispatch = useDispatch();
 
   // Access state from Redux store
@@ -52,70 +36,36 @@ export default function RecentOrders({
 
   // Dispatch fetchAllOrders action on component mount
   useEffect(() => {
-    if (!isOrderFetched) {
-      setTimeout(() => {
-        const page = parseInt(searchParams.get("page"), 10) || 1;
+    if (isOrderFetched) return;
 
-        // Prepare the request parameters with the page
-        const params = { page };
+    const page = parseInt(searchParams.get("page"), 10) || 1;
+    const params = { page };
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    if (stat && stat !== "Status") params.status = stat;
+    if (email) params.email = email;
 
-        // Add startDate, endDate, status, and email to params if they are not empty strings
-        if (startDate && startDate !== "") {
-          params.startDate = startDate;
-        }
-        if (endDate && endDate !== "") {
-          params.endDate = endDate;
-        }
-        if (stat && stat !== "Status") {
-          params.status = stat;
-        }
-        if (email && email !== "") {
-          params.email = email;
-        }
-
-        // Log the parameters to see what is being sent
-
-        // Dispatch the fetch request with the prepared parameters
-        dispatch(fetchAllOrders(params));
-
-        // Set the fetched state to true
-        setIsOrderFetched(true);
-
-        // Update meta state (if needed)
-        setIsMeta((prev) => ({ ...prev, page: page }));
-      }, 500);
-    }
-  }, [
-    searchParams,
-    dispatch,
-    isOrderFetched,
-    startDate,
-    endDate,
-    email,
-    status,
-    setIsOrderFetched,
-  ]);
+    dispatch(fetchAllOrders(params));
+    setIsOrderFetched(true);
+    setIsMeta((prev) => ({ ...prev, page }));
+  }, [searchParams, dispatch, isOrderFetched, startDate, endDate, email, stat, setIsOrderFetched]);
 
   const handleOrderClick = (id) => {
-    localStorage.setItem("orderID", id);
-    Router.push(`orderNo/${id}`);
+    router.push(ROUTES.admin.order(id));
   };
 
   useEffect(() => {
-    if (orders) {
-      //
-
-      setIsMeta({
-        page: meta.page || 1,
-        limit: meta.limit || 10,
-        total: meta.total || 0,
-      });
-    }
-  }, [orders]);
+    if (!orders || !meta) return;
+    setIsMeta({
+      page: meta.page || 1,
+      limit: meta.limit || PAGE_SIZE.recentOrders,
+      total: meta.total || 0,
+    });
+  }, [orders, meta]);
 
   const totalPages = Math.ceil(isMeta.total / isMeta.limit);
 
-  const handlePageChange = (pageNumber) => {
+  const handlePageChange = useCallback((pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       // Update the query parameters in the URL
 
@@ -126,80 +76,32 @@ export default function RecentOrders({
       setIsMeta((prev) => ({ ...prev, page: pageNumber }));
       setIsOrderFetched(false);
     }
-  };
+  }, [router, searchParams, setIsOrderFetched, totalPages]);
 
-  const getPageNumbers = () => {
-    const totalPages = Math.ceil(isMeta.total / isMeta.limit);
-    const currentPage = isMeta.page;
-
-    const pageNumbers = [];
-
-    if (totalPages <= 6) {
-      // If total pages are less than or equal to 6, show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      // Always include the first page
-      pageNumbers.push(1);
-
-      // Initial Pages: Show first 5 pages + ellipsis + last page
-      if (currentPage <= 4) {
-        for (let i = 2; i <= 5; i++) {
-          pageNumbers.push(i);
-        }
-        pageNumbers.push("...");
-      }
-      // Middle Pages: Show 1 + ellipsis + current - 1, current, current + 1 + ellipsis + last page
-      else if (currentPage > 4 && currentPage < totalPages - 3) {
-        pageNumbers.push("...");
-        pageNumbers.push(currentPage - 1, currentPage, currentPage + 1);
-        pageNumbers.push("...");
-      }
-      // Last Pages: Show first page + ellipsis + last 5 pages
-      else {
-        pageNumbers.push("...");
-        for (let i = totalPages - 4; i < totalPages; i++) {
-          pageNumbers.push(i);
-        }
-      }
-
-      // Always include the last page
-      pageNumbers.push(totalPages);
-    }
-
-    return pageNumbers;
-  };
-
-  const handleUpdate = (e, orderId) => {
+  const handleUpdate = async (e, orderId) => {
     const selectedStatus = e.target.value;
     if (selectedStatus === "Cancel") {
       toggleDeleteVisible(orderId);
-    } else {
+      return;
+    }
+    try {
+      await dispatch(updateOrderStatus({ id: orderId, status: selectedStatus })).unwrap();
       doneUpdate();
-      dispatch(updateOrderStatus({ id: orderId, status: selectedStatus }));
-      setTimeout(() => {
-        setIsOrderFetched(false);
-      }, 2000);
+      setIsOrderFetched(false);
+    } catch (err) {
+      notify.error(err?.message ?? String(err));
     }
   };
 
-  const handleTrackCode = (id, track) => {
-    // Check if track is empty or null
-    if (!track) {
-      return; // Do nothing if track is empty
-    }
-
-    // If track is not empty, proceed with the update
-    doneUpdate(); // Assuming this is a function to mark the update as done
-
-    // Dispatch the updateOrderStatus action to update the order
-    dispatch(updateOrderStatus({ id, trackCode: track }));
-
-    // Reset the isOrderFetched state after a short delay (2 seconds)
-    setTimeout(() => {
+  const handleTrackCode = async (id, track) => {
+    if (!track) return;
+    try {
+      await dispatch(updateOrderStatus({ id, trackCode: track })).unwrap();
+      doneUpdate();
       setIsOrderFetched(false);
-    }, 2000);
+    } catch (err) {
+      notify.error(err?.message ?? String(err));
+    }
   };
 
   return (
@@ -317,58 +219,7 @@ export default function RecentOrders({
       </div>
 
       <div className="mb-4">
-        <Pagination>
-          <PaginationContent>
-            {/* Previous Button */}
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => handlePageChange(isMeta.page - 1)}
-                disabled={isMeta.page === 1}
-                className={` ${
-                  isMeta.page === 1 ? "cursor-not-allowed" : "cursor-pointer"
-                }`}
-              >
-                Previous
-              </PaginationPrevious>
-            </PaginationItem>
-
-            {/* Page Numbers */}
-            {getPageNumbers().map((pageNumber, index) => (
-              <PaginationItem key={index}>
-                {pageNumber === "..." ? (
-                  <span className="px-3 py-1 text-gray-500">...</span>
-                ) : (
-                  <PaginationLink
-                    href="#"
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`${
-                      isMeta.page === pageNumber
-                        ? "bg-blue-500 text-white font-bold"
-                        : "bg-gray-200 text-black"
-                    } rounded px-3 py-1`}
-                  >
-                    {pageNumber}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            ))}
-
-            {/* Next Button */}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => handlePageChange(isMeta.page + 1)}
-                disabled={isMeta.page === totalPages}
-                className={` ${
-                  isMeta.page === totalPages
-                    ? "cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
-              >
-                Next
-              </PaginationNext>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <PaginationControls page={isMeta.page} totalPages={totalPages} onPageChange={handlePageChange} className="" />
       </div>
     </>
   );

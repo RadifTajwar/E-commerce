@@ -1,22 +1,21 @@
 "use client";
-import OrderDetailsOnOrderUserPage from "@/components/ui/components/viewOrder/orderDetailsOnOrderUserPage";
+import OrderDetails from "@/components/storefront/account/OrderDetails";
 import { fetchOrderById } from "@/store/slices/order.slice";
-import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-export default function page() {
-  const pathname = usePathname();
-  const productId = pathname.split("/").pop();
+
+export default function OrderReceivedPage() {
+  const { orderId } = useParams();
   const dispatch = useDispatch();
 
-  const { order, isLoading, error } = useSelector((state) => state.orderById);
-  useEffect(() => {
-    if (productId) {
-      dispatch(fetchOrderById(productId));
-    }
-  }, [dispatch, productId]);
+  const { order, isLoading } = useSelector((state) => state.orderById);
 
-  return (
-    <>{!isLoading && order && <OrderDetailsOnOrderUserPage order={order} />}</>
-  );
+  useEffect(() => {
+    if (orderId) {
+      dispatch(fetchOrderById(orderId));
+    }
+  }, [dispatch, orderId]);
+
+  return <>{!isLoading && order && <OrderDetails order={order} variant="received" />}</>;
 }

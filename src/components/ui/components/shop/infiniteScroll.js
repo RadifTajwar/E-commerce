@@ -1,123 +1,121 @@
 "use client";
-import { fetchAllProducts } from "@/store/slices/product.slice";
-import { readStorage } from "@/lib/storage";
+
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { notify } from "@/lib/toast";
+import { fetchAllProducts } from "@/store/slices/product.slice";
 import Card from "./card";
-export default function InfiniteScroll({
-  products: initialProducts,
-  filterSearch,
-}) {
-  const params = useParams();
+
+/**
+ * The product grid. Page 1 always comes from the store (fetched by
+ * `ShopBrowser` from the URL); pages 2..n are appended here as the last card
+ * scrolls into view. Category ids and filters arrive as props — nothing is
+ * read from localStorage any more.
+ */
+export default function InfiniteScroll({ products, filters, categoryId, parentCategoryId }) {
   const dispatch = useDispatch();
-  const {
-    products: fetchedProducts,
-    isLoading,
-    error,
-    meta,
-  } = useSelector((state) => state.allProducts);
-  const slug = params.slug;
+  const { isLoading, error, meta } = useSelector((state) => state.allProducts);
 
-  const [allProducts, setAllProducts] = useState(initialProducts || []);
-  const [pageNumber, setPageNumber] = useState(1);
-  const observerRef = useRef(null);
-  const lastProductRef = useRef(null);
-  const isFetchingRef = useRef(false); // Prevent multiple fetches
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState(() => products ?? []);
+  const [lastNode, setLastNode] = useState(null);
+  const isFetchingRef = useRef(false);
 
-  const maxPages = meta ? Math.ceil(meta.total / meta.limit) : Infinity;
+  // `meta` is absent until the first page resolves: no pages known yet.
+  const maxPages = meta && meta.limit > 0 ? Math.ceil(meta.total / meta.limit) : 0;
 
-  // Set initial products
+  // A new filter/category selection restarts the list.
+  const queryKey = useMemo(
+    () => JSON.stringify({ filters: filters ?? {}, categoryId, parentCategoryId }),
+    [filters, categoryId, parentCategoryId],
+  );
+  const queryKeyRef = useRef(queryKey);
   useEffect(() => {
-    if (initialProducts?.length > 0 && allProducts.length === 0) {
-      setAllProducts(initialProducts);
-    }
-  }, [initialProducts, allProducts]);
+    if (queryKeyRef.current === queryKey) return;
+    queryKeyRef.current = queryKey;
+    setPage(1);
+  }, [queryKey]);
 
-  // Fetch products when page number changes
+  // Page 1 is whatever the store currently holds; later pages are appended
+  // below. (The slice replaces its list on every fetch, hence the local copy.)
   useEffect(() => {
-    const fetchProducts = async () => {
-      if (pageNumber > 1 && pageNumber <= maxPages && !isFetchingRef.current) {
-        isFetchingRef.current = true;
+    if (page === 1) setItems(products ?? []);
+  }, [products, page]);
 
-        try {
-          let response;
-          if (slug && slug.length === 2) {
-            const categoryId = readStorage("categoryId", undefined);
-            response = await dispatch(
-              fetchAllProducts({ page: pageNumber, categoryId, filterSearch })
-            ).unwrap();
-          } else if (slug && slug.length === 1) {
-            const parentId = readStorage("parentCategoryId", undefined);
-            response = await dispatch(
-              fetchAllProducts({
-                page: pageNumber,
-                parentCategoryId: parentId,
-                filterSearch,
-              })
-            ).unwrap();
-          } else {
-            response = await dispatch(
-              fetchAllProducts({ page: pageNumber, ...filterSearch })
-            ).unwrap();
-          }
+  // Append the next page. Every value the effect reads is in its deps.
+  useEffect(() => {
+    if (page <= 1 || maxPages === 0 || page > maxPages || isFetchingRef.current) return;
 
-          if (response?.products?.length > 0) {
-            setAllProducts((prevProducts) => {
-              const newProducts = response?.products?.filter(
-                (product) =>
-                  !prevProducts.some(
-                    (prevProduct) => prevProduct.id === product.id
-                  )
-              );
-              return [...prevProducts, ...newProducts];
-            });
-          }
-        } catch (error) {
-        } finally {
-          isFetchingRef.current = false;
-        }
-      }
+    let cancelled = false;
+    isFetchingRef.current = true;
+
+    dispatch(
+      fetchAllProducts({
+        ...(filters ?? {}),
+        ...(categoryId ? { categoryId } : {}),
+        ...(parentCategoryId ? { parentCategoryId } : {}),
+        page,
+      }),
+    )
+      .unwrap()
+      .then((response) => {
+        if (cancelled || !response?.products?.length) return;
+        setItems((previous) => [
+          ...previous,
+          ...response.products.filter((product) => !previous.some((p) => p.id === product.id)),
+        ]);
+      })
+      .catch(() => {
+        // The slice stores the message; it is surfaced by the effect below.
+      })
+      .finally(() => {
+        isFetchingRef.current = false;
+      });
+
+    return () => {
+      cancelled = true;
     };
+  }, [dispatch, page, maxPages, filters, categoryId, parentCategoryId]);
 
-    fetchProducts();
-  }, [dispatch, pageNumber, maxPages]);
-
-  // Intersection Observer setup
+  // Surface a failure once per message instead of swallowing it.
+  const lastErrorRef = useRef(null);
   useEffect(() => {
-    if (!lastProductRef.current || isLoading || isFetchingRef.current) return;
+    if (error && lastErrorRef.current !== error) {
+      lastErrorRef.current = error;
+      notify.error(error);
+    }
+    if (!error) lastErrorRef.current = null;
+  }, [error]);
+
+  // Callback ref so the observer re-registers whenever the last card changes.
+  const lastProductRef = useCallback((node) => setLastNode(node), []);
+
+  useEffect(() => {
+    if (!lastNode || isLoading || maxPages === 0 || page >= maxPages) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (
-          entry.isIntersecting &&
-          pageNumber < maxPages &&
-          !isFetchingRef.current
-        ) {
-          setPageNumber((prevPage) => prevPage + 1);
+        if (entry?.isIntersecting && !isFetchingRef.current) {
+          setPage((previous) => previous + 1);
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.2 },
     );
 
-    observer.observe(lastProductRef.current);
-    observerRef.current = observer;
-
-    return () => {
-      if (observerRef.current) observerRef.current.disconnect();
-    };
-  }, [allProducts, isLoading, pageNumber, maxPages]); // Observe again when `allProducts` changes
+    observer.observe(lastNode);
+    return () => observer.disconnect();
+  }, [lastNode, isLoading, page, maxPages]);
 
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-8 w-full">
-        {allProducts.length > 0 ? (
-          allProducts.map((product, index) => (
+        {items.length > 0 ? (
+          items.map((product, index) => (
             <div
               key={product.id}
-              ref={index === allProducts.length - 1 ? lastProductRef : null} // Attach ref to the last product
+              ref={index === items.length - 1 ? lastProductRef : null} // Attach ref to the last product
             >
               <Card product={product} />
             </div>

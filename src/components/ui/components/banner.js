@@ -1,4 +1,9 @@
 "use client";
+
+import Skeleton from "@mui/material/Skeleton";
+import Image from "next/image";
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -9,33 +14,19 @@ import {
 } from "@/components/ui/carousel";
 import { fetchAllHeroBanners } from "@/store/slices/banner.slice";
 
-import Skeleton from "@mui/material/Skeleton";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
 export function Banner() {
   const dispatch = useDispatch();
-  const { heroBanners, isLoading, error } = useSelector(
-    (state) => state.allHeroBanner
-  );
-  const [videoFetched, setVideoFetched] = useState(false);
-  const [bannerImages, setBannerImages] = useState([]); // State to store sliced images
+  const { heroBanners, isLoading, error } = useSelector((state) => state.allHeroBanner);
 
   // Fetch banners on component mount
   useEffect(() => {
-    if (!videoFetched && bannerImages.length == 0) {
-      dispatch(fetchAllHeroBanners());
-      setVideoFetched(true); // Mark banners as fetched
-    }
-  }, [videoFetched, dispatch]);
+    dispatch(fetchAllHeroBanners());
+  }, [dispatch]);
 
-  // Once heroBanners data is fetched, slice images from index 2
-  useEffect(() => {
-    if (heroBanners.length > 0) {
-      const images = heroBanners[0]?.image?.slice(2);
-      setBannerImages(images); // Set sliced images to the state
-    }
+  // The carousel shows everything from index 2 on; the field may be missing.
+  const bannerImages = useMemo(() => {
+    const images = heroBanners?.[0]?.image;
+    return Array.isArray(images) ? images.slice(2) : [];
   }, [heroBanners]);
 
   return (
@@ -47,29 +38,19 @@ export function Banner() {
         <div className="inner_image w-full">
           <Carousel className="w-full">
             <CarouselContent>
-              {[1, 2, 3].map(
-                (
-                  _,
-                  index // Show 3 skeletons as placeholders
-                ) => (
-                  <CarouselItem key={index}>
-                    <div className="p-0">
-                      <Card className="rounded-none border-none">
-                        <CardContent className="flex items-center justify-center p-0">
-                          <div className="inner w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
-                            <Skeleton
-                              variant="rectangular"
-                              width="100%"
-                              height="100%"
-                              className=""
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CarouselItem>
-                )
-              )}
+              {[1, 2, 3].map((placeholder) => (
+                <CarouselItem key={placeholder}>
+                  <div className="p-0">
+                    <Card className="rounded-none border-none">
+                      <CardContent className="flex items-center justify-center p-0">
+                        <div className="inner w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
+                          <Skeleton variant="rectangular" width="100%" height="100%" className="" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
             </CarouselContent>
           </Carousel>
         </div>
@@ -79,7 +60,7 @@ export function Banner() {
             <Carousel className="w-full">
               <CarouselContent>
                 {bannerImages.map((image, index) => (
-                  <CarouselItem key={index}>
+                  <CarouselItem key={image}>
                     <div className="p-0">
                       <Card className="rounded-none border-none">
                         <CardContent className="flex items-center justify-center p-0">
@@ -87,9 +68,10 @@ export function Banner() {
                             <Image
                               src={image}
                               alt={`carousel image ${index}`}
-                              layout="fill"
-                              objectFit="cover"
-                              className=""
+                              fill
+                              sizes="100vw"
+                              priority={index === 0}
+                              className="object-cover"
                             />
                           </div>
                         </CardContent>

@@ -45,7 +45,18 @@ export const productInputSchema = z
       .object({ title: z.array(z.string()).default([]), image: urlString.nullable().optional() })
       .passthrough()
       .optional(),
-    color: z.array(z.string()).optional(),
+    color: z
+      .array(
+        z
+          .object({
+            id: z.string().optional(),
+            colorName: nonEmpty(50),
+            hex: z.string().max(20).optional(),
+            availableQuantity: z.coerce.number().int().min(0).optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
     additionalDetails: z.array(colorDetailSchema).default([]),
     productDetails: z
       .object({

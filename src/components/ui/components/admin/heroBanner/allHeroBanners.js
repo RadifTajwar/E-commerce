@@ -1,94 +1,42 @@
+"use client";
+import SkeletonTable from "@/components/admin/SkeletonTable";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchAllHeroBanners } from "@/store/slices/banner.slice";
-import { Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
-import { useDispatch, useSelector } from "react-redux";
 
-export default function allHeroBanners({
-  toggleVisibility,
-  toggleDeleteVisible,
-}) {
-  const dispatch = useDispatch();
+const SKELETON_HEAD = [
+  { skeletons: [{ width: "50px", height: "20px" }] },
+  { skeletons: [{ width: "80px", height: "20px" }] },
+  { skeletons: [{ width: "80px", height: "20px" }] },
+  { skeletons: [{ width: "100px", height: "20px" }] },
+  { cellClassName: "text-right", skeletons: [{ width: "60px", height: "20px" }] },
+];
 
-  // Access categories, loading, and error states from the store
-  const { heroBanners, isLoading, error } = useSelector(
-    (state) => state.allHeroBanner
-  );
+const SKELETON_ROW = [
+  { skeletons: [{ width: "50px", height: "20px" }] },
+  { skeletons: [{ variant: "rectangular", width: 40, height: 40 }] },
+  { skeletons: [{ variant: "rectangular", width: 40, height: 40 }] },
+  { skeletons: [{ width: "100px", height: "20px" }] },
+  { innerClassName: "flex justify-end gap-x-2", skeletons: [{ width: "30px", height: "20px" }] },
+];
 
-  // State to check if categories are already fetched
-  const [categoriesFetched, setCategoriesFetched] = useState(false);
+export default function AllHeroBanners({ toggleVisibility }) {
+  const dispatch = useAppDispatch();
+  const { heroBanners, isLoading, error } = useAppSelector((state) => state.allHeroBanner);
 
-  // Fetch categories on component mount
+  const [bannersFetched, setBannersFetched] = useState(false);
+
   useEffect(() => {
-    if (!categoriesFetched) {
+    if (!bannersFetched) {
       dispatch(fetchAllHeroBanners());
-      setCategoriesFetched(true); // Mark categories as fetched
+      setBannersFetched(true);
     }
-  }, [categoriesFetched, dispatch]);
-
-  const [checked, setChecked] = useState(true);
-
-  const handleChange = (event) => {
-    setChecked(event.target.checked);
-  };
-
-  useEffect(() => {
-    if (heroBanners) {
-    }
-  }, [heroBanners]);
+  }, [bannersFetched, dispatch]);
 
   return (
     <>
-      {isLoading && (
-        <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
-          <div className="w-full overflow-x-auto">
-            <table className="w-full whitespace-no-wrap">
-              <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
-                <tr>
-                  <td className="px-4 py-3">
-                    <Skeleton variant="text" width="50px" height="20px" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton variant="text" width="80px" height="20px" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton variant="text" width="80px" height="20px" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Skeleton variant="text" width="100px" height="20px" />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Skeleton variant="text" width="60px" height="20px" />
-                  </td>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400">
-                {[...Array(10)].map((_, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-3">
-                      <Skeleton variant="text" width="50px" height="20px" />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Skeleton variant="rectangular" width={40} height={40} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Skeleton variant="rectangular" width={40} height={40} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Skeleton variant="text" width="100px" height="20px" />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-x-2">
-                        <Skeleton variant="text" width="30px" height="20px" />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {isLoading && <SkeletonTable head={SKELETON_HEAD} row={SKELETON_ROW} />}
       {error && <p>Error: {error}</p>}
       {!isLoading && heroBanners && (
         <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
@@ -104,47 +52,45 @@ export default function allHeroBanners({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400">
-                {heroBanners &&
-                  heroBanners.map((heroBanners) => (
-                    <tr key={heroBanners._id} id={heroBanners._id}>
-                      <td className="px-4 py-3">
-                        <span className="text-sm">{heroBanners._id}</span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
-                          <img
-                            className="object-cover w-full h-full "
-                            src={heroBanners.image[0]}
-                            alt={heroBanners.header}
-                            loading="lazy"
-                          />
-                        </div>
-                      </td>
+                {heroBanners.map((banner) => (
+                  <tr key={banner._id} id={banner._id}>
+                    <td className="px-4 py-3">
+                      <span className="text-sm">{banner._id}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          className="object-cover w-full h-full "
+                          src={banner.image?.[0]}
+                          alt={banner.header}
+                          loading="lazy"
+                        />
+                      </div>
+                    </td>
 
-                      <td className="px-4 py-3">
-                        <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
-                          <img
-                            className="object-cover w-full h-full "
-                            src={heroBanners.image[1]}
-                            alt={heroBanners.header}
-                            loading="lazy"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm">{heroBanners.header}</span>
-                      </td>
+                    <td className="px-4 py-3">
+                      <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          className="object-cover w-full h-full "
+                          src={banner.image?.[1]}
+                          alt={banner.header}
+                          loading="lazy"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-sm">{banner.header}</span>
+                    </td>
 
-                      <td className="px-4 py-3">
-                        <div className="flex justify-end gap-x-2">
-                          <FiEdit
-                            className="cursor-pointer"
-                            onClick={() => toggleVisibility(heroBanners._id)} // No re-fetch
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-x-2">
+                        <FiEdit className="cursor-pointer" onClick={() => toggleVisibility(banner._id)} />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

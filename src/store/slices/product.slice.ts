@@ -2,7 +2,7 @@ import type { ActionCreatorWithoutPayload } from "@reduxjs/toolkit";
 import { productService } from "@/services/product.service";
 import type { ApiEnvelope, Paginated, PaginationMeta } from "@/types/api";
 import type { Product, ProductColor, ProductInput, ProductListQuery } from "@/types/product";
-import { createApiThunk, createRequestSlice, type RequestState } from "../create-request-slice";
+import { createApiThunk, createRequestSlice } from "../create-request-slice";
 
 const emptyMeta: PaginationMeta = { total: 0, limit: 0, page: 0 };
 
@@ -33,9 +33,7 @@ export const deleteProductById = createApiThunk<ApiEnvelope<Product | null>, str
 export const fetchColors = createApiThunk<ProductColor[], void>("colors/fetchColors", () => productService.colors());
 
 // ---- slices ------------------------------------------------------------------
-type AllProductsState = RequestState<"products", Product[]> & { meta: PaginationMeta };
-
-const list = createRequestSlice<Product[], { products: Product[]; meta: PaginationMeta }, ProductListQuery | void, AllProductsState>({
+const list = createRequestSlice<"products", Product[], { products: Product[]; meta: PaginationMeta }, ProductListQuery | void, { meta: PaginationMeta }>({
   name: "allProducts",
   thunk: fetchAllProducts,
   dataKey: "products",
@@ -78,8 +76,7 @@ const create = createRequestSlice({
   successMessage: "Product created successfully!",
 });
 
-type FlagState = RequestState<"result", unknown> & { success: boolean };
-const update = createRequestSlice<unknown, ApiEnvelope<Product>, { id: string; updatedData: Partial<ProductInput> }, FlagState>({
+const update = createRequestSlice<"result", unknown, ApiEnvelope<Product>, { id: string; updatedData: Partial<ProductInput> }, { success: boolean }>({
   name: "updateProduct",
   thunk: updateProductData,
   dataKey: "result",
@@ -89,7 +86,7 @@ const update = createRequestSlice<unknown, ApiEnvelope<Product>, { id: string; u
     state.success = true;
   },
 });
-const remove = createRequestSlice<unknown, ApiEnvelope<Product | null>, string, FlagState>({
+const remove = createRequestSlice<"result", unknown, ApiEnvelope<Product | null>, string, { success: boolean }>({
   name: "deleteProduct",
   thunk: deleteProductById,
   dataKey: "result",
@@ -100,8 +97,7 @@ const remove = createRequestSlice<unknown, ApiEnvelope<Product | null>, string, 
   },
 });
 
-type ColorState = RequestState<"colors", ProductColor[]> & { status: "idle" | "loading" | "succeeded" | "failed" };
-const colors = createRequestSlice<ProductColor[], ProductColor[], void, ColorState>({
+const colors = createRequestSlice<"colors", ProductColor[], ProductColor[], void, { status: "idle" | "loading" | "succeeded" | "failed" }>({
   name: "colors",
   thunk: fetchColors,
   dataKey: "colors",

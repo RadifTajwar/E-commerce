@@ -1,49 +1,40 @@
-'use client'
-import SideBar from '@/components/ui/components/admin/dashboard/sideBar';
-import TopBar from '@/components/ui/components/admin/dashboard/topBar';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
-export default function Layout({ children }) {
-  const pathname = usePathname(); // Get current route
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to manage sidebar visibility
+"use client";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminTopBar from "@/components/admin/AdminTopBar";
+import { ROUTES } from "@/config/constants";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-  const isAdminRoot = pathname === '/admin';
+export default function AdminLayout({ children }) {
+  const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const isAdminRoot = pathname === ROUTES.admin.login;
   // Admin access is enforced server-side in middleware.ts (role "admin").
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 relative">
-      {/* Sidebar */}
+      {/* One toast host for the whole admin area. */}
+      <ToastContainer />
+
       {!isAdminRoot && (
         <>
           {/* Overlay when sidebar is open */}
           {isSidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black opacity-50 z-40"
-              onClick={() => setIsSidebarOpen(false)} // Close sidebar on click
-            ></div>
+            <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsSidebarOpen(false)} />
           )}
 
-          {/* Sidebar Component */}
-          <SideBar
-            isOpen={isSidebarOpen}
-            setIsOpen={setIsSidebarOpen}
-            className={`fixed inset-y-0 left-0 z-10 w-64 bg-white dark:bg-gray-800 shadow-md transform transition-transform duration-300 ease-in-out 
-              ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static`}
-          />
+          <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
         </>
       )}
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 w-full">
-        {/* Topbar */}
-        {!isAdminRoot && (
-          <TopBar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-        )}
+        {!isAdminRoot && <AdminTopBar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />}
 
-        {/* Page Content */}
-        <main className="h-full overflow-y-auto">
-          {children}
-        </main>
+        <main className="h-full overflow-y-auto">{children}</main>
       </div>
     </div>
   );

@@ -67,16 +67,15 @@ export class FakeRedis {
     if (!e.expiresAt) return -1;
     return Math.max(0, Math.ceil((e.expiresAt - Date.now()) / 1000));
   }
-  pipeline() {
+  pipeline = () => {
     const ops: Array<() => Promise<unknown>> = [];
-    const self = this;
     const p = {
-      set: (...a: Parameters<FakeRedis["set"]>) => (ops.push(() => self.set(...a)), p),
-      sadd: (...a: Parameters<FakeRedis["sadd"]>) => (ops.push(() => self.sadd(...a)), p),
-      expire: (...a: Parameters<FakeRedis["expire"]>) => (ops.push(() => self.expire(...a)), p),
-      incr: (...a: Parameters<FakeRedis["incr"]>) => (ops.push(() => self.incr(...a)), p),
-      ttl: (...a: Parameters<FakeRedis["ttl"]>) => (ops.push(() => self.ttl(...a)), p),
-      del: (...a: Parameters<FakeRedis["del"]>) => (ops.push(() => self.del(...a)), p),
+      set: (...a: Parameters<FakeRedis["set"]>) => (ops.push(() => this.set(...a)), p),
+      sadd: (...a: Parameters<FakeRedis["sadd"]>) => (ops.push(() => this.sadd(...a)), p),
+      expire: (...a: Parameters<FakeRedis["expire"]>) => (ops.push(() => this.expire(...a)), p),
+      incr: (...a: Parameters<FakeRedis["incr"]>) => (ops.push(() => this.incr(...a)), p),
+      ttl: (...a: Parameters<FakeRedis["ttl"]>) => (ops.push(() => this.ttl(...a)), p),
+      del: (...a: Parameters<FakeRedis["del"]>) => (ops.push(() => this.del(...a)), p),
       exec: async () => {
         const out: Array<[Error | null, unknown]> = [];
         for (const op of ops) out.push([null, await op()]);
@@ -84,5 +83,5 @@ export class FakeRedis {
       },
     };
     return p;
-  }
+  };
 }

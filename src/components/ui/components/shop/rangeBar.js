@@ -1,51 +1,51 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import Box from '@mui/material/Box';
-import Slider from '@mui/material/Slider';
-import Typography from '@mui/material/Typography';
+import { PRICE_FILTER } from "@/config/constants";
+import Box from "@mui/material/Box";
+import Slider from "@mui/material/Slider";
+import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
-import * as React from 'react';
+import { useEffect, useState } from "react";
 
-const minDistance = 100;
-
-export default function RangeBar({productsFetched,setProductsFetched,minPrice,maxPrice}) {
-  const [value1, setValue1] = React.useState([Number(minPrice), Number(maxPrice)]);
+/** Price facet. The committed range lives in the query string. */
+export default function RangeBar({ minPrice, maxPrice }) {
   const router = useRouter();
+  const [range, setRange] = useState([Number(minPrice), Number(maxPrice)]);
 
-  const handleChange1 = (event, newValue, activeThumb) => {
-    if (!Array.isArray(newValue)) {
-      return;
-    }
+  // The URL is the source of truth: adopt it whenever it changes.
+  useEffect(() => {
+    setRange([Number(minPrice), Number(maxPrice)]);
+  }, [minPrice, maxPrice]);
+
+  const handleChange = (event, newValue, activeThumb) => {
+    if (!Array.isArray(newValue)) return;
 
     if (activeThumb === 0) {
-      setValue1([Math.min(newValue[0], value1[1] - minDistance), value1[1]]);
+      setRange([Math.min(newValue[0], range[1] - PRICE_FILTER.minDistance), range[1]]);
     } else {
-      setValue1([value1[0], Math.max(newValue[1], value1[0] + minDistance)]);
+      setRange([range[0], Math.max(newValue[1], range[0] + PRICE_FILTER.minDistance)]);
     }
   };
 
   const handleFilterClick = () => {
     const params = new URLSearchParams(window.location.search);
-    params.set("min_price", value1[0]);
-    params.set("max_price", value1[1]);
+    params.set("min_price", range[0]);
+    params.set("max_price", range[1]);
 
-    router.push(`${window.location.pathname}?${params.toString()}`, { shallow: true, scroll: false });
-    setTimeout(() => {
-      setProductsFetched(!productsFetched);
-    }, 500);
+    router.push(`${window.location.pathname}?${params.toString()}`, { scroll: false });
   };
 
   return (
-    <Box sx={{ width: 'full' }}>
-      <p className='text-md text-black font-medium'>FILTER BY PRICE</p>
+    <Box sx={{ width: "full" }}>
+      <p className="text-md text-black font-medium">FILTER BY PRICE</p>
       <Slider
         getAriaLabel={() => "Minimum distance"}
-        value={value1}
-        min={0}
-        max={18000}
-        step={60}
-        onChange={handleChange1}
+        value={range}
+        min={PRICE_FILTER.min}
+        max={PRICE_FILTER.max}
+        step={PRICE_FILTER.step}
+        onChange={handleChange}
         valueLabelDisplay="auto"
         disableSwap
         className="mt-5"
@@ -72,7 +72,10 @@ export default function RangeBar({productsFetched,setProductsFetched,minPrice,ma
       />
 
       <Typography variant="body1" sx={{ mt: 2 }} className="text-sm font-light text-gray-600">
-        Price: <span className="text-md font-medium text-black">৳ {value1[0]} - ৳ {value1[1]}</span>
+        Price:{" "}
+        <span className="text-md font-medium text-black">
+          ৳ {range[0]} - ৳ {range[1]}
+        </span>
       </Typography>
 
       <div className="button w-full my-3">

@@ -1,16 +1,14 @@
-import { loginUser } from "@/store/slices/auth.slice";
+"use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { CloseIcon } from "@/components/ui/icons";
+import { ROUTES } from "@/config/constants";
+import { loginUser } from "@/store/slices/auth.slice";
 
-import { useSelector } from "react-redux";
-export default function LoginForm({
-  toggleLogInForm,
-  isVisibleLogInForm,
-  isLoggedIn,
-  setIsLoggedIn,
-}) {
+export default function LoginForm({ toggleLogInForm }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const [logMail, setLogMail] = useState("");
@@ -30,19 +28,12 @@ export default function LoginForm({
     e.preventDefault(); // Prevent default form submission behavior
 
     try {
-      // Dispatch the loginUser thunk and wait for its result
-      const result = await dispatch(
-        loginUser({ email: logMail, password: logPass })
-      ).unwrap();
-
       // The session cookie is set by /api/auth/login; nothing is stored here.
+      await dispatch(loginUser({ email: logMail, password: logPass })).unwrap();
       toggleLogInForm();
-      setIsLoggedIn?.(Boolean(result.session));
-      router.push("/myAccount");
-    } catch (error) {
-      // Handle errors (e.g., invalid credentials)
-
-      // Optionally, set an error state to display an error message in the UI
+      router.push(ROUTES.account);
+    } catch {
+      // Invalid credentials / unknown user: shown inline under the fields.
       setErrorLogin("Invalid credentials or user does not exist.");
     }
   };
@@ -62,12 +53,7 @@ export default function LoginForm({
                   onClick={toggleLogInForm}
                 >
                   <span className="mr-1">
-                    <svg
-                      className="h-3 w-3 group-hover:fill-gray-600"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M 4.7070312 3.2929688 L 3.2929688 4.7070312 L 10.585938 12 L 3.2929688 19.292969 L 4.7070312 20.707031 L 12 13.414062 L 19.292969 20.707031 L 20.707031 19.292969 L 13.414062 12 L 20.707031 4.7070312 L 19.292969 3.2929688 L 12 10.585938 L 4.7070312 3.2929688 z"></path>
-                    </svg>
+                    <CloseIcon className="h-3 w-3 group-hover:fill-gray-600" />
                   </span>
                   Close
                 </button>
@@ -159,8 +145,8 @@ export default function LoginForm({
                 </button>
 
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                  Don't have an account yet?{" "}
-                  <Link href="/my-account">
+                  Don&apos;t have an account yet?{" "}
+                  <Link href={ROUTES.login}>
                     <button
                       className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                       onClick={toggleLogInForm}

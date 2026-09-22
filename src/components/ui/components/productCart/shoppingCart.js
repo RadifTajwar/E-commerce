@@ -1,3 +1,4 @@
+"use client";
 import {
   decrementItem,
   incrementItem,
@@ -7,10 +8,7 @@ import ProductionQuantityLimitsOutlinedIcon from "@mui/icons-material/Production
 import Image from "next/image";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-export default function ShoppingCart({
-  toggleShoppingCart,
-  isVisibleShoppingCart,
-}) {
+export default function ShoppingCart({ toggleShoppingCart }) {
   const cartItems = useSelector((state) => state.cart.items);
   const cartTotal = useSelector((state) => state.cart.total);
   const dispatch = useDispatch();
@@ -78,9 +76,9 @@ export default function ShoppingCart({
                 </div>
               </div>
             ) : (
-              cartItems.map((item, index) => (
+              cartItems.map((item) => (
                 <div
-                  key={index}
+                  key={item.colorId}
                   className="flex justify-between w-full cursor-pointer group hover:bg-slate-100 px-4 py-4 border-b border-gray-200"
                 >
                   <div className="cart_image_&_Text flex">
@@ -113,7 +111,7 @@ export default function ShoppingCart({
 
                           {/* Quantity Display with left and right borders */}
                           <span className="px-2 py-1  border-t border-b text-gray-500 text-sm flex items-center justify-center">
-                            1
+                            {item.quantity}
                           </span>
 
                           {/* Plus Button */}

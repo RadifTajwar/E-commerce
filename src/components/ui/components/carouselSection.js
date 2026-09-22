@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Banner } from "./banner"
-export default function carouselSection() {
+export default function CarouselSection() {
   return (
     <>
     <div id="default-carousel" className="relative w-full z-0" >

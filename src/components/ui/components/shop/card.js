@@ -1,76 +1,183 @@
-import { Card, CardContent } from "@/components/ui/card";
-// import { addItemToCart } from "@/store/slices/cart.slice";
-import { addItemToCart } from "@/store/slices/cart.slice";
-import { fetchProductById } from "@/store/slices/product.slice";
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Card, CardContent } from "@/components/ui/card";
+import { notify } from "@/lib/toast";
+import { discountPercent } from "@/lib/utils";
+import { productService } from "@/services/product.service";
+import { addItemToCart } from "@/store/slices/cart.slice";
 import CartIcon from "../../icon/icon";
 import SearchIcon from "../../icon/searchIcon";
-export default function card({ product }) {
-  const Router = useRouter();
+
+/** The two stacked images. The swap is a CSS animation, so no timer per card. */
+function CardImages({ product, onOpen }) {
+  const hoverImage = product?.imageHover || product?.imageDefault;
+
+  return (
+    <>
+      {/* Default Image */}
+      <div className="image relative lg:hidden" onClick={onOpen}>
+        {/* First image fades out and back in; the second sits behind it. */}
+        <Image
+          alt={product.name}
+          src={product.imageDefault}
+          height={500}
+          width={500}
+          className="relative z-10 animate-fadeInOut"
+        />
+
+        {/* Second Image */}
+        <Image
+          alt={product.name}
+          src={hoverImage}
+          height={500}
+          width={500}
+          className="absolute top-0 left-0 h-auto"
+        />
+      </div>
+
+      <div className="hidden lg:block image" onClick={onOpen}>
+        <Image
+          alt={product.name}
+          src={product.imageDefault}
+          height={500}
+          width={500}
+          className=" group-hover:opacity-0 duration-500"
+        />
+
+        {/* Hover Image */}
+        <Image
+          alt={product.name}
+          src={hoverImage}
+          height={500}
+          width={500}
+          className="absolute top-0 left-0  h-auto opacity-0 group-hover:opacity-100 group-hover:duration-1000 group-hover:scale-110"
+        />
+      </div>
+    </>
+  );
+}
+
+/** Discount percentage and the "Sold Out" pill. */
+function CardBadges({ product }) {
+  return (
+    <div className="absolute top-2 left-2 ">
+      <div className="flex items-center justify-center">
+        <div className="bg-gray-700 rounded-full py-2 px-4 flex flex-col items-center justify-center text-center h-12 w-12">
+          {/* Calculate discount percentage */}
+          <p className="m-0 p-0 text-sm font-medium text-white leading-none">
+            {`${discountPercent(product?.originalPrice, product?.discountedPrice)}%`}
+          </p>
+        </div>
+      </div>
+      {!product?.inStock && (
+        <>
+          <div className="flex items-center justify-center mt-2">
+            <div className="bg-white rounded-full py-2 px-4 flex flex-col items-center justify-center text-center border border-gray-50   h-12 w-12">
+              <p className="m-0 p-0 text-sm font-medium text-black leading-none">Sold</p>
+              <p className="m-0 p-0 text-sm font-medium text-black leading-none">Out</p>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Name and prices under the image. */
+function CardPriceFooter({ product }) {
+  return (
+    <div className="lower_txt flex justify-start ">
+      <div className="price_text_image text-start  px-5 py-4">
+        <Link href={`/products/${product?.slug}`}>
+          <h1
+            className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
+            style={{ fontWeight: "400", fontSize: "14px" }}
+          >
+            {product.name}
+          </h1>
+        </Link>
+
+        <p>
+          <span className="text-xs" style={{ textDecoration: "line-through", color: "#a9a9a9" }}>
+            ৳ {product.originalPrice}
+          </span>
+          <span className="text-sm font-semibold" style={{ color: "#424242", marginLeft: "8px" }}>
+            ৳ {product.discountedPrice}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function ProductCard({ product }) {
+  const router = useRouter();
   const dispatch = useDispatch();
-  const [productsData, setProductsData] = useState([null]);
+
+  // Product details are fetched per card, so one card can never flip another.
+  const [details, setDetails] = useState(null);
+  const [isLoadingCart, setIsLoadingCart] = useState(false);
   const [showCartClicked, setShowCartClicked] = useState(false);
   const [selectedColor, setSelectedColor] = useState(null);
   const [unavailableColors, setUnavailableColors] = useState(false);
   const [colorId, setColorId] = useState(null);
   const [availableQuantity, setAvailableQuantity] = useState(undefined);
-  const [isLoadingCart, setIsLoadingCart] = useState(false);
-  const { productData, isLoading, error } = useSelector(
-    (state) => state.productById
-  );
+
   const handleAddToCart = () => {
     if (!selectedColor || unavailableColors) {
-      alert("Please select a color before adding to cart!"); // Alert if no color is selected
-    } else {
-      // If a color is selected, dispatch the action with color
-      dispatch(
-        addItemToCart({
-          id: product?.id,
-          name: product?.name,
-          price: product?.discountedPrice,
-          image: product?.imageDefault,
-          availableQuantity,
-          colorId: colorId, // Send the selected color along with other data
-          color: selectedColor, // Send the selected color along with other data
-        })
-      );
+      notify.error("Please select a color before adding to cart!");
+      return;
     }
+    dispatch(
+      addItemToCart({
+        id: product?.id,
+        name: product?.name,
+        price: product?.discountedPrice,
+        image: product?.imageDefault,
+        availableQuantity,
+        colorId,
+        color: selectedColor,
+      })
+    );
   };
 
-  const handleColorClick = (colorName, colorId, colorQuantity) => {
+  const handleColorClick = (colorName, id, colorQuantity) => {
     setAvailableQuantity(
       colorQuantity === undefined || colorQuantity === null ? undefined : Number(colorQuantity)
     );
-    if (colorQuantity == 0) {
-      setUnavailableColors(true); // Set the unavailable colors state
-      setSelectedColor(colorName); // Update the selected color state
-      setColorId(colorId); // Reset the selected color ID state
-    } else {
-      setUnavailableColors(false); // Reset the unavailable colors state
-      setSelectedColor(colorName); // Update the selected color state
-      setColorId(colorId);
-    }
-    // Update the selected color ID state
+    setUnavailableColors(Number(colorQuantity) === 0);
+    setSelectedColor(colorName);
+    setColorId(id);
   };
 
   const handleProductClick = () => {
-    Router.push(`/products/${product.slug}`);
+    router.push(`/products/${product.slug}`);
   };
+
   const handleCardCloseClicked = () => {
     setShowCartClicked(false);
     setSelectedColor(null);
   };
-  const [localProductData, setLocalProductData] = useState(null);
-  const handleCartOpenClicked = () => {
-    if (product?.inStock) {
-      setIsLoadingCart(true); // Show loader initially
-      dispatch(fetchProductById(product.id)); // Fetch product data
-    } else {
+
+  const handleCartOpenClicked = async () => {
+    if (!product?.inStock) {
       handleProductClick();
+      return;
+    }
+    setIsLoadingCart(true);
+    try {
+      const data = await productService.getById(product.id);
+      setDetails(data);
+      setShowCartClicked(true);
+    } catch {
+      notify.error("Could not load this product. Please try again.");
+    } finally {
+      setIsLoadingCart(false);
     }
   };
 
@@ -78,24 +185,6 @@ export default function card({ product }) {
     setSelectedColor(null);
   };
 
-  useEffect(() => {
-    if (productData?.id === product.id) {
-      setLocalProductData(productData); // Set local product data
-      setIsLoadingCart(false); // Hide loader
-      setShowCartClicked(true); // Show cart
-    }
-  }, [productData, product.id]);
-
-  const [isSecondImageVisible, setIsSecondImageVisible] = useState(false);
-
-  useEffect(() => {
-    // Toggle between images every 5 seconds
-    const interval = setInterval(() => {
-      setIsSecondImageVisible((prev) => !prev);
-    }, 5000); // Change image every 5 seconds
-
-    return () => clearInterval(interval); // Clean up interval on unmount
-  }, []);
   return (
     <>
       <div className=" card ">
@@ -109,96 +198,9 @@ export default function card({ product }) {
                       showCartClicked ? `` : `group`
                     }  overflow-hidden`}
                   >
-                    {/* Default Image */}
-                    <div
-                      className="image relative lg:hidden"
-                      onClick={handleProductClick}
-                    >
-                      {/* First Image (opacity transitions in and out smoothly) */}
-                      <Image
-                        alt={product.name}
-                        src={product.imageDefault}
-                        height={500}
-                        width={500}
-                        className={`transition-opacity ease-in-out duration-[1000ms] ${
-                          isSecondImageVisible ? "opacity-0" : "opacity-100"
-                        }`}
-                      />
+                    <CardImages product={product} onOpen={handleProductClick} />
 
-                      {/* Second Image */}
-                      <Image
-                        alt={product.name}
-                        src={product.imageHover}
-                        height={500}
-                        width={500}
-                        className={`
-                                                 absolute top-0 left-0 h-auto 
-                                                 transition-all 
-                                                 [transition-property:transform,opacity]
-                                                 [transition-duration:5000ms,1000ms]
-                                                 ease-in-out
-                                                 ${
-                                                   isSecondImageVisible
-                                                     ? "scale-125 opacity-100"
-                                                     : "opacity-0 scale-100"
-                                                 }
-                                                `}
-                      />
-                    </div>
-
-                    <div
-                      className="hidden lg:block image"
-                      onClick={handleProductClick}
-                    >
-                      <Image
-                        alt={product.name}
-                        src={product.imageDefault}
-                        height={500}
-                        width={500}
-                        className=" group-hover:opacity-0 duration-500"
-                      />
-
-                      {/* Hover Image */}
-                      <Image
-                        alt={product.name}
-                        src={product.imageHover}
-                        height={500}
-                        width={500}
-                        className="absolute top-0 left-0  h-auto opacity-0 group-hover:opacity-100 group-hover:duration-1000 group-hover:scale-110"
-                      />
-                    </div>
-
-                    <div className="absolute top-2 left-2 ">
-                      <div className="flex items-center justify-center">
-                        <div className="bg-gray-700 rounded-full py-2 px-4 flex flex-col items-center justify-center text-center h-12 w-12">
-                          {/* Calculate discount percentage */}
-                          <p className="m-0 p-0 text-sm font-medium text-white leading-none">
-                            {product?.originalPrice && product?.discountedPrice
-                              ? `${Math.round(
-                                  ((product?.originalPrice -
-                                    product?.discountedPrice) /
-                                    product?.originalPrice) *
-                                    100
-                                )}%`
-                              : "0%"}
-                          </p>
-                        </div>
-                      </div>
-                      {!product?.inStock && (
-                        <>
-                          <div className="flex items-center justify-center mt-2">
-                            <div className="bg-white rounded-full py-2 px-4 flex flex-col items-center justify-center text-center border border-gray-50   h-12 w-12">
-                              <p className="m-0 p-0 text-sm font-medium text-black leading-none">
-                                Sold
-                              </p>
-                              <p className="m-0 p-0 text-sm font-medium text-black leading-none">
-                                Out
-                              </p>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
+                    <CardBadges product={product} />
 
                     {/* Icon Pop-Up Div */}
 
@@ -238,9 +240,7 @@ export default function card({ product }) {
 
                     <div
                       className={`absolute text-center bottom-0 transform ${
-                        showCartClicked
-                          ? "translate-y-0 opacity-100"
-                          : "translate-y-full opacity-0"
+                        showCartClicked ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
                       } transition-all duration-500 hover:text-black lg:block w-full h-full bg-white bg-opacity-90 flex flex-col justify-end`}
                     >
                       {/* Close Button */}
@@ -254,7 +254,7 @@ export default function card({ product }) {
                         </span>
                       </button>
 
-                      {localProductData && showCartClicked && (
+                      {details && showCartClicked && (
                         <div className="w-full h-full flex flex-col justify-between">
                           <div className="flex-grow flex items-center justify-center">
                             {/* Color Bar in the Middle */}
@@ -263,9 +263,9 @@ export default function card({ product }) {
                                 Color:
                               </div>
                               <div className="color_map justify-center flex flex-wrap gap-2 my-2">
-                                {localProductData.color?.map((color, index) => (
+                                {details.color?.map((color) => (
                                   <div
-                                    key={index}
+                                    key={color?.id ?? color?.colorName}
                                     className="relative group cursor-pointer flex items-center justify-center flex-shrink-0"
                                   >
                                     <div
@@ -285,8 +285,7 @@ export default function card({ product }) {
                                     {/* Bottom line that will appear on hover */}
                                     <div
                                       className={`absolute bottom-0 left-0 w-full h-[2px] bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full ${
-                                        selectedColor === color.colorName &&
-                                        `opacity-100`
+                                        selectedColor === color.colorName && `opacity-100`
                                       }`}
                                     />
                                   </div>
@@ -294,9 +293,7 @@ export default function card({ product }) {
                               </div>
                               <div
                                 className={`clear text-xs text-gray-500 mt-2 cursor-pointer hover:text-gray-900 transition-all duration-500 text-center block ${
-                                  selectedColor
-                                    ? "opacity-100 visible"
-                                    : "opacity-0 invisible"
+                                  selectedColor ? "opacity-100 visible" : "opacity-0 invisible"
                                 } `}
                                 onClick={handleClearClicked}
                               >
@@ -325,33 +322,7 @@ export default function card({ product }) {
                 </div>
               </CardContent>
             </Card>
-            <div className="lower_txt flex justify-start ">
-              <div className="price_text_image text-start  px-5 py-4">
-                <Link href={`/products/${product?.slug}`}>
-                  <h1
-                    className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-                    style={{ fontWeight: "400", fontSize: "14px" }}
-                  >
-                    {product.name}
-                  </h1>
-                </Link>
-
-                <p>
-                  <span
-                    className="text-xs"
-                    style={{ textDecoration: "line-through", color: "#a9a9a9" }}
-                  >
-                    ৳ {product.originalPrice}
-                  </span>
-                  <span
-                    className="text-sm font-semibold"
-                    style={{ color: "#424242", marginLeft: "8px" }}
-                  >
-                    ৳ {product.discountedPrice}
-                  </span>
-                </p>
-              </div>
-            </div>
+            <CardPriceFooter product={product} />
           </div>
         </div>
       </div>
