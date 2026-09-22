@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import type { ZodType } from "zod";
 import { getServerEnv, type ServerEnv } from "@/config/env";
-import { ApiError } from "@/lib/api/errors";
+import { ApiError, gatewayStatus } from "@/lib/api/errors";
 import { sessionFromToken } from "@/lib/auth";
 import { invalidateNamespace, withCache } from "@/lib/cache";
 import { logger } from "@/lib/logger";
@@ -89,7 +89,7 @@ export function jsonResponse(data: unknown, init: { status?: number; requestId?:
 
 export function errorResponse(err: unknown, requestId: string): NextResponse {
   const apiErr = ApiError.from(err);
-  const status = apiErr.status >= 100 && apiErr.status < 600 ? apiErr.status : 500;
+  const status = gatewayStatus(apiErr);
   const body = new ApiError(apiErr.message, { status, code: apiErr.code, details: apiErr.details, requestId }).toBody();
   if (status >= 500) logger.error({ requestId, err: apiErr, cause: apiErr.cause }, "request failed");
   else logger.warn({ requestId, status, code: apiErr.code, message: apiErr.message }, "request rejected");

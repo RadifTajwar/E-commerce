@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ApiError } from "./errors";
+import { ApiError, gatewayStatus } from "./errors";
 import { buildQueryString, createHttpClient, joinUrl } from "./client";
 
 const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
@@ -121,5 +121,33 @@ describe("createHttpClient", () => {
     });
     const client = makeClient(fetchImpl as unknown as typeof fetch, { headers: async () => ({ authorization: "Bearer t" }) });
     await client.get("/x", { headers: { "x-custom": "1" } });
+  });
+});
+
+describe("upstream error normalisation", () => {
+  it("ignores an upstream error code that is not one of ours", async () => {
+    // The backend answers 500 with {"error":{"code":"500"}}; that must not leak
+    // into our contract.
+    const fetchImpl = vi.fn(async () => json({ error: { code: "500", message: "A server error has occurred" } }, 500));
+    const client = makeClient(fetchImpl as unknown as typeof fetch, { maxRetries: 0 });
+    const err = (await client.get("/x").catch((e: unknown) => e)) as ApiError;
+    expect(err.code).toBe("UPSTREAM_ERROR");
+    expect(err.message).toBe("A server error has occurred");
+  });
+
+  it("adopts an upstream code when it is one of ours", async () => {
+    const fetchImpl = vi.fn(async () => json({ error: { code: "VALIDATION_ERROR", message: "bad" } }, 400));
+    const client = makeClient(fetchImpl as unknown as typeof fetch, { maxRetries: 0 });
+    const err = (await client.get("/x").catch((e: unknown) => e)) as ApiError;
+    expect(err.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("maps upstream failures onto gateway statuses", () => {
+    expect(gatewayStatus(new ApiError("x", { status: 500, code: "UPSTREAM_ERROR" }))).toBe(502);
+    expect(gatewayStatus(new ApiError("x", { status: 504, code: "TIMEOUT" }))).toBe(504);
+    expect(gatewayStatus(new ApiError("x", { status: 503, code: "NETWORK_ERROR" }))).toBe(503);
+    // Our own failures keep their status.
+    expect(gatewayStatus(new ApiError("x", { status: 404, code: "NOT_FOUND" }))).toBe(404);
+    expect(gatewayStatus(new ApiError("x", { status: 500, code: "INTERNAL_ERROR" }))).toBe(500);
   });
 });

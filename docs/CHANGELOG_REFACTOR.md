@@ -97,7 +97,19 @@ preset, and the AES key that appeared in three files.
 - Vitest with 32 tests covering the HTTP client, cache helper, rate limiter, env validation and
   the proxy handler (validation, 401/403, expired and forged tokens, 429, error mapping,
   cache invalidation).
-- `scripts/smoke.mjs` (`npm run smoke`) exercises every proxy route against a running server.
+- `scripts/smoke.mjs` (`npm run smoke`) exercises every proxy route against a running server:
+  20 checks covering the uniform error shape, zod validation, 401/403 on protected
+  routes, the middleware redirects, CORS rejection, security headers and 404.
+  **All 20 pass** against the running app.
+
+### Found by the smoke run
+
+The upstream answers `{"error":{"code":"500"}}`, and the error parser adopted that
+code verbatim, so `"500"` leaked into our own error contract and every upstream
+failure was reported as HTTP 500 — which tells a client that *this* app broke.
+Upstream codes are now only adopted when they belong to our closed set, and
+upstream failures map onto gateway statuses: 502 for a bad upstream response,
+504 for a timeout, 503 for a network error. Covered by three regression tests.
 
 ---
 
@@ -215,10 +227,14 @@ address page.
 
 ## Known gaps and follow-ups
 
-- **The backend was unreachable during this work** (HTTP 500 `FUNCTION_INVOCATION_FAILED` on
-  every endpoint). Proxy shapes were written against what the existing slices consumed and are
-  covered by unit tests, but an end-to-end pass with a live backend is still required. Run
-  `npm run dev` and then `npm run smoke`.
+- **The backend was unreachable throughout this work** (HTTP 500 `FUNCTION_INVOCATION_FAILED` on
+  every endpoint, re-checked at the end). Everything that does not depend on backend *data* has
+  been verified against the running app: all 20 smoke checks pass, every page returns 200 and
+  carries its title, and the storefront degrades gracefully (empty catalogue rather than a
+  crash) because page-level queries go through `safely()`. What remains unverified is the shape
+  of real backend responses flowing through the proxy into the UI: product listings, cart to
+  checkout to order confirmation, and the admin create/update/delete flows. Re-run
+  `npm run dev` and `npm run smoke` once the backend is healthy, then walk those flows.
 - **Cloudinary uploads are unsigned** until `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` are
   set. They now happen server-side, so the preset no longer ships to the browser, but signing
   should be enabled and the unsigned preset disabled in the Cloudinary dashboard.

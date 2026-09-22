@@ -16,6 +16,24 @@ export type ApiErrorCode =
   | "UPSTREAM_ERROR"
   | "INTERNAL_ERROR";
 
+/** The closed set of codes this app emits. Upstream codes are never passed through. */
+export const API_ERROR_CODES = [
+  "BAD_REQUEST",
+  "UNAUTHORIZED",
+  "FORBIDDEN",
+  "NOT_FOUND",
+  "CONFLICT",
+  "VALIDATION_ERROR",
+  "RATE_LIMITED",
+  "TIMEOUT",
+  "NETWORK_ERROR",
+  "UPSTREAM_ERROR",
+  "INTERNAL_ERROR",
+] as const satisfies readonly ApiErrorCode[];
+
+export const isApiErrorCode = (value: unknown): value is ApiErrorCode =>
+  typeof value === "string" && (API_ERROR_CODES as readonly string[]).includes(value);
+
 export interface ApiErrorBody {
   error: {
     code: ApiErrorCode;
@@ -84,6 +102,18 @@ export class ApiError extends Error {
 
 export const isApiError = (err: unknown): err is ApiError => err instanceof ApiError;
 
+/**
+ * Status to report to our own clients for a failure that happened upstream.
+ * A backend 500 is a *gateway* failure from the browser's point of view, so it
+ * must not be reported as 500 (which would mean this app broke).
+ */
+export function gatewayStatus(err: ApiError): number {
+  if (err.code === "TIMEOUT") return 504;
+  if (err.code === "NETWORK_ERROR") return 503;
+  if (err.code === "UPSTREAM_ERROR") return 502;
+  return err.status >= 100 && err.status < 600 ? err.status : 500;
+}
+
 export function codeFromStatus(status: number): ApiErrorCode {
   switch (status) {
     case 400:
@@ -129,11 +159,16 @@ function extractMessage(body: unknown): string | undefined {
   return typeof found === "string" ? found : undefined;
 }
 
+/**
+ * Only adopt an upstream code when it is one of ours. The backend sends codes
+ * like "500", which would otherwise leak into our contract and break clients
+ * that switch on it.
+ */
 function extractCode(body: unknown): ApiErrorCode | undefined {
   if (!isRecord(body)) return undefined;
   const err = isRecord(body.error) ? body.error : undefined;
-  const code = err?.code;
-  return typeof code === "string" ? (code as ApiErrorCode) : undefined;
+  const code = err?.code ?? body.code;
+  return isApiErrorCode(code) ? code : undefined;
 }
 
 function extractDetails(body: unknown): unknown {
