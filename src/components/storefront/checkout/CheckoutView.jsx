@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function CheckoutPage() {
+export default function CheckoutView() {
   const router = useRouter();
 
   const dispatch = useDispatch();

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function MyAccountPage() {
+export default function LoginRegisterView() {
   const { isLoggedIn, isLoading: sessionLoading } = useSession();
   const { status } = useSelector((state) => state.createUser);
   const { status: loginStatus } = useSelector((state) => state.loginUser);

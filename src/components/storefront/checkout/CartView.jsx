@@ -7,9 +7,9 @@ import { ROUTES } from "@/config/constants";
 import { decrementItem, incrementItem, removeItemFromCart } from "@/store/slices/cart.slice";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import "./style.css";
+import "@/app/(UserPage)/(checkout)/cart/style.css";
 
-export default function CartPage() {
+export default function CartView() {
   const [selectedShipping, selectShipping] = useSelectedShipping();
 
   const cartItems = useSelector((state) => state.cart.items);
