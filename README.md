@@ -108,6 +108,31 @@ message if a required variable is missing or malformed.
 
 ---
 
+## Deploying
+
+Set these in the hosting provider's environment (Vercel: Project → Settings →
+Environment Variables) **before the first deploy**:
+
+| Variable | Needed | If missing |
+| --- | --- | --- |
+| `BACKEND_API_URL` | **required** | the build fails with a message naming it |
+| `NEXT_PUBLIC_APP_URL` | strongly recommended | metadata and canonical URLs point at localhost |
+| `ALLOWED_ORIGINS` | if any other origin calls `/api` | cross-origin calls are rejected |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_UPLOAD_PRESET` | for admin uploads | uploads return 503 |
+| `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | for signed uploads | uploads fall back to the unsigned preset |
+| `JWT_SECRET` | optional | tokens are decoded and checked for expiry and role, not verified |
+| `REDIS_URL` | **optional** | see below |
+
+**Deploying without Redis is supported.** With `REDIS_URL` unset the app logs one
+warning at startup and runs with caching and rate limiting disabled: every read
+goes straight to the backend and no caller is throttled. Nothing errors, and the
+same is true if Redis is configured but unreachable. Add Redis later by setting
+`REDIS_URL`; no code change is needed.
+
+On serverless platforms, prefer a Redis with a connection-pooling or HTTP
+endpoint. `src/lib/redis.ts` is the only file that would change to swap the
+driver, because everything goes through `lib/cache.ts` and `lib/rate-limit.ts`.
+
 ## Running locally
 
 ```bash

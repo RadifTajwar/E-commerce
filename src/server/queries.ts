@@ -113,15 +113,20 @@ export async function getVideoBanners(): Promise<VideoBanner[]> {
 }
 
 /**
- * Run a query but never let it fail the page: on error it logs and returns the
- * fallback. Use it for supporting data (navigation taxonomy, banners), not for
- * the record a page is actually about.
+ * Run a query and tolerate a backend failure, returning the fallback so one
+ * optional list cannot take a whole page down. Use it for supporting data
+ * (navigation taxonomy, banners), not for the record a page is about.
+ *
+ * Only transport failures (`ApiError`) are absorbed. A misconfiguration or a
+ * programming error is re-thrown: those must fail the build or the request
+ * loudly rather than quietly render an empty storefront.
  */
 export async function safely<T>(label: string, fetcher: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await fetcher();
   } catch (err) {
-    logger.warn({ err: err instanceof Error ? err.message : err, query: label }, "server query failed");
+    if (!(err instanceof ApiError)) throw err;
+    logger.warn({ err: err.message, code: err.code, query: label }, "server query failed");
     return fallback;
   }
 }
