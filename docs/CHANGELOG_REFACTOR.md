@@ -101,6 +101,37 @@ preset, and the AES key that appeared in three files.
 
 ---
 
+## 8. Server / client split (follow-up pass)
+
+The root layout becoming a Server Component unblocked per-page conversion, which
+was then done for the public routes.
+
+- `src/server/queries.ts` gives Server Components direct, cached access to the
+  backend. It calls the backend in-process rather than looping through this app's
+  own `/api` routes, and uses the same Redis keys and namespaces as the proxy, so
+  the two share cache entries and a write through `/api` invalidates what a page
+  cached. `safely()` keeps optional data from taking a route down.
+- **`/products/[productName]`** is a Server Component. The product is rendered
+  into the HTML and `generateMetadata` supplies the title, description and
+  OpenGraph image. A missing product returns 404; a backend outage surfaces the
+  error boundary rather than an empty page.
+- **`/shop`** and **`/shop/productCategory/[...slug]`** are Server Components with
+  ISR (10 minutes). The category taxonomy is rendered server-side and passed to
+  `ShopBrowser`, so slug resolution is correct on first paint and the client no
+  longer refetches it. The category route resolves its slug into a real title.
+- **`/`** fetches hero banners and parent categories on the server, putting the
+  LCP hero image in the first paint.
+- **`/cart`, `/checkout`, `/my-account`** became small Server Component shells that
+  export metadata and render their interactive view; client components cannot
+  export metadata, so these routes previously had no title at all.
+- `(checkout)/layout.js` is a Server Component with the step indicator as its one
+  client island.
+
+Counts: 13 Server Components among pages and layouts, 16 client. The 16 are the
+admin dashboard (behind auth, no indexable content, entirely interactive) and the
+session-bound account and order screens. Metadata now exists on 8 route files;
+before this refactor the app had none anywhere.
+
 ## Behaviour changes
 
 These are the only user-visible differences.
@@ -111,7 +142,8 @@ These are the only user-visible differences.
 | **Registration now asks for a password.** | It previously generated a random one and never showed or emailed it, so the account was unusable afterwards. |
 | **Shipping is added to the order total.** | It was displayed but never submitted, so every order underbilled by 60 to 120. |
 | Blocking `alert()` dialogs became toasts with the same text. | Consistency with the rest of the app. |
-| Pages now have a browser tab title. | The app had no metadata at all. |
+| Pages now have a browser tab title, and product pages carry OpenGraph tags. | The app had no metadata at all. |
+| Product, shop, category and home content is rendered on the server. | These are the indexable routes; previously every page shipped empty HTML and fetched on the client. |
 | The "Main Banner" admin page was removed. | It was wired to the hero-banner endpoints and had no backend of its own; it edited hero banners under a second name. |
 | The admin "Customers" area was removed. | Entirely mock data; its sidebar link was already commented out. |
 | Order confirmation shows one currency. | The same order showed `৳100` on one screen and `₹60` on another. |
