@@ -1,6 +1,6 @@
 "use client";
-import { CircleXIcon } from "@/components/admin/icons";
-import { CloseIcon } from "@/components/ui/icons";
+import DrawerForm from "@/components/admin/DrawerForm";
+import { Label } from "@/components/admin/ui";
 import { isObjectId } from "@/config/constants";
 import { useObjectUrl } from "@/hooks/useObjectUrl";
 import { notify } from "@/lib/toast";
@@ -30,11 +30,6 @@ export default function UpdateVideoBanner({ id, toggleVisibility, resetId, doneU
       setVideo(videoBannerData.url || null);
     }
   }, [videoBannerData]);
-
-  const handleVideoInput = (e) => {
-    const file = e.target.files[0];
-    if (file) setVideo(file);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,118 +63,47 @@ export default function UpdateVideoBanner({ id, toggleVisibility, resetId, doneU
   };
 
   return (
-    <div className="updateCategory drawer-content">
-      <button
-        className="absolute focus:outline-none z-10 text-red-500 hover:bg-red-100 hover:text-gray-700 transition-colors duration-150 bg-white shadow-md mr-6 mt-6 right-0 left-auto w-10 h-10 rounded-full block text-center"
-        type="button"
-        aria-label="Close"
-        onClick={cancelButtonPressed}
-      >
-        <CloseIcon className="mx-auto h-[1em] w-[1em]" />
-      </button>
+    <DrawerForm
+      title="Edit video banner"
+      description="The video that plays in the storefront's feature section."
+      onClose={cancelButtonPressed}
+      onSubmit={handleSubmit}
+      submitLabel="Save changes"
+      busyLabel="Saving…"
+      isBusy={updateVideoLoading || videoUploading}
+    >
+      <div>
+        <Label htmlFor="video-banner">Banner video</Label>
+        <label
+          htmlFor="video-banner"
+          className="flex cursor-pointer flex-col items-center rounded-lg border-2 border-dashed border-slate-300 px-6 py-8 text-center transition-colors hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800/50"
+        >
+          <input
+            id="video-banner"
+            type="file"
+            accept="video/*"
+            className="sr-only"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setVideo(file);
+              e.target.value = "";
+            }}
+          />
+          <svg viewBox="0 0 24 24" fill="none" width="24" height="24" className="mb-2 text-slate-400" aria-hidden="true">
+            <polygon points="5 3 19 12 5 21 5 3" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+          </svg>
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Click to upload a video</p>
+          <p className="mt-0.5 text-xs text-slate-400">MP4, WebM or OGG</p>
+        </label>
 
-      <div className="flex flex-col w-full h-screen justify-between">
-        <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 min-h-0">
-          <div className="flex md:flex-row flex-col justify-between mr-20">
-            <div>
-              <h4 className="text-xl font-medium dark:text-gray-300">Update Video</h4>
-              <p className="mb-0 text-sm font-normal dark:text-gray-300">
-                Update your Video necessary information from here
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="w-full relative dark:bg-gray-700 dark:text-gray-200 overflow-hidden h-full bg-white">
-          <form className="w-full" onSubmit={handleSubmit}>
-            <div className="middle_section px-6 pt-8 flex-grow overflow-y-scroll w-full max-h-screen lg:pb-48 md:pb-80 pb-96 ">
-              {/* Video Upload */}
-              <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                <label
-                  htmlFor="video-banner"
-                  className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium"
-                >
-                  Banner Video
-                </label>
-                <div className="col-span-8 sm:col-span-4">
-                  <div className="w-full text-center mb-4">
-                    <label
-                      htmlFor="video-banner"
-                      className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
-                    >
-                      <input
-                        id="video-banner"
-                        type="file"
-                        accept="video/*"
-                        onChange={handleVideoInput}
-                        style={{ display: "none" }}
-                      />
-                      <svg
-                        stroke="currentColor"
-                        fill="none"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-3xl text-blue-500 mb-2"
-                        height="1em"
-                        width="1em"
-                        aria-hidden="true"
-                      >
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                      </svg>
-                      <p className="text-sm">Drag your videos here</p>
-                      <em className="text-xs text-gray-400">
-                        (Only *.mp4, *.webm, and *.ogg video files will be accepted)
-                      </em>
-                    </label>
-                  </div>
-
-                  {previewVideo && (
-                    <aside className="flex flex-row flex-wrap mt-4">
-                      <div draggable className="relative inline-flex items-center">
-                        <video
-                          className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2"
-                          src={previewVideo}
-                          controls
-                        />
-                        <button
-                          type="button"
-                          aria-label="Remove video"
-                          className="absolute top-0 right-0 text-red-500 focus:outline-none"
-                          onClick={() => setVideo(null)}
-                        >
-                          <CircleXIcon />
-                        </button>
-                      </div>
-                    </aside>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bottom_section absolute z-10 bottom-0 w-full right-0 pt-4 pb-32 lg:pb-4 lg:py-8 px-6 grid gap-4 lg:gap-6 xl:gap-6 md:flex xl:flex bg-gray-50 border-t border-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <button
-                  className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150  focus:outline-none px-4 py-2 rounded-lg text-sm text-gray-600 border-gray-200 border dark:text-gray-400 focus:outline-none rounded-lg border border-gray-200 px-4 w-full mr-3 flex items-center justify-center cursor-pointer h-12 bg-gray-200 h-12  w-full text-red-500 hover:bg-red-50 hover:border-red-100 hover:text-red-600 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-red-700 font-normal"
-                  type="button"
-                  onClick={cancelButtonPressed}
-                >
-                  Cancel
-                </button>
-              </div>
-              <div className="flex-grow-0 md:flex-grow lg:flex-grow xl:flex-grow">
-                <button
-                  className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-normal focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12"
-                  type="submit"
-                  disabled={updateVideoLoading || videoUploading}
-                >
-                  <span>{updateVideoLoading || videoUploading ? "Updating..." : "Update Video"}</span>
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
+        {previewVideo && (
+          <video
+            src={previewVideo}
+            controls
+            className="mt-4 w-full max-w-sm rounded-lg border border-slate-200 dark:border-slate-700"
+          />
+        )}
       </div>
-    </div>
+    </DrawerForm>
   );
 }

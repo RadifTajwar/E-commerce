@@ -167,48 +167,53 @@ export default function ShopBrowser({
             <h1 className="text-4xl font-bold ">
               <span style={{ color: "#E8A811" }}>SHOP</span> NOW
             </h1>
+            {/* Reads as a set of category controls. These used to be bare
+                `<a href="#">` text that only looked clickable on hover, so it
+                was not obvious the strip was navigation at all. */}
             <div className="category_section large-screen ">
-              <ul className="hidden lg:flex items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 sm:justify-center">
+              <p className="hidden lg:block mt-3 text-[11px] uppercase tracking-[0.18em] text-gray-400">
+                Browse by category
+              </p>
+              <ul className="hidden lg:flex items-center justify-center gap-x-3 pt-3 pb-1">
                 {parentCategories?.map((parentCategory) => {
                   // Filter the categories for this parent category
                   const childCategories = categories?.filter(
                     (category) => category.parentCategoryId === parentCategory?.id,
                   );
+                  const isActive = slugify(parentCategory?.name ?? "") === parentSlug;
                   return (
                     <li className="group relative" key={parentCategory?.id}>
-                      <a
-                        href="#"
-                        title=""
-                        className="py-3 flex items-center text-xs sm:text-sm md:text-base font-medium text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-primary-500"
-                        style={{ fontSize: ".9rem" }}
+                      <button
+                        type="button"
+                        className={`flex items-center gap-1.5 rounded-full border px-5 py-2 text-sm font-medium transition-colors ${
+                          isActive
+                            ? "border-gray-900 bg-gray-900 text-white"
+                            : "border-gray-300 text-gray-800 hover:border-gray-900 hover:bg-gray-900 hover:text-white"
+                        }`}
                         onClick={() => goToParentCategory(parentCategory?.name)}
                       >
                         {parentCategory?.name}
-                      </a>
-                      <span
-                        className="absolute bottom-2 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"
-                        style={{ backgroundColor: "rgba(0, 0, 0, 0.67)" }}
-                      ></span>
+                        {childCategories?.length > 0 && (
+                          <ChevronDownIcon className="h-3.5 w-3.5 opacity-60" />
+                        )}
+                      </button>
 
                       {/* Render dropdown only if childCategories exist */}
                       {childCategories?.length > 0 && (
-                        <div className="absolute flex top-full left-0 min-w-[250px] bg-white border border-slate-200 p-2 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-50">
+                        <div className="absolute left-0 top-full z-50 mt-2 flex min-w-[250px] rounded-lg border border-slate-200 bg-white p-2 text-left opacity-0 shadow-xl transition-opacity duration-200 invisible group-hover:visible group-hover:opacity-100">
                           <div className="items w-full">
                             <ul className="w-full p-2">
                               {childCategories?.map((category) => (
-                                <li
-                                  className="group/nested relative w-full mb-4"
-                                  key={category.id}
-                                  onClick={() => goToCategory(parentCategory?.name, category.name)}
-                                >
-                                  <a href="#" className="group/nested w-full" style={{ fontSize: ".9rem" }}>
-                                    <p className="text-gray-900 group-hover/nested:text-gray-600 text-start font-semibold text-md">
+                                <li className="group/nested relative w-full" key={category.id}>
+                                  <button
+                                    type="button"
+                                    className="w-full rounded-md px-3 py-2 text-left transition-colors hover:bg-gray-50"
+                                    onClick={() => goToCategory(parentCategory?.name, category.name)}
+                                  >
+                                    <span className="block text-sm font-semibold text-gray-900 group-hover/nested:text-gray-600">
                                       {category.name}
-                                    </p>
-                                    <p className="text-gray-400 text-start text-sm">
-                                      {parentCategories?.length} Products
-                                    </p>
-                                  </a>
+                                    </span>
+                                  </button>
                                 </li>
                               ))}
                             </ul>
@@ -253,8 +258,8 @@ export default function ShopBrowser({
                 <ul className="w-full lg:hidden items-center justify-start gap-x-6 sm:gap-x-5 lg:gap-x-7 xl:gap-x-16 2xl:gap-x-20 py-3 ">
                   {parentCategories?.map((parentCategory) => (
                     <li key={parentCategory?.id} className="group relative w-full py-3 cursor-pointer">
-                      <a
-                        href="#"
+                      <button
+                        type="button"
                         onClick={() => goToParentCategory(parentCategory?.name)}
                         className="py-3 text-gray-900 group-hover:text-gray-600 transition-all duration-300 text-start font-semibold text-kg"
                         style={{ fontSize: ".9rem" }}
@@ -265,7 +270,7 @@ export default function ShopBrowser({
                           className="absolute bottom-0 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"
                           style={{ backgroundColor: "rgba(0, 0, 0, 0.67)" }}
                         ></span>
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>

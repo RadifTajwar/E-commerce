@@ -1,4 +1,5 @@
 import { API } from "@/config/constants";
+import { assertImageSize, type ImageSpec } from "@/lib/image-size";
 import type { ApiEnvelope } from "@/types/api";
 import { http, unwrap } from "./_shared";
 
@@ -17,9 +18,19 @@ async function upload(file: File | Blob, folder: string | undefined, resourceTyp
 }
 
 export const uploadService = {
-  /** Upload an image and get back its URL. Existing URL strings are returned untouched. */
-  image: async (file: File | Blob | string, folder?: string): Promise<string> =>
-    typeof file === "string" ? file : (await upload(file, folder, "image")).url,
+  /**
+   * Upload an image and get back its URL. Existing URL strings are returned
+   * untouched, so re-saving a record does not re-upload what it already has.
+   *
+   * Pass `spec` to require exact pixel dimensions. The forms also check on
+   * selection so the message appears at the file picker; this is the backstop
+   * that keeps a wrongly sized asset out of Cloudinary even if a caller forgets.
+   */
+  image: async (file: File | Blob | string, folder?: string, spec?: ImageSpec): Promise<string> => {
+    if (typeof file === "string") return file;
+    if (spec) await assertImageSize(file, spec);
+    return (await upload(file, folder, "image")).url;
+  },
 
   video: async (file: File | Blob | string, folder?: string): Promise<string> =>
     typeof file === "string" ? file : (await upload(file, folder, "video")).url,

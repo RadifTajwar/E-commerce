@@ -1,4 +1,5 @@
 "use client";
+import { useLogout } from "@/hooks/useLogout";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { User } from "lucide-react";
@@ -15,7 +16,7 @@ import { fetchAllParentCategories } from "@/store/slices/parent-category.slice";
 
 export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInForm }) {
   const router = useRouter();
-  const { isLoggedIn, logout } = useSession();
+  const { isLoggedIn } = useSession();
   const dispatch = useDispatch();
 
   const { parentCategories } = useSelector((state) => state.allParentCategories);
@@ -64,11 +65,11 @@ export default function SideBar({ toggleSideBar, isVisibleSideBar, toggleLogInFo
     router.push(menu);
   };
 
+  const signOut = useLogout(ROUTES.home);
   const handleLogOut = () => {
-    logout().catch(() => undefined);
     handleToggleSideBar();
     setToggleAccountExpanded(false);
-    router.push(ROUTES.home);
+    void signOut();
   };
 
   return (

@@ -13,6 +13,20 @@ import type { Product, ProductColorSummary } from "@/types/product";
  * different wrapper class; it used to be a second, hardcoded copy on mobile.
  */
 
+/**
+ * Stock for one colour. The admin form writes a single quantity input into both
+ * `color[].availableQuantity` and `additionalDetails[].quantity`, so a
+ * disagreement means one of them is stale data from the older admin UI — take
+ * the higher value rather than blocking a sale on a rotten field.
+ * ponytail: the real fix is a one-off data cleanup so the two agree.
+ */
+export function resolveStock(product: Product | null, color: ProductColorSummary): number | undefined {
+  const fromColor = color.availableQuantity;
+  const fromDetails = product?.additionalDetails?.find((d) => d.color === color.colorName)?.quantity;
+  const known = [fromColor, fromDetails].map(Number).filter((n) => Number.isFinite(n));
+  return known.length ? Math.max(...known) : undefined;
+}
+
 interface ProductInfoPanelProps {
   product: Product | null;
   isLoading: boolean;
@@ -41,10 +55,7 @@ export default function ProductInfoPanel({ product, isLoading, className }: Prod
   };
 
   const handleColorClick = (color: ProductColorSummary) => {
-    const stock =
-      color.availableQuantity === undefined || color.availableQuantity === null
-        ? undefined
-        : Number(color.availableQuantity);
+    const stock = resolveStock(product, color);
     setAvailableQuantity(stock);
     if (stock === 0) {
       setOutOfStock(true);

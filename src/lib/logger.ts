@@ -15,12 +15,14 @@ function createLogger() {
   if (!isServer) {
     return pino({ level, browser: { asObject: false } });
   }
-  const pretty = process.env.NODE_ENV === "development" && process.env.NEXT_RUNTIME !== "edge";
+  // No pino transport: Next's bundler rewrites thread-stream's worker path into
+  // .next/server/vendor-chunks/lib/worker.js, which does not exist, and the dead
+  // worker takes the dev server down with an uncaughtException. For pretty logs,
+  // pipe the process through pino-pretty instead: `npm run dev | npx pino-pretty`.
   return pino({
     level,
     base: { app: "khalamma" },
     redact: ["req.headers.authorization", "req.headers.cookie", "*.password", "*.accessToken"],
-    ...(pretty ? { transport: { target: "pino-pretty", options: { colorize: true } } } : {}),
   });
 }
 

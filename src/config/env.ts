@@ -27,7 +27,11 @@ const serverSchema = z.object({
   BACKEND_API_TIMEOUT_MS: intWithDefault(10_000),
   BACKEND_API_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
 
-  JWT_SECRET: z.string().min(16).optional(),
+  // Must equal the backend's JWT_ACCESS_SECRET, or tokens are only decoded and
+  // never verified — which lets anyone forge a `role: admin` session.
+  // ponytail: min(8) accommodates the backend's current 11-char secret; rotate
+  // both sides to a 32+ byte random value and raise this.
+  JWT_SECRET: z.string().min(8).optional(),
   AUTH_COOKIE_NAME: z.string().min(1).default("access_token"),
 
   REDIS_URL: z.string().optional(),

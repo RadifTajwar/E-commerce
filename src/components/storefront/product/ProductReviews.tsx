@@ -5,6 +5,7 @@ import MuiRating from "@mui/material/Rating";
 import Image from "next/image";
 import { useState, type FormEvent, type SyntheticEvent } from "react";
 import { notify } from "@/lib/toast";
+import { isPending } from "@/store/create-request-slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getRatingById, sendRating } from "@/store/slices/rating.slice";
 import type { Rating } from "@/types/product";
@@ -44,7 +45,9 @@ export default function ProductReviews({ productId }: { productId: string }) {
   const [ratingRes, setRatingRes] = useState<Rating[]>([]);
   const [formData, setFormData] = useState(emptyForm);
 
-  const { isLoading } = useAppSelector((state) => state.getRatingByProductId);
+  const ratingState = useAppSelector((state) => state.getRatingByProductId);
+  const { isLoading } = ratingState;
+  const busy = isPending(ratingState);
 
   const loadRatings = async () => {
     const ratings = await dispatch(getRatingById(productId)).unwrap();
@@ -200,7 +203,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
             </div>
           </div>
         )}
-        {!isLoading && ratingRes.length === 0 ? (
+        {!busy && ratingRes.length === 0 ? (
           <p className="text-sm text-gray-600 font-normal space-y-2">No reviews yet</p>
         ) : (
           <>

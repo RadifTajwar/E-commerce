@@ -7,6 +7,8 @@ import { logger } from "@/lib/logger";
 import type { ApiEnvelope, PaginationMeta } from "@/types/api";
 import type { HeroBanner, VideoBanner } from "@/types/banner";
 import type { Category, ParentCategory } from "@/types/category";
+import type { Order } from "@/types/order";
+import type { User } from "@/types/user";
 import type { Product, ProductColor, ProductListQuery } from "@/types/product";
 import { backendRoutes, getBackend } from "./backend";
 
@@ -89,6 +91,28 @@ export async function getProductColors(): Promise<ProductColor[]> {
     ttl().CACHE_TTL_CATALOG,
     () => getBackend().get(backendRoutes.products.colors),
   );
+  return res?.data ?? [];
+}
+
+/** The saved profile for a signed-in customer, or null if it cannot be read. */
+export async function getProfileByEmail(
+  email: string,
+  token?: string,
+): Promise<(User & { phone?: string; shippingAddress?: string; location?: string }) | null> {
+  const res = await getBackend().get<ApiEnvelope<User>>(backendRoutes.users.byEmail(email), {
+    headers: token ? { authorization: `Bearer ${token}` } : {},
+  });
+  return (res?.data as never) ?? null;
+}
+
+/**
+ * A customer's own orders. Not cached: it is per-user and changes the moment
+ * they check out. `token` is the caller's session cookie, forwarded upstream.
+ */
+export async function getOrdersByUser(email: string, token?: string): Promise<Order[]> {
+  const res = await getBackend().get<ApiEnvelope<Order[]>>(backendRoutes.orders.byUser(email), {
+    headers: token ? { authorization: `Bearer ${token}` } : {},
+  });
   return res?.data ?? [];
 }
 

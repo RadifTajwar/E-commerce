@@ -130,12 +130,10 @@ export default function LoginForm({ toggleLogInForm }) {
                       </label>
                     </div>
                   </div>
-                  <a
-                    href="#"
-                    className="text-sm font-regular text-gray-600 hover:underline dark:text-primary-500"
-                  >
+                  <Link href={ROUTES.forgotPassword}
+                    className="text-sm font-regular text-gray-600 hover:underline dark:text-primary-500">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <button
                   type="submit"

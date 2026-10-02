@@ -11,6 +11,8 @@ export interface OrderItem {
 }
 
 export interface Order {
+  /** Short human-facing number, e.g. 1042. Absent on very old records. */
+  orderNumber?: number;
   _id: string;
   id?: string;
   orderItems: OrderItem[];
@@ -39,8 +41,8 @@ export interface OrderInput {
   zip: string;
   country: string;
   phone: string;
-  status: OrderStatus | string;
-  totalPrice: number;
+  /** Chosen shipping rate. The server prices the order and sets the status. */
+  shippingCost: number;
   additionalDetails?: string;
 }
 

@@ -46,7 +46,11 @@ export default function ProductSection({ initialParentCategories }) {
           {error && <p>Error: {error}</p>}
           {!isLoading && (
             <>
-              <div className="image grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 lg:gap-x-8 xl:gap-x-12 xl:gap-y-12 mx-auto max-w-screen-xl px-4">
+              {/* Flex-wrap, not a fixed 4-column grid: with fewer categories
+                  than columns the grid left-aligned them and left a gap on the
+                  right. Each tile has a fixed width, so wrapping centres at
+                  any count. */}
+              <div className="image mx-auto flex max-w-screen-xl flex-wrap justify-center gap-x-4 gap-y-8 px-4 lg:gap-x-8 xl:gap-x-12 xl:gap-y-12">
                 {parentCategories.map((category) => (
                   <div
                     key={category.id}

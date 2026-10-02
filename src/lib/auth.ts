@@ -30,8 +30,10 @@ export function claimsToSession(claims: JwtClaims | null): Session | null {
   if (!claims || typeof claims.email !== "string" || !claims.email) return null;
   if (isExpired(claims)) return null;
   return {
+    ...(typeof claims.id === "string" ? { id: claims.id } : {}),
     email: claims.email,
     role: typeof claims.role === "string" ? claims.role : "user",
+    ...(typeof claims.isVerified === "boolean" ? { isVerified: claims.isVerified } : {}),
     ...(typeof claims.exp === "number" ? { expiresAt: claims.exp * 1000 } : {}),
   };
 }

@@ -1,80 +1,82 @@
-'use client'
-export default function settings() {
-  const updateButtonClicked =(e)=>{
-        e.preventDefault();
-  }
+"use client";
+import { Button, Card, CardBody, Field, Input, PageHeader, Select } from "@/components/admin/ui";
+import { notify } from "@/lib/toast";
+
+/**
+ * Store settings.
+ *
+ * These are not persisted anywhere yet — there is no settings endpoint on the
+ * backend. The form is honest about that rather than pretending to save.
+ */
+const FIELDS = [
+  { name: "company_name", label: "Company name", type: "text", placeholder: "Leather For Luxury" },
+  { name: "email", label: "Email", type: "email", placeholder: "store@example.com" },
+  { name: "contact", label: "Contact number", type: "text", placeholder: "01700000000" },
+  { name: "website", label: "Website", type: "text", placeholder: "https://…" },
+  { name: "address", label: "Address", type: "text", placeholder: "Street, city" },
+  { name: "post_code", label: "Post code", type: "text", placeholder: "1207" },
+];
+
+export default function SettingsPage() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    notify.info("Settings are not saved yet — there is no settings endpoint on the backend.");
+  };
+
   return (
-    <div className="max-w-4xl lg:max-w-7xl grid px-6 mx-auto">
-      <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Settings</h1>
-      <div className="container p-6 mx-auto bg-white  dark:bg-gray-800 dark:text-gray-200 rounded-lg">
-        <form >
-          <div className="grid grid-cols-12 font-sans">
-            <div className="col-span-12 md:col-span-12 lg:col-span-12 mr-3 ">
+    <>
+      <PageHeader title="Settings" description="Store details used on invoices and receipts." />
 
-              <div className="lg:px-6 pt-4 lg:pl-40 lg:pr-40 md:pl-5 md:pr-5 flex-grow scrollbar-hide w-full max-h-full pb-0">
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">Number of images per product</label>
-                  <div className="sm:col-span-3">
-                    <input className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500" type="number" name="number_of_image_per_product" placeholder="Number of images per product" autoComplete="off" defaultValue="4" />
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-5 sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 relative">
-                  <label className="block text-sm text-gray-600 font-semibold dark:text-gray-400 mb-1 sm:col-span-2">Receipt size (width)</label>
-                  <div className="sm:col-span-3">
-                    <select className="block w-full px-2 py-1 text-sm dark:text-gray-300 focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:shadow-none focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 leading-5 border text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white focus:border-blue-500 border-transparent focus:bg-white h-12" name="receipt_size">
-                      <option value="57-mm">57 mm</option><option value="80-mm">80 mm</option>
-                      <option value="3-1/8">3 1/8&quot;</option>
-                      <option value="2-1/4">2 1/4&quot;</option>
-                      <option value="A4">A4</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">Company Name</label>
-                  <div className="sm:col-span-3">
-                    <input className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500" type="text" name="company_name" placeholder="Company Name" autoComplete="off" defaultValue="" />
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">Address</label>
-                  <div className="sm:col-span-3">
-                    <input className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500" type="text" name="address" placeholder="Address" autoComplete="off" defaultValue="" />
-                  </div>
-                </div>
+      <Card className="min-h-0 max-w-3xl flex-1 overflow-auto">
+        <CardBody>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              {FIELDS.map((field) => (
+                <Field key={field.name} label={field.label} htmlFor={field.name}>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type={field.type}
+                    placeholder={field.placeholder}
+                    autoComplete="off"
+                  />
+                </Field>
+              ))}
 
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">Post Code</label>
-                  <div className="sm:col-span-3">
-                    <input className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500" type="text" name="post_code" placeholder="Post Code" autoComplete="off" defaultValue="" />
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">Contact</label>
-                  <div className="sm:col-span-3">
-                    <input className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500" type="text" name="contact" placeholder="Contact" autoComplete="off" defaultValue="" />
-                  </div>
-                </div>
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">Email</label>
-                  <div className="sm:col-span-3">
-                    <input className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500" type="email" name="email" placeholder="Email" autoComplete="off" defaultValue="" />
-                  </div>
-                </div>
+              <Field
+                label="Images per product"
+                htmlFor="number_of_image_per_product"
+                hint="How many images the product form accepts."
+              >
+                <Input
+                  id="number_of_image_per_product"
+                  name="number_of_image_per_product"
+                  type="number"
+                  min="1"
+                  defaultValue="4"
+                />
+              </Field>
 
-                <div className="grid md:grid-cols-5 items-center sm:grid-cols-12 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-                  <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1 sm:col-span-2">Website</label>
-                  <div className="sm:col-span-3">
-                    <input className="block w-full px-3 py-1 text-sm focus:outline-none dark:text-gray-300 leading-5 rounded-md focus:border-gray-200 border-gray-200 dark:border-gray-600 focus:ring focus:ring-green-300 dark:focus:border-gray-500 dark:focus:ring-gray-300 dark:bg-gray-700 border h-12 text-sm focus:outline-none block w-full bg-gray-100 dark:bg-white border-transparent focus:border-blue-500" type="text" name="website" placeholder="Website" autoComplete="off" defaultValue="" />
-                  </div>
-                </div>
-                <div className="flex flex-row-reverse pb-6">
-                  <button className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 h-12 px-8" type="submit" onClick={updateButtonClicked}> Update</button>
-                  </div>
-              </div>
+              <Field label="Receipt width" htmlFor="receipt_size">
+                <Select id="receipt_size" name="receipt_size" defaultValue="A4">
+                  <option value="57-mm">57 mm</option>
+                  <option value="80-mm">80 mm</option>
+                  <option value="3-1/8">3 1/8&quot;</option>
+                  <option value="2-1/4">2 1/4&quot;</option>
+                  <option value="A4">A4</option>
+                </Select>
+              </Field>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
+
+            <div className="flex items-center justify-between gap-4 border-t border-slate-200 pt-5 dark:border-slate-800">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Not connected to the backend yet.
+              </p>
+              <Button type="submit">Save settings</Button>
+            </div>
+          </form>
+        </CardBody>
+      </Card>
+    </>
+  );
 }

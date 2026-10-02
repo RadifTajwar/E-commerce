@@ -100,5 +100,96 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Column layout so a short or still-loading page cannot pull the footer up
+       the screen and then shove it back down when the data lands. */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
+}
+/* ---------------------------------------------------------------------------
+   Printing an invoice.
+
+   window.print() prints the whole document, so without this the admin sidebar,
+   top bar and action buttons land on the sheet and the fixed-width invoice
+   overflows and clips. Everything is hidden by visibility (which keeps the
+   layout intact, unlike display:none on ancestors), then the invoice alone is
+   shown, pulled to the origin and allowed to fill the page.
+--------------------------------------------------------------------------- */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  .print-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* The document is a fixed 794px on screen so the PDF is deterministic; on
+     paper the sheet already defines the width. */
+  .print-doc {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Chart palette.
+
+   Categorical slots 1-4 in the documented order, validated with the data-viz
+   validator against this app's own surfaces (white card / slate-900 card):
+   every check passes in both modes. The light-mode contrast warning on aqua
+   and yellow is answered by direct labels and a legend on every chart that
+   uses them, so hue never carries meaning alone.
+
+   Dark is a selected set of steps for the dark surface, not a flip of light.
+--------------------------------------------------------------------------- */
+.viz {
+  --viz-text: #0f172a;
+  --viz-muted: #64748b;
+  --viz-grid: #e8e6e1;
+  --viz-tooltip-bg: #ffffff;
+  --viz-tooltip-border: #e2e8f0;
+  --viz-1: #2a78d6; /* blue   */
+  --viz-2: #eb6834; /* orange */
+  --viz-3: #1baf7a; /* aqua   */
+  --viz-4: #eda100; /* yellow */
+}
+
+:root.dark .viz {
+  --viz-text: #ffffff;
+  --viz-muted: #94a3b8;
+  --viz-grid: #1e293b;
+  --viz-tooltip-bg: #0f172a;
+  --viz-tooltip-border: #334155;
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-4: #c98500;
 }

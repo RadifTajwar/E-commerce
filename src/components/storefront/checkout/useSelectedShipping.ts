@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DEFAULT_SHIPPING_COST, STORAGE_KEYS } from "@/config/constants";
+import { DEFAULT_SHIPPING_COST, SHIPPING_OPTIONS, STORAGE_KEYS } from "@/config/constants";
 import { readStorage, writeStorage } from "@/lib/storage";
 
 /**
@@ -12,8 +12,10 @@ export function useSelectedShipping(): [number, (cost: number) => void] {
   const [selectedShipping, setSelectedShipping] = useState<number>(DEFAULT_SHIPPING_COST);
 
   useEffect(() => {
+    // Only restore a rate the store still offers: the server rejects anything
+    // else, and a stale value would fail checkout with a confusing error.
     const saved = Number(readStorage<number | null>(STORAGE_KEYS.selectedShipping, null));
-    if (Number.isFinite(saved) && saved > 0) setSelectedShipping(saved);
+    if (SHIPPING_OPTIONS.some((o) => o.cost === saved)) setSelectedShipping(saved);
   }, []);
 
   const selectShipping = (cost: number) => {

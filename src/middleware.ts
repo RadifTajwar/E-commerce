@@ -58,18 +58,36 @@ export async function middleware(req: NextRequest) {
   // ---- Protected pages ------------------------------------------------------
   const isAdminArea = pathname.startsWith("/admin/");
   const isAccountArea = pathname === "/myAccount" || pathname.startsWith("/myAccount/");
+  // The two sign-in screens. Sending an already-signed-in visitor onwards from
+  // here rather than in a client effect is what stops the login form appearing
+  // for a frame before it redirects.
+  const isLoginScreen = pathname === ROUTES.login;
+  const isAdminLoginScreen = pathname === ROUTES.admin.login;
 
-  if (isAdminArea || isAccountArea) {
+  if (isAdminArea || isAccountArea || isLoginScreen || isAdminLoginScreen) {
     const token = req.cookies.get(env.AUTH_COOKIE_NAME)?.value;
     const session = await sessionFromToken(token, env.JWT_SECRET);
-    const ok = session && (!isAdminArea || session.role === "admin");
-    if (!ok) {
-      const url = req.nextUrl.clone();
-      url.pathname = isAdminArea ? ROUTES.admin.login : ROUTES.login;
-      url.search = "";
-      const res = NextResponse.redirect(url);
-      res.headers.set("x-request-id", requestId);
-      return res;
+
+    if (isLoginScreen || isAdminLoginScreen) {
+      const alreadyIn = session && (!isAdminLoginScreen || session.role === "admin");
+      if (alreadyIn) {
+        const url = req.nextUrl.clone();
+        url.pathname = isAdminLoginScreen ? ROUTES.admin.dashboard : ROUTES.account;
+        url.search = "";
+        const res = NextResponse.redirect(url);
+        res.headers.set("x-request-id", requestId);
+        return res;
+      }
+    } else {
+      const ok = session && (!isAdminArea || session.role === "admin");
+      if (!ok) {
+        const url = req.nextUrl.clone();
+        url.pathname = isAdminArea ? ROUTES.admin.login : ROUTES.login;
+        url.search = "";
+        const res = NextResponse.redirect(url);
+        res.headers.set("x-request-id", requestId);
+        return res;
+      }
     }
   }
 
@@ -81,7 +99,9 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/api/:path*",
+    "/admin",
     "/admin/:path*",
+    "/my-account",
     "/myAccount",
     "/myAccount/:path*",
   ],

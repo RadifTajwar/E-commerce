@@ -27,8 +27,10 @@ export interface LoginResult {
 
 /** Claims found in the backend JWT. */
 export interface JwtClaims {
+  id?: string;
   email?: string;
   role?: UserRole;
+  isVerified?: boolean;
   exp?: number;
   iat?: number;
   [key: string]: unknown;
@@ -36,7 +38,11 @@ export interface JwtClaims {
 
 /** What the browser is told about the current session. Never includes the token. */
 export interface Session {
+  /** Mongo id of the user. Absent on tokens issued before this was added. */
+  id?: string;
   email: string;
   role: UserRole;
+  /** Absent on tokens issued before email verification existed. */
+  isVerified?: boolean;
   expiresAt?: number;
 }

@@ -1,46 +1,81 @@
 "use client";
 
-import type { ChangeEvent } from "react";
-import { CloseIcon, UploadCloudIcon } from "@/components/ui/icons";
+import { useState, type ChangeEvent } from "react";
+import SharedImageField from "@/components/admin/ImageField";
+import { UploadCloudIcon } from "@/components/ui/icons";
 import { useObjectUrl } from "@/hooks/useObjectUrl";
-
-const ROW = "grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6";
-const ROW_LABEL = "block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium";
+import { checkImageSize, type ImageSpec } from "@/lib/image-size";
 
 export interface ImageDropzoneProps {
   id: string;
   /** Only the colour gallery accepts several files at once. */
   multiple?: boolean;
   onFiles: (files: File[]) => void;
+  /** Required pixel dimensions, checked before the files reach the caller. */
+  spec?: ImageSpec;
 }
 
-/** The dashed "drag your images here" box. */
-export function ImageDropzone({ id, multiple = false, onFiles }: ImageDropzoneProps) {
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+/**
+ * The dashed drop target used by the colour gallery and the leather panel.
+ *
+ * When a `spec` is given, a wrongly sized file is refused here and never
+ * reaches the form state — so it cannot be uploaded to Cloudinary by a later
+ * submit.
+ */
+export function ImageDropzone({ id, multiple = false, onFiles, spec }: ImageDropzoneProps) {
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
-    if (files.length > 0) onFiles(files);
-    // Let the same file be picked again after it was removed.
+    // Let the same file be picked again after it was removed or rejected.
     event.target.value = "";
+    setProblem(null);
+    if (!files.length) return;
+
+    if (spec) {
+      for (const file of files) {
+        const failure = await checkImageSize(file, spec);
+        if (failure) {
+          setProblem(failure);
+          return;
+        }
+      }
+    }
+    onFiles(files);
   };
 
   return (
-    <div className="w-full text-center mb-4">
+    <div className="w-full">
       <label
         htmlFor={id}
-        className="flex flex-col items-center border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md cursor-pointer px-6 py-4"
+        className={`flex cursor-pointer flex-col items-center rounded-lg border-2 border-dashed px-6 py-6 text-center transition-colors ${
+          problem
+            ? "border-red-400 bg-red-50/50 dark:border-red-500/60 dark:bg-red-950/20"
+            : "border-slate-300 hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800/50"
+        }`}
       >
         <input
           id={id}
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp"
           multiple={multiple}
-          onChange={handleChange}
-          style={{ display: "none" }}
+          className="sr-only"
+          onChange={(e) => void handleChange(e)}
         />
-        <UploadCloudIcon className="text-blue-500 mb-2 h-8 w-8" />
-        <p className="text-sm">Drag your images here</p>
-        <em className="text-xs text-gray-400">(Only *.jpeg, *.webp and *.png images will be accepted)</em>
+        <UploadCloudIcon className="mb-2 h-6 w-6 text-slate-400" />
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          Click to upload{multiple ? " one or more images" : ""}
+        </p>
+        <p className="mt-0.5 text-xs text-slate-400">
+          PNG, JPEG or WebP{spec ? ` · exactly ${spec.label}` : ""}
+        </p>
       </label>
+
+      {problem && (
+        <p role="alert" className="mt-2 text-xs text-red-600 dark:text-red-400">
+          {problem}
+        </p>
+      )}
     </div>
   );
 }
@@ -61,12 +96,23 @@ export function ImagePreview({ source, alt, onRemove }: ImagePreviewProps) {
   if (!url) return null;
 
   return (
-    <div draggable className="relative inline-flex items-center">
+    <div className="relative inline-block">
       {/* eslint-disable-next-line @next/next/no-img-element -- blob/remote previews, no layout known ahead of time */}
-      <img className="border rounded-md border-gray-100 dark:border-gray-600 w-24 max-h-24 p-2 m-2" src={url} alt={alt} />
+      <img
+        src={url}
+        alt={alt}
+        className="h-20 w-20 rounded-lg border border-slate-200 object-cover dark:border-slate-700"
+      />
       {onRemove ? (
-        <button type="button" className="absolute top-0 right-0 text-red-500 focus:outline-none" onClick={onRemove}>
-          <CloseIcon className="h-4 w-4" />
+        <button
+          type="button"
+          aria-label={`Remove ${alt}`}
+          className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow transition-colors hover:text-red-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-red-400"
+          onClick={onRemove}
+        >
+          <svg viewBox="0 0 24 24" fill="none" width="12" height="12" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          </svg>
         </button>
       ) : null}
     </div>
@@ -78,23 +124,25 @@ export interface ImageFieldProps {
   label: string;
   value: File | string | null;
   onChange: (file: File | null) => void;
+  spec?: ImageSpec;
 }
 
-/** A full labelled form row holding a single-image dropzone and its preview. */
-export function ImageField({ id, label, value, onChange }: ImageFieldProps) {
+/**
+ * Single-image field for the product form. Delegates to the shared admin
+ * field so there is one upload control in the whole dashboard; this wrapper
+ * only adapts `File | string` state into the preview URL it expects.
+ */
+export function ImageField({ id, label, value, onChange, spec }: ImageFieldProps) {
+  const preview = useObjectUrl(value);
+
   return (
-    <div className={ROW}>
-      <label htmlFor={id} className={ROW_LABEL}>
-        {label}
-      </label>
-      <div className="col-span-8 sm:col-span-4">
-        <ImageDropzone id={id} onFiles={(files) => onChange(files[0] ?? null)} />
-        {value ? (
-          <aside className="flex flex-row flex-wrap mt-4">
-            <ImagePreview source={value} alt={label} onRemove={() => onChange(null)} />
-          </aside>
-        ) : null}
-      </div>
-    </div>
+    <SharedImageField
+      id={id}
+      label={label}
+      spec={spec}
+      preview={preview}
+      onSelect={(file) => onChange(file)}
+      onClear={() => onChange(null)}
+    />
   );
 }

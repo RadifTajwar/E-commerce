@@ -38,3 +38,6 @@ next-env.d.ts
 
 # redis data from docker-compose
 /.redis-data
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

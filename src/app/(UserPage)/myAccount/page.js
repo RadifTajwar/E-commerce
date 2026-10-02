@@ -1,19 +1,19 @@
 'use client'
+import { ROUTES } from "@/config/constants";
+import { useLogout } from "@/hooks/useLogout";
 import { useSession } from "@/hooks/useSession";
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 export default function Page() {
-  const router = useRouter();
-  const { session, logout } = useSession();
+  const { session } = useSession();
+  // Hooks must run before any early return.
+  const handleLogOut = useLogout(ROUTES.login);
   const userEmail = session?.email ?? "";
 
-  // Access is enforced in middleware.ts; wait for the session before rendering.
+  // Access is enforced in middleware.ts and the session arrives with the first
+  // render, so this is only reached if the cookie vanished mid-navigation.
   if (!session) {
     return null;
   }
-  const handleLogOut = () => {
-    logout().finally(() => router.push('/my-account'));
-}
   return (
     
       

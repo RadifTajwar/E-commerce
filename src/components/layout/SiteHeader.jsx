@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DrawerOverlay from "@/components/storefront/nav/DrawerOverlay";
@@ -14,6 +15,7 @@ import SideBar from "@/components/ui/components/sideBar";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { ROUTES } from "@/config/constants";
 import { useSession } from "@/hooks/useSession";
+import { selectCartCount } from "@/store/slices/cart.slice";
 
 /**
  * Storefront header: navigation bar plus the login, sidebar and cart drawers.
@@ -29,6 +31,20 @@ export default function SiteHeader() {
   const [isVisibleSideBar, setIsVisibleSideBar] = useState(false);
   const [isVisibleShoppingCart, setIsVisibleShoppingCart] = useState(false);
 
+  // Open the cart on every add, so each "add to cart" is visibly acknowledged
+  // instead of only ticking a small counter. Only growth opens it: removing or
+  // decrementing a line must not pop the drawer back up.
+  const cartCount = useSelector(selectCartCount);
+  const previousCount = useRef(null);
+  useEffect(() => {
+    const previous = previousCount.current;
+    previousCount.current = cartCount;
+    // The very first value is the restore from localStorage after mount, which
+    // would otherwise pop the drawer open on every page load.
+    if (previous === null) return;
+    if (cartCount > previous) setIsVisibleShoppingCart(true);
+  }, [cartCount]);
+
   const toggleLogInForm = () => setIsVisibleLogInForm((visible) => !visible);
   const toggleSideBar = () => setIsVisibleSideBar((visible) => !visible);
   const toggleShoppingCart = () => setIsVisibleShoppingCart((visible) => !visible);
@@ -38,11 +54,14 @@ export default function SiteHeader() {
   };
 
   const handleAccountClicked = () => {
-    if (isMyAccountPage) {
-      // Reload the page if on /my-account
-      window.location.reload();
-    } else if (isLoggedIn) {
-      router.push(ROUTES.login);
+    if (isLoggedIn) {
+      // ROUTES.login ("/my-account") is the sign-in screen; a signed-in
+      // customer belongs on the dashboard, which used to send them back to
+      // the login page instead.
+      router.push(ROUTES.account);
+    } else if (isMyAccountPage) {
+      // Already on the sign-in screen: just bring the drawer back up.
+      toggleLogInForm();
     } else {
       toggleLogInForm();
     }

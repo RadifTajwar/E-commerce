@@ -6,16 +6,20 @@ import BillingForm, {
 import EmptyCart from "@/components/storefront/checkout/EmptyCart";
 import OrderSummary from "@/components/storefront/checkout/OrderSummary";
 import { useSelectedShipping } from "@/components/storefront/checkout/useSelectedShipping";
-import { DEFAULT_COUNTRY, ORDER_STATUS, ROUTES } from "@/config/constants";
+import { DEFAULT_COUNTRY, ROUTES, shippingCostForDistrict } from "@/config/constants";
 import { notify } from "@/lib/toast";
 import { decrementItem, incrementItem, resetCart } from "@/store/slices/cart.slice";
 import { createOrder, resetOrder } from "@/store/slices/order.slice";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function CheckoutView() {
+/**
+ * @param {{ initialAddress?: import("@/server/account").SavedAddress | null }} props
+ *   Pre-fills the billing fields from the customer's saved address.
+ */
+export default function CheckoutView({ initialAddress }) {
   const router = useRouter();
 
   const dispatch = useDispatch();
@@ -24,15 +28,30 @@ export default function CheckoutView() {
   const { isLoading } = useSelector((state) => state.createOrderItem);
 
   const [selectedShipping, selectShipping] = useSelectedShipping();
+
+  // A returning customer's saved district decides the rate on first render too.
+  const initialDistrict = initialAddress?.district;
+  useEffect(() => {
+    if (initialDistrict) selectShipping(shippingCostForDistrict(initialDistrict));
+    // Only when the pre-filled address changes, not on every shipping tweak.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialDistrict]);
   const [showCoupon, setShowCoupon] = useState(false);
   const [coupon, setCoupon] = useState("");
 
-  const [formState, setFormState] = useState(emptyBillingValues);
+  const [formState, setFormState] = useState(() => ({
+    ...emptyBillingValues,
+    ...(initialAddress ?? {}),
+  }));
   const [errors, setErrors] = useState({});
 
   // Update one billing field and clear its error once it has a value.
   const handleFieldChange = (field, value) => {
     setFormState((prevState) => ({ ...prevState, [field]: value }));
+    // Delivery charge follows the district: choosing Chattogram switches to the
+    // inside rate, anything else to the outside rate. The customer can still
+    // override it, but the default is never silently wrong.
+    if (field === "district" && value) selectShipping(shippingCostForDistrict(value));
     setErrors((prevErrors) => {
       if (!value.trim()) return prevErrors;
       const { [field]: _removed, ...remainingErrors } = prevErrors;
@@ -67,8 +86,9 @@ export default function CheckoutView() {
       zip: formState.zip,
       country: DEFAULT_COUNTRY,
       phone: formState.phone,
-      status: ORDER_STATUS.pending,
-      totalPrice: cartTotal + selectedShipping,
+      // The server prices the order from the catalogue and sets the status;
+      // it only needs to know which shipping rate was chosen.
+      shippingCost: selectedShipping,
       additionalDetails: formState.additionalInfo,
     };
 

@@ -1,13 +1,12 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { ChevronDownIcon, ChevronRightIcon } from "@/components/ui/icons";
+import { useEffect, useState } from "react";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { ROUTES } from "@/config/constants";
-import { useAppDispatch } from "@/store/hooks";
-import { logoutUser } from "@/store/slices/auth.slice";
-import { CatalogIcon, DashIcon, DashboardIcon, LogOutIcon, LogoIcon, OrdersIcon } from "./icons";
-import { ADMIN_NAV, type NavChild, type NavEntry, type NavIconName } from "./nav-items";
+import { useLogout } from "@/hooks/useLogout";
+import { CatalogIcon, DashboardIcon, LogOutIcon, LogoIcon, OrdersIcon } from "./icons";
+import { ADMIN_NAV, type NavEntry, type NavIconName } from "./nav-items";
 
 export interface AdminSidebarProps {
   isOpen: boolean;
@@ -20,184 +19,160 @@ const ICONS: Record<NavIconName, typeof DashboardIcon> = {
   orders: OrdersIcon,
 };
 
-const GROUP_BUTTON =
-  "inline-flex items-center justify-between focus:outline-none w-full text-sm font-semibold transition-colors duration-150 hover:text-blue-600 dark:hover:text-gray-200";
-const CHILD_BUTTON =
-  "flex items-center w-full font-serif py-2 text-sm text-gray-600 hover:text-blue-600 cursor-pointer";
-
-function NavItem({ entry, isActive, onNavigate }: { entry: NavEntry & { kind: "link" }; isActive: boolean; onNavigate: (href: string) => void }) {
-  const Icon = ICONS[entry.icon];
+/** A group counts as open when one of its children is the current page. */
+function groupHoldsPath(entry: NavEntry, pathname: string): boolean {
   return (
-    <li className="relative">
-      <button
-        type="button"
-        aria-current={isActive ? "page" : undefined}
-        className={`cursor-pointer px-6 py-4 inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 dark:hover:text-gray-200 hover:text-blue-600 ${
-          isActive ? "bg-blue-500 text-white" : "text"
-        } dark:text-gray-100`}
-        onClick={() => onNavigate(entry.href)}
-      >
-        <Icon />
-        <span className="ml-4">{entry.label}</span>
-      </button>
-    </li>
+    entry.kind === "group" &&
+    entry.children.some((child) => child.href && pathname.startsWith(child.href))
   );
 }
 
-function NavGroup({
-  entry,
-  isExpanded,
-  onToggle,
-  onNavigate,
-}: {
-  entry: NavEntry & { kind: "group" };
-  isExpanded: boolean;
-  onToggle: () => void;
-  onNavigate: (href: string) => void;
-}) {
-  const Icon = ICONS[entry.icon];
-  const renderChild = (child: NavChild) => {
-    const content = (
-      <>
-        <span className="absolute inset-y-0 left-0 w-1 bg-blue-600 rounded-tr-lg rounded-br-lg" aria-hidden="true" />
-        <span className="text-xs text-gray-500 pr-1">
-          <DashIcon />
-        </span>
-        <span className="text-gray-500 hover:text-blue-600 dark:hover:text-gray-200">{child.label}</span>
-      </>
-    );
-
-    return (
-      <li key={child.label}>
-        {child.href ? (
-          <button type="button" className={CHILD_BUTTON} onClick={() => onNavigate(child.href as string)}>
-            {content}
-          </button>
-        ) : (
-          <div className={CHILD_BUTTON}>{content}</div>
-        )}
-      </li>
-    );
-  };
-
-  return (
-    <li className="relative px-6 py-3">
-      <button className={GROUP_BUTTON} aria-haspopup="true" aria-expanded={isExpanded} onClick={onToggle}>
-        <span className="inline-flex items-center">
-          <Icon />
-          <span className="ml-4 mt-1">{entry.label}</span>
-          <span className="pl-4 mt-1">
-            {isExpanded ? (
-              <ChevronDownIcon className="h-[1em] w-[1em]" />
-            ) : (
-              <ChevronRightIcon className="h-[1em] w-[1em]" />
-            )}
-          </span>
-        </span>
-      </button>
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        <ul className="p-2 text-sm font-medium text-gray-500 rounded-md dark:text-gray-400 dark:bg-gray-900" aria-label="submenu">
-          {entry.children.map(renderChild)}
-        </ul>
-      </div>
-    </li>
-  );
-}
-
-/** Admin navigation, driven by `nav-items.ts`. */
 export function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
-  const dispatch = useAppDispatch();
+  const pathname = usePathname();
   const router = useRouter();
-  const pathName = usePathname();
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  const navigate = (href: string) => {
+  // Groups start expanded when they contain the current page, so the sidebar
+  // always shows where you are without a click.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(
+      ADMIN_NAV.filter((e) => e.kind === "group").map((e) => [
+        e.label,
+        groupHoldsPath(e, pathname),
+      ]),
+    ),
+  );
+
+  useEffect(() => {
+    setExpanded((prev) => {
+      const next = { ...prev };
+      for (const entry of ADMIN_NAV) {
+        if (entry.kind === "group" && groupHoldsPath(entry, pathname)) next[entry.label] = true;
+      }
+      return next;
+    });
+  }, [pathname]);
+
+  const go = (href: string) => {
     router.push(href);
-    // Leave the panel up for a moment so the tap is visible on small screens.
-    setTimeout(() => setIsOpen(false), 500);
+    setIsOpen(false);
   };
 
-  const handleLogOut = () => {
-    dispatch(logoutUser())
-      .unwrap()
-      .finally(() => router.push(ROUTES.admin.login));
-  };
+  const handleLogOut = useLogout(ROUTES.admin.login);
+
+  const isCurrent = (href: string) =>
+    href === ROUTES.admin.dashboard ? pathname === href : pathname.startsWith(href);
 
   return (
-    <div
-      className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-md transform transition-transform duration-300 ease-in-out
-                ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static`}
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-slate-200 bg-white transition-transform duration-200 dark:border-slate-800 dark:bg-slate-900 lg:static lg:translate-x-0 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
     >
-      <div className="py-4 text-gray-500 dark:text-gray-400 h-full">
-        {/* Close Button for Smaller Screens */}
-        <button
-          type="button"
-          className="lg:hidden absolute top-4 right-4 text-gray-600 dark:text-gray-300"
-          aria-label="Close menu"
-          onClick={() => setIsOpen(false)}
-        >
-          ✕
-        </button>
+      <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
+        <LogoIcon className="h-5 w-5 text-slate-900 dark:text-white" />
+        <span className="text-[15px] font-semibold tracking-tight text-slate-900 dark:text-white">
+          Tithi Admin
+        </span>
+      </div>
 
-        <div className=" text-gray-900 dark:text-gray-200" onClick={() => navigate(ROUTES.admin.dashboard)}>
-          <div className="ml-5 flex font-bold">
-            <LogoIcon />
-            <h6 className="ml-2">Tithi Admin</h6>
-          </div>
-        </div>
-
-        <ul className="mt-6">
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <ul className="space-y-0.5">
           {ADMIN_NAV.map((entry) => {
-            if (entry.kind === "link") {
-              return (
-                <NavItem key={entry.label} entry={entry} isActive={pathName === entry.href} onNavigate={navigate} />
-              );
-            }
-
-            if (entry.kind === "group") {
-              return (
-                <NavGroup
-                  key={entry.label}
-                  entry={entry}
-                  isExpanded={Boolean(expanded[entry.label])}
-                  onToggle={() => setExpanded((prev) => ({ ...prev, [entry.label]: !prev[entry.label] }))}
-                  onNavigate={navigate}
-                />
-              );
-            }
-
             const Icon = ICONS[entry.icon];
-            return (
-              <li key={entry.label} className="relative px-6 py-3">
-                <button type="button" className={GROUP_BUTTON} aria-haspopup="true">
-                  <span className="inline-flex items-center">
-                    <Icon />
-                    <span className="ml-4 mt-1">{entry.label}</span>
+
+            if (entry.kind === "link") {
+              const active = isCurrent(entry.href);
+              return (
+                <li key={entry.label}>
+                  <button
+                    type="button"
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => go(entry.href)}
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                    }`}
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                    {entry.label}
+                  </button>
+                </li>
+              );
+            }
+
+            if (entry.kind === "heading") {
+              return (
+                <li key={entry.label} className="px-3 pb-1 pt-5">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {entry.label}
                   </span>
+                </li>
+              );
+            }
+
+            const open = expanded[entry.label];
+            return (
+              <li key={entry.label}>
+                <button
+                  type="button"
+                  aria-expanded={open}
+                  onClick={() => setExpanded((p) => ({ ...p, [entry.label]: !p[entry.label] }))}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                  <Icon className="h-[18px] w-[18px]" />
+                  <span className="flex-1 text-left">{entry.label}</span>
+                  <ChevronDownIcon
+                    className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
+                  />
                 </button>
+
+                {open && (
+                  <ul className="mb-1 ml-[22px] mt-0.5 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-800">
+                    {entry.children.map((child) => {
+                      const active = Boolean(child.href && isCurrent(child.href));
+                      return (
+                        <li key={child.label}>
+                          <button
+                            type="button"
+                            disabled={!child.href}
+                            aria-current={active ? "page" : undefined}
+                            onClick={() => child.href && go(child.href)}
+                            className={`w-full rounded-md px-3 py-2 text-left text-[13px] transition-colors ${
+                              active
+                                ? "bg-slate-100 font-medium text-slate-900 dark:bg-slate-800 dark:text-white"
+                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white"
+                            } disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent`}
+                          >
+                            {child.label}
+                            {!child.href && (
+                              <span className="ml-2 text-[10px] uppercase tracking-wide text-slate-400">
+                                soon
+                              </span>
+                            )}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </li>
             );
           })}
         </ul>
+      </nav>
 
-        <span className="lg:fixed bottom-0 px-6 py-6 w-64 mx-auto relative mt-3 block">
-          <button
-            className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-5 py-3 rounded-lg text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full bg-blue-500 hover:bg-blue-700"
-            type="button"
-            onClick={handleLogOut}
-          >
-            <span className="flex items-center">
-              <LogOutIcon className="mr-3 text-lg" />
-              <span className="text-sm">Log Out</span>
-            </span>
-          </button>
-        </span>
+      <div className="shrink-0 border-t border-slate-200 p-3 dark:border-slate-800">
+        <button
+          type="button"
+          onClick={handleLogOut}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+        >
+          <LogOutIcon className="h-[18px] w-[18px]" />
+          Log out
+        </button>
       </div>
-    </div>
+    </aside>
   );
 }
 

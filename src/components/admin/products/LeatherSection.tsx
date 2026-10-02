@@ -1,6 +1,7 @@
 "use client";
 
 import { PlusIcon, TrashIcon } from "@/components/ui/icons";
+import { SQUARE_IMAGE } from "@/lib/image-size";
 import { ImageDropzone, ImagePreview } from "./ImageDropzone";
 import type { ProductFormLeather } from "./product-form.types";
 
@@ -23,14 +24,14 @@ export function LeatherSection({
   onRemoveTitle,
 }: LeatherSectionProps) {
   return (
-    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-      <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-        Leather (Image size : 638 x 638)
-      </label>
-
-      <div className="col-span-8 sm:col-span-4">
-        <div className="col-span-8 sm:col-span-4">
-          <ImageDropzone id={`image-leather-${idPrefix}`} onFiles={(files) => onImageChange(files[0] ?? null)} />
+    <div className="space-y-4">
+      <div>
+        <div>
+          <ImageDropzone
+            id={`image-leather-${idPrefix}`}
+            spec={SQUARE_IMAGE}
+            onFiles={(files) => onImageChange(files[0] ?? null)}
+          />
 
           {leather.image ? (
             <aside className="flex flex-row flex-wrap mt-4">
@@ -46,7 +47,7 @@ export function LeatherSection({
                 type="text"
                 name={`title-${index}`}
                 placeholder="Title"
-                className="col-span-3 px-3 py-1 rounded-md border border-gray-300 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring focus:ring-purple-300 text-sm"
+                className="col-span-3 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 value={title}
                 onChange={(event) => onTitleChange(index, event.target.value)}
               />
@@ -64,10 +65,10 @@ export function LeatherSection({
 
         <button
           type="button"
-          className="mt-2 text-sm text-white bg-primary-500 px-3 py-1 rounded-md hover:bg-primary-600 inline-flex items-center"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-900 hover:bg-slate-900 hover:text-white dark:border-slate-700 dark:text-slate-300 dark:hover:border-white dark:hover:bg-white dark:hover:text-slate-900"
           onClick={onAddTitle}
         >
-          <PlusIcon className="mr-1 h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
           Add Title
         </button>
       </div>

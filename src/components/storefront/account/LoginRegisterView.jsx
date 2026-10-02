@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+import { ROUTES } from "@/config/constants";
 import { useSession } from "@/hooks/useSession";
 import { createUser, loginUser } from "@/store/slices/auth.slice";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -7,7 +9,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function LoginRegisterView() {
-  const { isLoggedIn, isLoading: sessionLoading } = useSession();
+  const { isLoggedIn } = useSession();
   const { status } = useSelector((state) => state.createUser);
   const { status: loginStatus } = useSelector((state) => state.loginUser);
   const [errorLogin, setErrorLogin] = useState(null);
@@ -17,6 +19,7 @@ export default function LoginRegisterView() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [logMail, setLogMail] = useState("");
   const [logPass, setLogPass] = useState("");
   const onLogMailChange = (e) => {
@@ -28,8 +31,10 @@ export default function LoginRegisterView() {
     setLogPass(e.target.value);
   };
 
+  // /my-account is the sign-in screen, so open on the login form. Visitors who
+  // want an account take the "Create an account" panel beside it.
   const [registerToLoginToggleState, setRegisterToLoginToggleState] =
-    useState(false);
+    useState(true);
   const RegisterToLoginToggle = () => {
     setRegisterToLoginToggleState(!registerToLoginToggleState);
   };
@@ -40,8 +45,8 @@ export default function LoginRegisterView() {
   };
   useEffect(() => {
     // Already signed in: go to the account dashboard.
-    if (!sessionLoading && isLoggedIn) router.push("/myAccount");
-  }, [router, isLoggedIn, sessionLoading]);
+    if (isLoggedIn) router.replace(ROUTES.account);
+  }, [router, isLoggedIn]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,11 +54,17 @@ export default function LoginRegisterView() {
       seterrorSignUp("Password must be at least 6 characters.");
       return;
     }
+    if (registerPassword !== confirmPassword) {
+      seterrorSignUp("The two passwords do not match.");
+      return;
+    }
     try {
       const name = email.split("@")[0]; // Get the part before '@'
       await dispatch(createUser({ name, email, password: registerPassword })).unwrap();
+      // Sign in straight away: the account works before it is verified, the
+      // verification prompt just follows the user around until they confirm.
       await dispatch(loginUser({ email, password: registerPassword })).unwrap();
-      router.push("/myAccount");
+      router.push(ROUTES.verifyEmail);
     } catch (error) {
       seterrorSignUp(error?.message || "User already exists.");
     }
@@ -184,12 +195,10 @@ export default function LoginRegisterView() {
                               </label>
                             </div>
                           </div>
-                          <a
-                            href="#"
-                            className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
-                          >
-                            Forgot password?
-                          </a>
+                          <Link href={ROUTES.forgotPassword}
+                            className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">
+                    Forgot password?
+                  </Link>
                         </div>
                         <button
                           type="submit"
@@ -266,8 +275,8 @@ export default function LoginRegisterView() {
                             id="register-password"
                             autoComplete="new-password"
                             minLength={6}
-                            className={`bg-gray-50 border border-gray-300 text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 ${
-                              errorSignUp ? "border-red-500" : "border-gray-200"
+                            className={`bg-gray-50 border text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 ${
+                              errorSignUp ? "border-red-500" : "border-gray-300"
                             }`}
                             placeholder="Choose a password (min. 6 characters)"
                             value={registerPassword}
@@ -278,6 +287,44 @@ export default function LoginRegisterView() {
                             required
                           />
                         </div>
+
+                        <div>
+                          <label
+                            htmlFor="register-confirm-password"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                          >
+                            Confirm password <span className="text-red-700">*</span>
+                          </label>
+                          <input
+                            type="password"
+                            name="confirmPassword"
+                            id="register-confirm-password"
+                            autoComplete="new-password"
+                            minLength={6}
+                            className={`bg-gray-50 border text-gray-900 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600 ${
+                              confirmPassword && confirmPassword !== registerPassword
+                                ? "border-red-500"
+                                : "border-gray-300"
+                            }`}
+                            placeholder="Type the password again"
+                            value={confirmPassword}
+                            onChange={(e) => {
+                              seterrorSignUp(null);
+                              setConfirmPassword(e.target.value);
+                            }}
+                            required
+                          />
+                          {confirmPassword && confirmPassword !== registerPassword && (
+                            <p className="mt-1 text-[13px] text-red-600">
+                              The two passwords do not match.
+                            </p>
+                          )}
+                        </div>
+
+                        <p className="text-[13px] text-gray-500">
+                          We&apos;ll email a 6-digit code to confirm your address.
+                          Your password is never sent by email.
+                        </p>
                         <p className="text-[13px]  text-gray-500 my-[20px]">
                           Your personal data will be used to support your
                           experience throughout this website, to manage access
@@ -309,28 +356,26 @@ export default function LoginRegisterView() {
             <div className="lower_right md:w-1/2 flex justify-center px-5  mx-auto overflow-y-auto lg:py-0 bg-gray-50 dark:bg-gray-900">
               <div className=" w-full dark:border md:mt-0 md:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                 <div className=" space-y-4 md:space-y-6 ">
+                  {/* Always the opposite of whatever the left column shows.
+                      This panel used to be hardcoded to REGISTER, so in
+                      register mode the page said REGISTER twice. */}
                   <div className="lower_right_text">
-                    <h1 className="text-xl text-center  leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                      REGISTER
+                    <h1 className="text-xl text-center leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                      {registerToLoginToggleState ? "NEW HERE?" : "ALREADY HAVE AN ACCOUNT?"}
                     </h1>
                     <p className="text-[13px] text-center text-gray-500 my-[20px]">
-                      Registering for this site allows you to access your order
-                      status and history. Just fill in the fields below, and
-                      we&apos;ll get a new account set up for you in no time. We will
-                      only ask you for information necessary to make the
-                      purchase process faster and easier.
+                      {registerToLoginToggleState
+                        ? "Registering lets you track your order status and history. We only ask for what is needed to make checkout faster next time."
+                        : "Sign in to see your orders, saved addresses and account details."}
                     </p>
                   </div>
                   <div className="lower_right_button text-center">
                     <button
-                      className="inline-flex items-center  justify-center py-3 px-5 bg-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700 text-md font-medium leading-none text-gray-900 dark:text-white"
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-md border border-gray-900 py-3 px-6 text-sm font-medium leading-none text-gray-900 transition-colors hover:bg-gray-900 hover:text-white"
                       onClick={RegisterToLoginToggle}
                     >
-                      {!registerToLoginToggleState ? (
-                        <span>Login</span>
-                      ) : (
-                        <span>Register</span>
-                      )}
+                      {registerToLoginToggleState ? "Create an account" : "Sign in instead"}
                     </button>
                   </div>
                 </div>

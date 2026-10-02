@@ -1,101 +1,90 @@
 "use client";
-import SkeletonTable from "@/components/admin/SkeletonTable";
+import RowActions from "@/components/admin/RowActions";
+import TableSkeletonRows from "@/components/admin/TableSkeletonRows";
+import Thumb from "@/components/admin/Thumb";
+import {
+  Card,
+  CardBody,
+  EmptyState,
+  Table,
+  TableWrap,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from "@/components/admin/ui";
+import { isPending } from "@/store/create-request-slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchAllHeroBanners } from "@/store/slices/banner.slice";
-import { useEffect, useState } from "react";
-import { FiEdit } from "react-icons/fi";
-
-const SKELETON_HEAD = [
-  { skeletons: [{ width: "50px", height: "20px" }] },
-  { skeletons: [{ width: "80px", height: "20px" }] },
-  { skeletons: [{ width: "80px", height: "20px" }] },
-  { skeletons: [{ width: "100px", height: "20px" }] },
-  { cellClassName: "text-right", skeletons: [{ width: "60px", height: "20px" }] },
-];
-
-const SKELETON_ROW = [
-  { skeletons: [{ width: "50px", height: "20px" }] },
-  { skeletons: [{ variant: "rectangular", width: 40, height: 40 }] },
-  { skeletons: [{ variant: "rectangular", width: 40, height: 40 }] },
-  { skeletons: [{ width: "100px", height: "20px" }] },
-  { innerClassName: "flex justify-end gap-x-2", skeletons: [{ width: "30px", height: "20px" }] },
-];
+import { useEffect } from "react";
 
 export default function AllHeroBanners({ toggleVisibility }) {
   const dispatch = useAppDispatch();
-  const { heroBanners, isLoading, error } = useAppSelector((state) => state.allHeroBanner);
-
-  const [bannersFetched, setBannersFetched] = useState(false);
+  const heroState = useAppSelector((state) => state.allHeroBanner);
+  const { heroBanners, error } = heroState;
+  const busy = isPending(heroState);
 
   useEffect(() => {
-    if (!bannersFetched) {
-      dispatch(fetchAllHeroBanners());
-      setBannersFetched(true);
-    }
-  }, [bannersFetched, dispatch]);
+    void dispatch(fetchAllHeroBanners());
+  }, [dispatch]);
 
   return (
     <>
-      {isLoading && <SkeletonTable head={SKELETON_HEAD} row={SKELETON_ROW} />}
-      {error && <p>Error: {error}</p>}
-      {!isLoading && heroBanners && (
-        <div className="all_products w-full overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg ring-1 ring-black ring-opacity-5 mb-8 rounded-b-lg">
-          <div className="w-full overflow-x-auto">
-            <table className="w-full whitespace-no-wrap">
-              <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:text-gray-400 dark:bg-gray-800 overflow-hidden">
-                <tr>
-                  <td className="px-4 py-3">ID</td>
-                  <td className="px-4 py-3">Banner 1</td>
-                  <td className="px-4 py-3">Banner 2</td>
-                  <td className="px-4 py-3">HEADER</td>
-                  <td className="px-4 py-3 text-right">ACTIONS</td>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y overflow-hidden divide-gray-100 dark:divide-gray-700 dark:bg-gray-800 text-gray-700 dark:text-gray-400">
-                {heroBanners.map((banner) => (
-                  <tr key={banner._id} id={banner._id}>
-                    <td className="px-4 py-3">
-                      <span className="text-sm">{banner._id}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          className="object-cover w-full h-full "
-                          src={banner.image?.[0]}
-                          alt={banner.header}
-                          loading="lazy"
-                        />
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <div className="relative inline-block w-10 h-10 hidden p-1 mr-2 md:block  shadow-none">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          className="object-cover w-full h-full "
-                          src={banner.image?.[1]}
-                          alt={banner.header}
-                          loading="lazy"
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm">{banner.header}</span>
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-x-2">
-                        <FiEdit className="cursor-pointer" onClick={() => toggleVisibility(banner._id)} />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {error && !busy && (
+        <Card className="mb-5 shrink-0 border-red-200 dark:border-red-900/50">
+          <CardBody className="text-sm text-red-600 dark:text-red-400">{error}</CardBody>
+        </Card>
       )}
+
+      <TableWrap>
+        <Table>
+          <THead>
+            <TR>
+              <TH>Images</TH>
+              <TH>Header</TH>
+              <TH align="right">Actions</TH>
+            </TR>
+          </THead>
+          <TBody>
+            {busy && <TableSkeletonRows columns={3} />}
+            {!busy &&
+              heroBanners?.map((banner) => (
+                <TR key={banner._id}>
+                  <TD>
+                    <div className="flex items-center gap-2">
+                      {(banner.image ?? []).slice(0, 4).map((src, i) => (
+                        // eslint-disable-next-line react/no-array-index-key
+                        <Thumb key={i} src={src} alt={`${banner.header ?? "Banner"} image ${i + 1}`} />
+                      ))}
+                      {(banner.image?.length ?? 0) > 4 && (
+                        <span className="text-xs text-slate-400">
+                          +{(banner.image?.length ?? 0) - 4}
+                        </span>
+                      )}
+                    </div>
+                  </TD>
+                  <TD className="font-medium text-slate-900 dark:text-white">
+                    {banner.header || <span className="text-slate-400">No header</span>}
+                  </TD>
+                  <TD align="right">
+                    <RowActions
+                      label={banner.header ?? "banner"}
+                      onEdit={() => toggleVisibility(banner._id)}
+                    />
+                  </TD>
+                </TR>
+              ))}
+          </TBody>
+        </Table>
+
+        {!busy && (!heroBanners || heroBanners.length === 0) && (
+          <EmptyState
+            title="No hero banner set"
+            description="The hero banner is the carousel at the top of the storefront."
+          />
+        )}
+      </TableWrap>
     </>
   );
 }

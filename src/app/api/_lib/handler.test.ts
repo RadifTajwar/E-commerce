@@ -98,7 +98,16 @@ describe("createHandler", () => {
     const h = createHandler({ auth: "user" }, async () => ({}));
     const expired = await token({ email: "u@x.test" }, -10);
     expect((await h(req("/api/x", { cookie: expired }), {})).status).toBe(401);
-    const forged = (await token({ email: "u@x.test", role: "admin" })).replace(/.$/, "x");
+    // Tamper in the middle of the signature, never at the end. A 32-byte
+    // HMAC is 43 base64url characters — 258 bits of encoding for 256 bits of
+    // data — so the final character carries two slack bits and several values
+    // decode to the identical signature. Flipping it therefore leaves a still
+    // valid token roughly one run in sixteen. Every bit of a middle character
+    // is significant.
+    const signed = await token({ email: "u@x.test", role: "admin" });
+    const [head, body, sig] = signed.split(".") as [string, string, string];
+    const at = Math.floor(sig.length / 2);
+    const forged = `${head}.${body}.${sig.slice(0, at)}${sig[at] === "A" ? "B" : "A"}${sig.slice(at + 1)}`;
     expect((await h(req("/api/x", { cookie: forged }), {})).status).toBe(401);
   });
 

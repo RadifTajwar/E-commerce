@@ -4,6 +4,7 @@ import ConfirmDeleteDialog from "@/components/admin/ConfirmDeleteDialog";
 import AddParentCategory from "@/components/ui/components/admin/parentCategories/addParentCategory";
 import AllParentCategories from "@/components/ui/components/admin/parentCategories/allParentCategories";
 import UpdateParentCategories from "@/components/ui/components/admin/parentCategories/updateParentCategories";
+import { Button, PageHeader } from "@/components/admin/ui";
 import { PlusIcon } from "@/components/ui/icons";
 import { isObjectId } from "@/config/constants";
 import { notify } from "@/lib/toast";
@@ -70,32 +71,18 @@ export default function ParentCategoriesPage() {
 
   return (
     <>
-      <div className=" max-w-2xl md:max-w-3xl lg:max-w-7xl grid px-6 mx-auto overflow-x-auto">
-        <h1 className="my-6 text-lg font-bold text-gray-700 dark:text-gray-300">Parent Categories</h1>
+      <PageHeader
+        title="Parent categories"
+        description="Top-level groups shown in the storefront navigation."
+        actions={
+          <Button onClick={toggleAddProductVisible}>
+            <PlusIcon className="h-4 w-4" />
+            Add parent category
+          </Button>
+        }
+      />
 
-        <div className="min-w-0  border border-gray-200 rounded-lg ring-opacity-4 overflow-hidden bg-white dark:bg-gray-800 shadow-xs mb-5">
-          <div className="p-4">
-            <form className="py-3 md:pb-0 grid gap-4 lg:gap-6 xl:gap-6 xl:flex" onSubmit={(e) => e.preventDefault()}>
-              <div className="lg:flex md:flex   md:w-full md:justify-end flex-grow-0">
-                <div className="w-full md:w-48 lg:w-48 xl:w-48">
-                  <button
-                    className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-blue-500 border border-transparent active:bg-blue-600 hover:bg-blue-600 focus:ring focus:ring-purple-300 w-full h-12"
-                    type="button"
-                    onClick={toggleAddProductVisible}
-                  >
-                    <span className="mr-2">
-                      <PlusIcon className="h-[1em] w-[1em]" />
-                    </span>
-                    Add Parent Category
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <AllParentCategories onEdit={openUpdate} onDelete={openDelete} />
-      </div>
+      <AllParentCategories onEdit={openUpdate} onDelete={openDelete} />
 
       <AdminDrawer isOpen={Boolean(updateId)} onClose={closeUpdate}>
         <UpdateParentCategories

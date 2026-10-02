@@ -3,6 +3,8 @@
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { isPending } from "@/store/create-request-slice";
+import Skeleton from "@/components/ui/Skeleton";
 import { notify } from "@/lib/toast";
 import { fetchAllProducts } from "@/store/slices/product.slice";
 import Card from "./card";
@@ -15,7 +17,12 @@ import Card from "./card";
  */
 export default function InfiniteScroll({ products, filters, categoryId, parentCategoryId }) {
   const dispatch = useDispatch();
-  const { isLoading, error, meta } = useSelector((state) => state.allProducts);
+  const productsState = useSelector((state) => state.allProducts);
+  const { error, meta } = productsState;
+  const isLoading = productsState.isLoading;
+  // Before the first fetch settles there is nothing to say about the results,
+  // so the "no products matched" banner must not be rendered yet.
+  const busy = isPending(productsState);
 
   const [page, setPage] = useState(1);
   const [items, setItems] = useState(() => products ?? []);
@@ -120,7 +127,16 @@ export default function InfiniteScroll({ products, filters, categoryId, parentCa
               <Card product={product} />
             </div>
           ))
-        ) : isLoading ? null : (
+        ) : busy ? (
+          [...Array(6)].map((_, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <div key={i} className="space-y-3">
+              <Skeleton className="aspect-square w-full" />
+              <Skeleton className="h-3.5 w-3/4" />
+              <Skeleton className="h-3.5 w-1/3" />
+            </div>
+          ))
+        ) : (
           <div className="w-full bg-red-700 p-4 text-sm text-white font-medium">
             <ErrorOutlineIcon /> No products were found matching your selection.{" "}
           </div>

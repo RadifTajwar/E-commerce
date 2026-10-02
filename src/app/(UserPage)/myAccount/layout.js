@@ -1,21 +1,17 @@
 "use client";
-import { useSession } from "@/hooks/useSession";
+import { ROUTES } from "@/config/constants";
+import { useLogout } from "@/hooks/useLogout";
 import { useRouter } from "next/navigation";
 export default function Layout({ children }) {
   const router = useRouter();
-  const { logout } = useSession();
   const sideBarComponentClicked = (route) => {
     if (route === "myAccount") router.push(`/${route}`);
     else router.push(`/myAccount/${route}`);
   };
   // Access is enforced server-side in middleware.ts; nothing to check here.
-  const handleLogOut = async () => {
-    try {
-      await logout();
-    } finally {
-      router.push("/my-account");
-    }
-  };
+  // Hard navigation, not router.push: the App Router would otherwise serve
+  // already-visited account pages from its in-memory cache after signing out.
+  const handleLogOut = useLogout(ROUTES.login);
 
   return (
     <div className="max-w-7xl my-10 mx-auto">

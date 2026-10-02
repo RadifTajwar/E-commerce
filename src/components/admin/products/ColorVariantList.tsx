@@ -1,11 +1,11 @@
 "use client";
 
 import { PlusIcon, TrashIcon } from "@/components/ui/icons";
+import { SQUARE_IMAGE } from "@/lib/image-size";
 import { ImageDropzone, ImagePreview } from "./ImageDropzone";
 import type { ColorField, ProductFormColor, ProductFormDetail } from "./product-form.types";
+import { VARIANT_INPUT } from "./form-classes";
 
-const VARIANT_INPUT =
-  "px-3 py-1 rounded-md border border-gray-300 focus:border-purple-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring focus:ring-purple-300 text-sm";
 
 export interface ColorVariantListProps {
   colors: ProductFormColor[];
@@ -30,15 +30,12 @@ export function ColorVariantList({
   onRemoveImage,
 }: ColorVariantListProps) {
   return (
-    <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-      <label className="block text-sm text-gray-700 dark:text-gray-400 col-span-4 sm:col-span-2 font-medium text-sm">
-        Product Colors
-      </label>
-      <div className="col-span-8 sm:col-span-4">
+    <div className="space-y-4">
+      <div>
         {colors.map((color, index) => {
           const images = details[index]?.images ?? [];
           return (
-            <div key={index} className="bg-gray-50 border rounded-md p-4 mb-4">
+            <div key={index} className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
               <div className="grid grid-cols-12 gap-2 mb-2">
                 <input
                   type="text"
@@ -75,10 +72,11 @@ export function ColorVariantList({
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm text-gray-700 dark:text-gray-400 font-medium mb-1">
+                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Upload Images for {color.colorName}
                 </label>
                 <ImageDropzone
+                  spec={SQUARE_IMAGE}
                   id={`color-image-${idPrefix}-${index}`}
                   multiple
                   onFiles={(files) => onAddImages(index, files)}
@@ -103,10 +101,10 @@ export function ColorVariantList({
 
         <button
           type="button"
-          className="mt-2 text-sm text-white bg-primary-500 px-3 py-1 rounded-md hover:bg-primary-600 inline-flex items-center"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-900 hover:bg-slate-900 hover:text-white dark:border-slate-700 dark:text-slate-300 dark:hover:border-white dark:hover:bg-white dark:hover:text-slate-900"
           onClick={onAddColor}
         >
-          <PlusIcon className="mr-1 h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
           Add Color
         </button>
       </div>

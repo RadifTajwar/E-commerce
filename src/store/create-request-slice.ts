@@ -31,6 +31,14 @@ export interface RequestStateBase {
   isLoading: boolean;
   error: string | null;
   successMessage: string | null;
+  /**
+   * False until the first request for this slice finishes (either way).
+   *
+   * Without it "not fetched yet" and "fetched, came back empty" look identical,
+   * so a page renders its empty state for a frame before the effect that starts
+   * the fetch has even run — the flash of "no orders" before the spinner.
+   */
+  settled: boolean;
 }
 
 export type RequestState<K extends string, TData> = RequestStateBase & { [key in K]: TData };
@@ -67,6 +75,7 @@ export function createRequestSlice<K extends string, TData, TResult, TArg, TExtr
     isLoading: false,
     error: null,
     successMessage: null,
+    settled: false,
     ...(options.initialExtra ?? {}),
   } as TState;
 
@@ -86,6 +95,7 @@ export function createRequestSlice<K extends string, TData, TResult, TArg, TExtr
         .addCase(thunk.fulfilled, (draft, action) => {
           const state = draft as unknown as TState;
           state.isLoading = false;
+          state.settled = true;
           (state as unknown as Record<string, unknown>)[dataKey] = mapResult
             ? mapResult(action.payload)
             : (action.payload as unknown as TData);
@@ -96,9 +106,18 @@ export function createRequestSlice<K extends string, TData, TResult, TArg, TExtr
           const state = draft as unknown as TState;
           const message = action.payload ?? action.error.message ?? "Request failed";
           state.isLoading = false;
+          state.settled = true;
           state.error = message;
           options.onRejected?.(state, message);
         });
     },
   });
 }
+
+/**
+ * Whether a slice should still be showing a placeholder: either a request is in
+ * flight, or none has finished yet. Pages branch on this instead of `isLoading`
+ * so they never paint an empty state before the first fetch resolves.
+ */
+export const isPending = (state: { isLoading: boolean; settled: boolean }): boolean =>
+  state.isLoading || !state.settled;

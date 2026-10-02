@@ -1,6 +1,8 @@
 "use client";
+import TableSkeleton from "@/components/ui/TableSkeleton";
 import { useSession } from "@/hooks/useSession";
 import { formatDate, formatMoney } from "@/lib/utils";
+import { isPending } from "@/store/create-request-slice";
 import { fetchOrderByUser } from "@/store/slices/order.slice";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -10,17 +12,29 @@ import { useDispatch, useSelector } from "react-redux";
 const itemCount = (order) =>
   (order?.orderItems ?? []).reduce((total, item) => total + Number(item?.quantity ?? 0), 0);
 
-export default function OrdersPage() {
+/**
+ * @param {{ initialOrders?: import("@/types").Order[] }} props
+ *   `initialOrders` comes from the server component, so the table is in the
+ *   first paint and there is no skeleton on a normal visit. Without it the
+ *   component falls back to fetching on mount.
+ */
+export default function OrdersTable({ initialOrders }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const { session } = useSession();
   const email = session?.email;
-  const { order, isLoading, error } = useSelector(
-    (state) => state.getOrderByUser
-  );
+  const ordersState = useSelector((state) => state.getOrderByUser);
+  const { error: storeError } = ordersState;
+
+  // Prefer whatever this tab has fetched since mount; otherwise the server data.
+  const order = ordersState.settled ? ordersState.order : (initialOrders ?? ordersState.order);
+  const error = initialOrders ? null : storeError;
+  const busy = initialOrders ? false : isPending(ordersState);
+
   useEffect(() => {
-    if (email) dispatch(fetchOrderByUser(email));
-  }, [dispatch, email]);
+    if (initialOrders || !email) return;
+    dispatch(fetchOrderByUser(email));
+  }, [dispatch, email, initialOrders]);
 
   const handleView = (id) => {
     router.push(`/myAccount/viewOrder/${id}`);
@@ -28,18 +42,9 @@ export default function OrdersPage() {
 
   return (
     <>
-      {isLoading && (
-        <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
-          <div className="border border-gray-700 py-2  text-black text-sm">
-            <span className="flex justify-center items-center ">
-              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin me-2"></div>
-              Loading...
-            </span>
-          </div>
-        </div>
-      )}
-      {error && <p>{error}</p>}
-      {!isLoading && order && order.length > 0 ? (
+      {busy && <TableSkeleton />}
+      {error && !busy && <p className="px-8 py-2.5 text-sm text-red-600">{error}</p>}
+      {!busy && order && order.length > 0 ? (
         <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
           <div className="table_container_lg_screen hidden lg:block">
             <table className="table-auto w-full border-collapse ">
@@ -178,7 +183,7 @@ export default function OrdersPage() {
             ))}
           </div>
         </div>
-      ) : isLoading ? null : (
+      ) : busy ? null : (
         <div className="right w-full md:w-2/3 lg:w-3/4  px-8 py-2.5">
           <div className="flex justify-center items-center h-96">
             <p className="text-lg text-gray-500">No Orders Found</p>

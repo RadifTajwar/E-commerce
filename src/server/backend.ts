@@ -16,6 +16,13 @@ export const backendRoutes = {
   },
   users: {
     create: "/user/create-user",
+    verify: "/user/verifyEmail",
+    byId: (id: string) => `/user/ById/${enc(id)}`,
+    byEmail: (email: string) => `/user/ByEmail/${enc(email)}`,
+    update: (id: string) => `/user/updateUSerProfile/${enc(id)}`,
+    resendVerification: "/user/resendVerification",
+    forgotPassword: "/user/forgotPassword",
+    resetPassword: "/user/resetPassword",
   },
   categories: {
     list: "/category",
