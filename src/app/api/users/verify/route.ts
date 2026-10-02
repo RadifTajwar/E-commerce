@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createHandler } from "@/app/api/_lib/handler";
 import { ApiError } from "@/lib/api/errors";
 import { authCookie, claimsToSession, readClaims } from "@/lib/auth";
-import { backendRoutes, getBackend } from "@/server/backend";
+import { authHeaders, backendRoutes, getBackend } from "@/server/backend";
 import type { ApiEnvelope } from "@/types/api";
 import type { User } from "@/types/user";
 import { verifyEmailSchema } from "@/validators/auth";
@@ -22,10 +22,12 @@ interface VerifyResult {
  */
 export const POST = createHandler(
   { body: verifyEmailSchema, auth: "user", rateLimit: "auth" },
-  async ({ body, session, env, requestId }) => {
+  async ({ body, session, env, requestId, token: sessionToken }) => {
+    // The backend checks the code against this session's account only.
     const upstream = await getBackend().post<ApiEnvelope<VerifyResult>>(
       backendRoutes.users.verify,
       body,
+      { headers: authHeaders(sessionToken) },
     );
 
     const verified = upstream?.data?.user;

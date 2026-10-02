@@ -26,6 +26,9 @@ const serverSchema = z.object({
   BACKEND_API_URL: z.string().url({ message: "must be an absolute URL" }),
   BACKEND_API_TIMEOUT_MS: intWithDefault(10_000),
   BACKEND_API_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
+  // Sent on every backend call; the backend refuses anything without it. Its
+  // URL is public, so this is what keeps everyone but this server out.
+  BFF_SECRET: z.string().min(32, { message: "must be at least 32 characters" }),
 
   // Must equal the backend's JWT_ACCESS_SECRET, or tokens are only decoded and
   // never verified — which lets anyone forge a `role: admin` session.

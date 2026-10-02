@@ -1,6 +1,7 @@
 // Vitest global setup. Provide a minimal, valid environment so config/env.ts
 // can be imported in unit tests without a real .env file.
 process.env.BACKEND_API_URL ??= "https://backend.test/api/v1";
+process.env.BFF_SECRET ??= "test-bff-secret-test-bff-secret-test";
 process.env.ALLOWED_ORIGINS ??= "http://localhost:4000";
 process.env.NEXT_PUBLIC_APP_URL ??= "http://localhost:4000";
 process.env.NEXT_PUBLIC_IMAGE_HOSTS ??= "res.cloudinary.com";

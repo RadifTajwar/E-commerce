@@ -75,7 +75,7 @@ export function getBackend(): HttpClient {
     baseUrl: env.BACKEND_API_URL,
     timeoutMs: env.BACKEND_API_TIMEOUT_MS,
     maxRetries: env.BACKEND_API_MAX_RETRIES,
-    headers: { "user-agent": "khalamma-bff/1.0" },
+    headers: { "user-agent": "khalamma-bff/1.0", "x-bff-secret": env.BFF_SECRET },
   });
   return client;
 }
