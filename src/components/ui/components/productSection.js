@@ -30,9 +30,9 @@ export default function ProductSection({ initialParentCategories }) {
       <div className="our_product flex justify-center m-5   mx-auto max-w-6xl">
         <div className="product">
           <div className="text_section text-center mb-10">
-            <h1 className="text-4xl font-bold mb-5">
+            <h2 className="text-4xl font-bold mb-5">
               <span style={{ color: "#E8A811" }}>ALL</span> PRODUCTS
-            </h1>
+            </h2>
             <a
               href="#"
               className=" text-md  decoration-gray-800 hover:opacity-60 transition-opacity duration-300 cursor-pointer"
@@ -71,12 +71,12 @@ export default function ProductSection({ initialParentCategories }) {
                       </div>
                       <div className="lower_txt flex justify-center">
                         <div className="price_text_image text-center m-5">
-                          <h1
+                          <h3
                             className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
                             style={{ fontWeight: "400", fontSize: "17px" }}
                           >
                             {category.name}
-                          </h1>
+                          </h3>
                         </div>
                       </div>
                     </div>

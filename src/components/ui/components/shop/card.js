@@ -94,12 +94,12 @@ function CardPriceFooter({ product }) {
     <div className="lower_txt flex justify-start ">
       <div className="price_text_image text-start  px-5 py-4">
         <Link href={`/products/${product?.slug}`}>
-          <h1
+          <h3
             className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
             style={{ fontWeight: "400", fontSize: "14px" }}
           >
             {product.name}
-          </h1>
+          </h3>
         </Link>
 
         <p>

@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: name,
     description: `Browse our ${name} collection.`,
+    alternates: { canonical: `/shop/productCategory/${params.slug.join("/")}` },
   };
 }
 

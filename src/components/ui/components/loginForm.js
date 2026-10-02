@@ -44,9 +44,9 @@ export default function LoginForm({ toggleLogInForm }) {
           <div className="w-full bg-white h-screen rounded-lg dark:border dark:bg-gray-800 dark:border-gray-700 overflow-y-auto">
             <div className="p-4 space-y-4 md:space-y-6 sm:p-4">
               <div className="flex justify-between">
-                <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                <h2 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                   Sign in
-                </h1>
+                </h2>
 
                 <button
                   className="text-sm flex items-center leading-tight tracking-tight text-gray-900 md:text-sm dark:text-white cursor-pointer hover:text-gray-600 group"

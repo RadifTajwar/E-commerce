@@ -5,6 +5,8 @@ import ProductInfoPanel from "@/components/storefront/product/ProductInfoPanel";
 import ProductReviews from "@/components/storefront/product/ProductReviews";
 import RelatedProducts from "@/components/storefront/shop/RelatedProducts";
 import "@/components/ui/components/shop/scrollbar.css";
+import { ROUTES } from "@/config/constants";
+import { clientEnv } from "@/config/env";
 import { getProductBySlug } from "@/server/queries";
 
 interface PageProps {
@@ -25,11 +27,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: product.name,
     description,
+    alternates: { canonical: ROUTES.product(product.slug) },
     openGraph: {
       title: product.name,
       description,
       type: "website",
+      url: ROUTES.product(product.slug),
+      siteName: clientEnv.NEXT_PUBLIC_APP_NAME,
       images: product.imageDefault ? [{ url: product.imageDefault }] : undefined,
+    },
+  };
+}
+
+/** schema.org Product: lets search engines show price and stock with the result. */
+function productJsonLd(product: NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description || undefined,
+    image: product.imageDefault ? [product.imageDefault] : undefined,
+    brand: { "@type": "Brand", name: clientEnv.NEXT_PUBLIC_APP_NAME },
+    offers: {
+      "@type": "Offer",
+      url: new URL(ROUTES.product(product.slug), clientEnv.NEXT_PUBLIC_APP_URL).toString(),
+      priceCurrency: "BDT",
+      price: product.discountedPrice,
+      availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
     },
   };
 }
@@ -38,8 +62,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const product = await getProductBySlug(params.productName);
   if (!product) notFound();
 
+  // "<" escaped so text in a description can never close the script tag.
+  const jsonLd = JSON.stringify(productJsonLd(product)).replace(/</g, "\\u003c");
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       <div className="productIdCart my-2">
         <div className="upper_part max-w-7xl mx-auto px-4">
           <div className="flex w-full space-x-4">
@@ -66,9 +94,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
       <div className=" text flex justify-center  max-w-xl xl:max-w-7xl container mx-auto mt-10">
         <div className="text text-center">
-          <h1 className="text-2xl md:text-4xl font-bold ">
+          <h2 className="text-2xl md:text-4xl font-bold ">
             <span className="text-[#E8A811]">RELATED</span> PRODUCTS
-          </h1>
+          </h2>
           <p className=" text-md  decoration-gray-800 hover:opacity-60 transition-opacity duration-300 cursor-pointer my-3">
             BAGS
           </p>

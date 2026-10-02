@@ -16,7 +16,13 @@ export const metadata: Metadata = {
     default: clientEnv.NEXT_PUBLIC_APP_NAME,
     template: `%s | ${clientEnv.NEXT_PUBLIC_APP_NAME}`,
   },
-  description: "Leather bags, wallets and accessories.",
+  description:
+    "Leather bags, wallets and accessories for men and women, delivered across Bangladesh.",
+  applicationName: clientEnv.NEXT_PUBLIC_APP_NAME,
+  // Link previews (WhatsApp, Facebook, X). Pages that set their own openGraph
+  // replace this whole object, so they repeat siteName.
+  openGraph: { siteName: clientEnv.NEXT_PUBLIC_APP_NAME, type: "website", locale: "en_US" },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

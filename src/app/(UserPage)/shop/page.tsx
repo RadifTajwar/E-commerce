@@ -6,6 +6,8 @@ import { getCategories, getParentCategories, safely } from "@/server/queries";
 export const metadata: Metadata = {
   title: "Shop",
   description: "Browse the full leather collection: bags, wallets and accessories.",
+  // Filters live in the query string; they're all one page to a search engine.
+  alternates: { canonical: "/shop" },
 };
 
 /** Regenerated every 10 minutes; product results themselves are filtered client-side. */
