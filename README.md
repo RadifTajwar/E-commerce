@@ -101,7 +101,7 @@ message if a required variable is missing or malformed.
 | `CLOUDINARY_UPLOAD_PRESET` | no | – | Used when no API key/secret is set. |
 | `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | no | – | When both are set, uploads are signed. |
 | `UPLOAD_MAX_MB` | no | `25` | Rejected above this size. |
-| `NEXT_PUBLIC_APP_NAME` | no | `Tithi` | Shown in metadata. |
+| `NEXT_PUBLIC_APP_NAME` | no | `Leather For Luxury` | Store name: header, footer, admin and page titles. |
 | `NEXT_PUBLIC_APP_URL` | no | `http://localhost:4000` | Canonical URL for metadata. |
 | `NEXT_PUBLIC_IMAGE_HOSTS` | no | `res.cloudinary.com` | Comma-separated `next/image` hosts. |
 | `LOG_LEVEL` | no | `info` | pino level. |

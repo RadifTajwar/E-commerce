@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { ROUTES } from "@/config/constants";
+import { clientEnv } from "@/config/env";
 
 /** The four social links, previously four near-identical copy-pasted blocks. */
 const SOCIAL_LINKS = [
@@ -34,8 +37,17 @@ const SOCIAL_LINKS = [
   },
 ];
 
-const COMPANY_LINKS = ["About us", "Services", "Team", "Pricing", "Project", "Careers"];
-const RESOURCE_LINKS = ["Contact", "FAQ", "Blog", "Support", "Partners"];
+// Only pages that exist: placeholder links ("#") lead nowhere for shoppers and
+// give search engines nothing to crawl.
+const SHOP_LINKS = [
+  { label: "All products", href: ROUTES.shop },
+  { label: "Shopping cart", href: ROUTES.cart },
+];
+const ACCOUNT_LINKS = [
+  { label: "Sign in or register", href: ROUTES.login },
+  { label: "My orders", href: ROUTES.accountOrders },
+  { label: "Forgot password", href: ROUTES.forgotPassword },
+];
 
 function SocialLink({ name, href, className, path }) {
   return (
@@ -52,12 +64,11 @@ function SocialLink({ name, href, className, path }) {
 function FooterLinkList({ links }) {
   return (
     <ul className="list-none footer-list mt-6">
-      {links.map((label, index) => (
+      {links.map(({ label, href }, index) => (
         <li key={label} className={index === 0 ? undefined : "mt-[10px]"}>
-          <a href="#" className="text-gray-300 hover:text-yellow-600">
-            {" "}
+          <Link href={href} className="text-gray-300 hover:text-yellow-600">
             {label}
-          </a>
+          </Link>
         </li>
       ))}
     </ul>
@@ -82,13 +93,12 @@ export default function Footer() {
               <div className="py-[60px] px-0">
                 <div className="grid md:grid-cols-12 grid-cols-1 gap-[30px]">
                   <div className="lg:col-span-4 md:col-span-12">
-                    <a href="#" className="text-[22px] focus:outline-none">
-                      <h1 className="text-4xl font-bold">Tithi</h1>
-                    </a>
+                    <Link href={ROUTES.home} className="text-3xl font-bold focus:outline-none">
+                      {clientEnv.NEXT_PUBLIC_APP_NAME}
+                    </Link>
                     <p className="mt-6 text-gray-300">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                      incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                      exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                      Leather bags, wallets and accessories for men and women, delivered across
+                      Bangladesh.
                     </p>
                     <ul className="list-none mt-6">
                       {SOCIAL_LINKS.map((link) => (
@@ -100,13 +110,13 @@ export default function Footer() {
                     <div className="lg:ml-6">
                       <div className="grid md:grid-cols-12 grid-cols-1">
                         <div className=" md:col-span-4">
-                          <h4 className="font-semibold text-[18px] tracking-wide">Company</h4>
-                          <FooterLinkList links={COMPANY_LINKS} />
+                          <h4 className="font-semibold text-[18px] tracking-wide">Shop</h4>
+                          <FooterLinkList links={SHOP_LINKS} />
                         </div>
 
                         <div className=" md:col-span-4 mt-[30px] md:mt-0">
-                          <h4 className="font-semibold text-[18px] tracking-wide">Resources</h4>
-                          <FooterLinkList links={RESOURCE_LINKS} />
+                          <h4 className="font-semibold text-[18px] tracking-wide">Account</h4>
+                          <FooterLinkList links={ACCOUNT_LINKS} />
                         </div>
                         <div className="lg:col-span-3 md:col-span-4 mt-[30px] md:mt-0">
                           <h4 className="font-semibold text-[18px] tracking-wide">Subscribe</h4>
@@ -140,7 +150,7 @@ export default function Footer() {
                 </div>
                 <div className="text-center pt-12">
                   <p className="text-gray-300">
-                    © {new Date().getFullYear()} My Company. All Rights Reserved.
+                    © {new Date().getFullYear()} {clientEnv.NEXT_PUBLIC_APP_NAME}. All rights reserved.
                   </p>
                 </div>
               </div>

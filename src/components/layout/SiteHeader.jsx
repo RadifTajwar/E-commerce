@@ -14,6 +14,7 @@ import ShoppingCart from "@/components/ui/components/productCart/shoppingCart";
 import SideBar from "@/components/ui/components/sideBar";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { ROUTES } from "@/config/constants";
+import { clientEnv } from "@/config/env";
 import { useSession } from "@/hooks/useSession";
 import { selectCartCount } from "@/store/slices/cart.slice";
 
@@ -133,8 +134,11 @@ export default function SiteHeader() {
             {/* logo and other menu  */}
             <div className="flex items-center space-x-8">
               <div className="shrink-0">
-                <Link href={ROUTES.home} title="" className="">
-                  <h1 className="text-4xl font-bold">Tithi</h1>
+                {/* Not an h1: each page's own heading is its h1, not the brand. */}
+                <Link href={ROUTES.home} className="block">
+                  <span className="block whitespace-nowrap text-lg font-bold tracking-tight sm:text-2xl xl:text-[28px]">
+                    {clientEnv.NEXT_PUBLIC_APP_NAME}
+                  </span>
                 </Link>
               </div>
               <div className="hidden divider h-[35px] md:h-[50px] bg-black" style={{ width: "1px" }}>

@@ -4,6 +4,6 @@
  * proxy instead of the string, and the inline script rendered
  * `localStorage.getItem({})`.
  */
-export const THEME_STORAGE_KEY = "tithi:admin-theme";
+export const THEME_STORAGE_KEY = "lfl:admin-theme";
 
 export type Theme = "light" | "dark";

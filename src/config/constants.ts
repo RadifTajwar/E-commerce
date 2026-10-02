@@ -84,8 +84,8 @@ export const ORDER_STATUSES: readonly OrderStatus[] = Object.values(ORDER_STATUS
 
 export const USER_ROLE = { admin: "admin", user: "user" } as const;
 
-/** Currency and shipping. Display strings are kept as they were in the UI. */
-export const CURRENCY_SYMBOL = "$";
+/** Currency (Bangladeshi taka, as on the product cards and in emails) and shipping. */
+export const CURRENCY_SYMBOL = "৳";
 export const DEFAULT_COUNTRY = "Bangladesh";
 export const SHIPPING_OPTIONS = [
   { id: "inside", label: "Inside Chattogram", cost: 60 },

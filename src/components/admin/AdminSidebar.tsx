@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { ROUTES } from "@/config/constants";
+import { clientEnv } from "@/config/env";
 import { useLogout } from "@/hooks/useLogout";
 import { CatalogIcon, DashboardIcon, LogOutIcon, LogoIcon, OrdersIcon } from "./icons";
 import { ADMIN_NAV, type NavEntry, type NavIconName } from "./nav-items";
@@ -70,8 +71,8 @@ export function AdminSidebar({ isOpen, setIsOpen }: AdminSidebarProps) {
     >
       <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-5 dark:border-slate-800">
         <LogoIcon className="h-5 w-5 text-slate-900 dark:text-white" />
-        <span className="text-[15px] font-semibold tracking-tight text-slate-900 dark:text-white">
-          Tithi Admin
+        <span className="truncate text-[15px] font-semibold tracking-tight text-slate-900 dark:text-white">
+          {clientEnv.NEXT_PUBLIC_APP_NAME}
         </span>
       </div>
 

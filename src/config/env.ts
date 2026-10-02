@@ -59,7 +59,7 @@ const serverSchema = z.object({
 });
 
 const clientSchema = z.object({
-  NEXT_PUBLIC_APP_NAME: z.string().min(1).default("Tithi"),
+  NEXT_PUBLIC_APP_NAME: z.string().min(1).default("Leather For Luxury"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:4000"),
   NEXT_PUBLIC_IMAGE_HOSTS: z.string().default("res.cloudinary.com").transform(csv),
 });

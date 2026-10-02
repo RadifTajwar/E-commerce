@@ -1,4 +1,5 @@
 "use client";
+import { clientEnv } from "@/config/env";
 import { useSession } from "@/hooks/useSession";
 import { loginUser, logoutUser } from "@/store/slices/auth.slice";
 import { useRouter } from "next/navigation";
@@ -72,7 +73,9 @@ export default function AdminLoginPage() {
 
       <div className="relative w-full max-w-sm">
         <div className="mb-9 text-center">
-          <p className="font-serif text-3xl tracking-[0.18em] text-white">TITHI</p>
+          <p className="font-serif text-2xl uppercase tracking-[0.14em] text-white">
+            {clientEnv.NEXT_PUBLIC_APP_NAME}
+          </p>
           <p className="mt-2 text-[11px] uppercase tracking-[0.3em] text-white/35">
             Administration
           </p>
