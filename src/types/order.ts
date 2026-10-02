@@ -27,6 +27,7 @@ export interface Order {
   totalPrice: number;
   additionalDetails?: string;
   trackCode?: string;
+  courier?: string;
   dateOrdered?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -49,6 +50,7 @@ export interface OrderInput {
 export interface OrderUpdateInput {
   status?: OrderStatus | string;
   trackCode?: string;
+  courier?: string;
 }
 
 export interface OrderListQuery extends ListQuery {

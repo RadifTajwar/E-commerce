@@ -43,9 +43,10 @@ export const orderUpdateSchema = z
   .object({
     status: z.enum(ORDER_STATUSES as [string, ...string[]]).optional(),
     trackCode: z.string().trim().max(100).optional(),
+    courier: z.string().trim().max(60).optional(),
   })
-  .refine((v) => v.status !== undefined || v.trackCode !== undefined, {
-    message: "status or trackCode is required",
+  .refine((v) => v.status !== undefined || v.trackCode !== undefined || v.courier !== undefined, {
+    message: "status, trackCode or courier is required",
   });
 
 export const orderListQuerySchema = listQuery.extend({

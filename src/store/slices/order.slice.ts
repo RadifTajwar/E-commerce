@@ -21,10 +21,15 @@ export const fetchOrderById = createApiThunk<Order, string>("orders/fetchById", 
 export const fetchOrderByUser = createApiThunk<Order[], string>("orders/fetchByUser", (email) =>
   orderService.listByUser(email),
 );
-export const updateOrderStatus = createApiThunk<Order, { id: string; status?: string; trackCode?: string }>(
-  "orders/updateStatus",
-  ({ id, status, trackCode }) =>
-    orderService.update(id, { ...(status ? { status } : {}), ...(trackCode ? { trackCode } : {}) }),
+export const updateOrderStatus = createApiThunk<
+  Order,
+  { id: string; status?: string; trackCode?: string; courier?: string }
+>("orders/updateStatus", ({ id, status, trackCode, courier }) =>
+  orderService.update(id, {
+    ...(status ? { status } : {}),
+    ...(trackCode ? { trackCode } : {}),
+    ...(courier ? { courier } : {}),
+  }),
 );
 
 // ---- slices ------------------------------------------------------------------

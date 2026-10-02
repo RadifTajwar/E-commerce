@@ -31,7 +31,7 @@ import { isPending } from "@/store/create-request-slice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchAllOrders, updateOrderStatus } from "@/store/slices/order.slice";
 import OrderStatusSelect from "./OrderStatusSelect";
-import TrackCodeCell from "./TrackCodeCell";
+import TrackCodeCell, { CourierOptions, type Tracking } from "./TrackCodeCell";
 
 /** Orders list: one search box, status and date filters, inline status/tracking. */
 export default function OrdersScreen() {
@@ -110,13 +110,20 @@ export default function OrdersScreen() {
     }
   };
 
-  const saveTrackCode = async (id: string, trackCode: string) => {
+  // Adding or correcting tracking emails the customer, so the admin is told so.
+  const saveTracking = async (id: string, tracking: Tracking, isUpdate: boolean) => {
     try {
-      await dispatch(updateOrderStatus({ id, trackCode })).unwrap();
-      notify.success("Tracking number saved");
+      await dispatch(updateOrderStatus({ id, ...tracking })).unwrap();
+      notify.success(
+        isUpdate
+          ? "Tracking updated. The customer is emailed the corrected details."
+          : "Tracking saved. The customer is emailed the details.",
+      );
       setReloadKey((k) => k + 1);
+      return true;
     } catch (err) {
       notify.error((err as Error)?.message ?? String(err));
+      return false;
     }
   };
 
@@ -220,6 +227,7 @@ export default function OrdersScreen() {
         </Card>
       )}
 
+      <CourierOptions />
       <TableWrap>
         <Table>
           <THead>
@@ -271,7 +279,8 @@ export default function OrdersScreen() {
                     <TrackCodeCell
                       status={order.status ?? ""}
                       trackCode={order.trackCode}
-                      onSave={(code) => saveTrackCode(order._id, code)}
+                      courier={order.courier}
+                      onSave={(tracking) => saveTracking(order._id, tracking, Boolean(order.trackCode))}
                     />
                   </TD>
                   <TD align="right" className="whitespace-nowrap font-medium text-slate-900 dark:text-white">
