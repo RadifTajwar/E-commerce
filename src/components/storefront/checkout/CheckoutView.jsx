@@ -11,6 +11,7 @@ import { notify } from "@/lib/toast";
 import { decrementItem, incrementItem, resetCart } from "@/store/slices/cart.slice";
 import { createOrder, resetOrder } from "@/store/slices/order.slice";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,6 +45,8 @@ export default function CheckoutView({ initialAddress }) {
     ...(initialAddress ?? {}),
   }));
   const [errors, setErrors] = useState({});
+  // Set once the order exists, until the confirmation page replaces this one.
+  const [placedOrderId, setPlacedOrderId] = useState(null);
 
   // Update one billing field and clear its error once it has a value.
   const handleFieldChange = (field, value) => {
@@ -94,7 +97,12 @@ export default function CheckoutView({ initialAddress }) {
 
     try {
       const order = await dispatch(createOrder(orderData)).unwrap();
-      router.push(ROUTES.orderReceived(order._id));
+      // Show "order placed" while the confirmation page loads: emptying the
+      // cart re-rendered this page as "Your cart is empty" for a moment. The
+      // cart is still cleared right away so the order can't be placed twice.
+      // replace(), so Back doesn't return to an empty checkout.
+      setPlacedOrderId(order._id);
+      router.replace(ROUTES.orderReceived(order._id));
       dispatch(resetOrder());
       dispatch(resetCart());
     } catch (err) {
@@ -107,7 +115,25 @@ export default function CheckoutView({ initialAddress }) {
   return (
     <>
       <div className="total_container  max-w-7xl mx-auto my-10">
-        {cartItems.length !== 0 ? (
+        {placedOrderId ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 text-center"
+          >
+            <span
+              aria-hidden="true"
+              className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-gray-900"
+            />
+            <p className="text-lg font-medium text-gray-900">Order placed</p>
+            <p className="text-sm text-gray-500">
+              Opening your order confirmation…{" "}
+              <Link href={ROUTES.orderReceived(placedOrderId)} className="underline">
+                View it now
+              </Link>
+            </p>
+          </div>
+        ) : cartItems.length !== 0 ? (
           <>
             <div className="coupon_section px-4 w-auto ">
               <div className="coupon_text mb-6">
